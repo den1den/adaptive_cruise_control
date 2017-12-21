@@ -25,4 +25,4 @@ These requirements are form other items
 Acceleration of the car should be possible when driving.
 
 # RR2
-De-acceleration should be possible while driving.
+deceleration should be possible while driving.
