@@ -1,0 +1,116 @@
+// Cheatsheet: http://graphs.grevian.org/example
+// Options: http://graphviz.org/doc/info/attrs.html
+// Atom-openpreview: Ctrl+Shift+v
+
+digraph G
+{
+  /*
+   * Clauses
+   */
+  node[shape=ellipse];
+  3.5[label="3-5"];
+  3.6[label="3-6"];
+  3.7[label="3-7"];
+  3.8[label="3-8"];
+  8.6[label="8-6"];
+  8.9[label="8-9"];
+  9.5[label="9-5"];
+  9.7[label="9-7"];
+  // Usefull
+  edge[style=dotted, label="Usefull"]
+  9.7 -> 3.8;
+  // Needed
+  edge[style=solid,label="Needed"]
+  9.5 -> 3.8;
+  8.9 -> 3.8;
+  // Input
+  edge[style=solid,color=blue,label="Input"];
+  8.6 -> 3.8;
+  edge[color=normal];
+
+  /*
+   * Work products
+   */
+  node[shape=rect];
+  edge[style=solid, label=""];
+
+  //2-
+  safety_plan[label="Safety plan (2-6.5.1)"];
+  2.6 -> safety_plan;
+  safety_plan -> 8.9;
+
+  //3-
+  item_def[label="Item definition (3-5.5)"];
+  3.5 -> item_def;
+  item_def -> 3.8;
+
+  impact_anal[label="Impact analysis (3-6.5)"];
+  3.6 -> impact_anal;
+
+  hara[label="Hazard analysis and risk assessment (3-7.5.1)"]
+  sg[label="Safety goals (3-7.5.2)"]
+  veri_hara_sg[label="Verification review of HARA and SG (3-7.5.3)"]
+  3.7 -> hara;
+  3.7 -> sg;
+  3.7 -> veri_hara_sg;
+
+  prelim[label="Preliminary architectural assumptions (ext)"];
+  fc[label="Functional concept (ext)"];
+  om_ss[label="Operating modes and system states (ext)"];
+  prelim -> 3.8;
+  fc -> 3.8;
+  om_ss -> 3.8;
+  fsc[label="Functional safety concept (3-8.5.1)"];
+  review_sr[label="Review of the functional safety requirements (3-8.5.2)"];
+  3.8 -> fsc;
+  3.8 -> review_sr;
+  hara -> 3.8;
+
+  //4-
+  sr_sys[label="SR (system) (4-6.5.1)"];
+  sr_sys -> fsc[arrowhead=diamond];
+
+  //5-
+  sr_hw[label="SR (hardware) (5-6.5.1)"];
+  sr_hw -> fsc[arrowhead=diamond];
+
+  //6-
+  sr_sw[label="SR (software) (6-6.5.1)"];
+  sr_sw -> fsc[arrowhead=diamond];
+
+  //8-
+  safety_plan2[label="Safety plan refined (8-6.5.1)"];
+  8.6 -> safety_plan2;
+
+  ver_plan[label="Verification plan (8-9.5.1)"];
+  ver_spec[label="Specification of verification (8-9.5.2)"];
+  ver_report[label="Verification report (8-9.5.3)"];
+  8.9 -> ver_plan;
+  8.9 -> ver_spec;
+  8.9 -> ver_report;
+
+  //9-
+  /** Requirements decomposition with respect to ASIL tailoring
+    * Assumed that this is more like a tool then an actual document
+    *
+  fsc -> 9.5 //3-8.5.1
+  sr_sys -> 9.5
+  sr_hw -> 9.5
+  sr_sw -> 9.5
+  arc_sys -> 9.5
+  arc_hw -> 9.5
+  arc_sw -> 9.5
+  item_def -> 9.5
+  sg -> 9.5
+  */
+
+
+  // Input
+  /*subgraph cluster_input {
+    label="Input";
+    color=blue;
+  }*/
+
+  // Clause 3.5
+
+}
