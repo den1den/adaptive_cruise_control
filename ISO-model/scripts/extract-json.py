@@ -114,9 +114,11 @@ class ParseText:
 
             self.missed_lines.append(self.curr_line)
 
-        return len(self.missed_lines) > 0
+        return len(self.missed_lines) == 0
 
     def save(self, out_filename):
+        if len(self.missed_lines) > 0:
+            raise Exception("Parsing failed")
         json.dump(self.output, open(out_filename, 'w+'), indent=2)
 
 
