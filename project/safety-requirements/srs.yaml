@@ -1,0 +1,19 @@
+# Safety requirements
+#
+# Explanation
+# requirement parent: Safety requirement or Safety goal
+#
+# Default values are:
+# status: assumed
+#
+- SR1:
+    level: item
+    assigned to: ACC
+    ASIL: B
+    requirement parent: SG1
+    text: Keep a safe distance from the car in front
+- SR1.1:
+    level: system
+    assigned to: ACC_Control
+    requirement parent: SR1.1
+    text: #TODO Add text here

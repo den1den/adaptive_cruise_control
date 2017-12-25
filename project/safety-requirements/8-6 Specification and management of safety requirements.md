@@ -1,25 +1,26 @@
 # 6. Specification and management of safety requirements
 
-### 6.4.1.1
-__Safety requirements__
+## 6.4.1.1 Specification of SR
+The specification for each requirement consists of:
+- natural language
+- formal notation for requirement specification
+  - recommended for ASIL-ABCD
+- semi-formal notation
+  - recommended for ASIL-AB
+  - highly recommended for ASIL-CD
+- informal notation
+  - highly recommended for ASIL-AB
+  - recommended for ASIL-CD
 
-Consists of an appropriate combination of:
-a) natural language
-b) Any of:
-  - Informal notations (++, ++, +, +)
-  - Semi-formal notations (+, +, ++, ++)
-  - Formal notations (+, +, +, +)
+## 6.4.2.1 SR are different form FR
+Safety must be easily distinguishable from other requirements.
 
-### 6.4.2.1
-Safety requirements and requirements must be separately managed
+## 6.4.2.2 ASIL assignment
+ASIL assignment is transitive with respect to inheritance of SR (and safety goals)
 
-### 6.4.2.2
-ASIL is transitive
+## 6.4.2.3 SR are allocated to and item or element
 
-### 6.4.2.3
-Safety requirements are allocated to an item or an element 
-
-### 6.4.2.4 SR properties:
+## 6.4.2.4 SR properties:
 - unambiguous
 - comprehensive
 - atomic (w.r.t. the granularity)
@@ -50,11 +51,14 @@ SR should be traceable to each:
 - upper level
 - vise versa: every SR derived form this
 - specification on how they are verified:
-    - including impact analysis
-    - including assessment of functional safety (?)
+  - including impact analysis
+  - including assessment of functional safety (?)
 
-### 6.4.3.3 SR must comply with Clause 6
-### 6.4.3.3 SR must comply with Clause 7
+### 6.4.3.3 SR must be verified
+It must be verified that SR complies with this clause
+
+### 6.4.3.4 SR must be in the configuration management
+Configuration management is described in 8-7
 
 ## 6.5 Work products:
 - Safety plan (refined) of the above text
