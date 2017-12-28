@@ -2,7 +2,8 @@
 Link to *
 .idea
 test folder/
-ISO-model/*.txt
-ISO-model/*.json
+ISO_model/*.txt
+ISO_model/*.json
 project/project.zip
-project/safety-requirements/*.json
+project/safety_requirements/*.json
+*.tmp.dot

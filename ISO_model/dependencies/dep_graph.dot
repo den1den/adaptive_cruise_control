@@ -11,7 +11,7 @@ digraph G
   3.5[label="3-5"];
   3.6[label="3-6"];
   3.7[label="3-7"];
-  3.8[label="3-8"];
+  3.8[label="3-8\nFunctional safety concept"];
   8.6[label="8-6"];
   8.9[label="8-9"];
   9.5[label="9-5"];
