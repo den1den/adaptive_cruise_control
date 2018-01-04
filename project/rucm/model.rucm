@@ -1,0 +1,2293 @@
+{
+  "root": {
+    "content": {
+      "modelElements": [{
+        "content": {
+          "modelElements": [
+            {
+              "content": {
+                "modelElements": [
+                  {
+                    "content": {
+                      "description": {
+                        "content": "",
+                        "type": "<string>"
+                      },
+                      "name": {
+                        "content": "turn_on",
+                        "type": "<string>"
+                      },
+                      "specification": {
+                        "content": {
+                          "basicFlow": {
+                            "content": {
+                              "postCondition": {
+                                "content": {
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "sentences": [{
+                                    "content": {
+                                      "content": {
+                                        "content": "state==Standby || state==Active",
+                                        "type": "<string>"
+                                      },
+                                      "description": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      },
+                                      "name": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      }
+                                    },
+                                    "type": "Sentence"
+                                  }]
+                                },
+                                "type": "PostCondition"
+                              },
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "steps": [
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "driver presses the btnOn button",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "IF state==Off THEN",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {"ifCondition": {
+                                          "content": "state==Off",
+                                          "type": "<string>"
+                                        }},
+                                        "type": "IfThenNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "compositeSentences": [
+                                            "&0",
+                                            "&1",
+                                            "&2"
+                                          ],
+                                          "endIfSentence": "&2",
+                                          "elseSentence": "&1",
+                                          "ifSentence": "&0"
+                                        },
+                                        "type": "IfElseComposite"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "state becomes Standby",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "ELSE",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {},
+                                        "type": "ElseNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "referenceSentence": "&0",
+                                          "referenceNature": "&3"
+                                        },
+                                        "type": "ReferenceNature"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "state becomes Active",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "ENDIF",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {},
+                                        "type": "EndIfNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "referenceSentence": "&0",
+                                          "referenceNature": "&3"
+                                        },
+                                        "type": "ReferenceNature"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "user gets feedback to see which state the system is in",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                }
+                              ]
+                            },
+                            "type": "BasicFlow"
+                          },
+                          "preCondition": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "state==Off || state==Standby",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "PreCondition"
+                          },
+                          "briefDescription": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              }
+                            },
+                            "type": "BriefDescription"
+                          },
+                          "description": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "name": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "primaryActor": "&4"
+                        },
+                        "type": "UseCaseSpecification"
+                      }
+                    },
+                    "type": "UseCase"
+                  },
+                  {
+                    "content": {
+                      "description": {
+                        "content": "",
+                        "type": "<string>"
+                      },
+                      "name": {
+                        "content": "turn_off",
+                        "type": "<string>"
+                      },
+                      "specification": {
+                        "content": {
+                          "basicFlow": {
+                            "content": {
+                              "postCondition": {
+                                "content": {
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "sentences": [{
+                                    "content": {
+                                      "content": {
+                                        "content": "state==Standby",
+                                        "type": "<string>"
+                                      },
+                                      "description": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      },
+                                      "name": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      }
+                                    },
+                                    "type": "Sentence"
+                                  }]
+                                },
+                                "type": "PostCondition"
+                              },
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "steps": [
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "driver presses the btnOff button once",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "IF state==Active THEN",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {"ifCondition": {
+                                          "content": "state==Active",
+                                          "type": "<string>"
+                                        }},
+                                        "type": "IfThenNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "compositeSentences": [
+                                            "&5",
+                                            "&6"
+                                          ],
+                                          "endIfSentence": "&6",
+                                          "ifSentence": "&5"
+                                        },
+                                        "type": "IfComposite"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "state is set to Standby",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "user is notified",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "ENDIF",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {},
+                                        "type": "EndIfNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "referenceSentence": "&5",
+                                          "referenceNature": "&7"
+                                        },
+                                        "type": "ReferenceNature"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                }
+                              ]
+                            },
+                            "type": "BasicFlow"
+                          },
+                          "preCondition": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "state==Active || state==Standby",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "PreCondition"
+                          },
+                          "description": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "name": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "alternativeFlows": [{
+                            "content": {
+                              "postCondition": {
+                                "content": {
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "sentences": [{
+                                    "content": {
+                                      "content": {
+                                        "content": "state==Off",
+                                        "type": "<string>"
+                                      },
+                                      "description": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      },
+                                      "name": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      }
+                                    },
+                                    "type": "Sentence"
+                                  }]
+                                },
+                                "type": "PostCondition"
+                              },
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "steps": [
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "driver holds the btnOff button pressed for 2 seconds",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "state is set to Off",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "user is notified",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                }
+                              ]
+                            },
+                            "type": "BoundedAlternative"
+                          }],
+                          "primaryActor": "&4"
+                        },
+                        "type": "UseCaseSpecification"
+                      }
+                    },
+                    "type": "UseCase"
+                  },
+                  {
+                    "content": {
+                      "description": {
+                        "content": "",
+                        "type": "<string>"
+                      },
+                      "name": {
+                        "content": "state_changed",
+                        "type": "<string>"
+                      },
+                      "specification": {
+                        "content": {
+                          "basicFlow": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "steps": [{
+                                "content": {
+                                  "content": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "BasicFlow"
+                          },
+                          "description": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "name": {
+                            "content": "",
+                            "type": "<string>"
+                          }
+                        },
+                        "type": "UseCaseSpecification"
+                      },
+                      "include": [
+                        {
+                          "content": {
+                            "includingCase": "&8",
+                            "description": {
+                              "content": "",
+                              "type": "<string>"
+                            },
+                            "name": {
+                              "content": "",
+                              "type": "<string>"
+                            },
+                            "addition": "&9"
+                          },
+                          "type": "Include"
+                        },
+                        {
+                          "content": {
+                            "includingCase": "&8",
+                            "description": {
+                              "content": "",
+                              "type": "<string>"
+                            },
+                            "name": {
+                              "content": "",
+                              "type": "<string>"
+                            },
+                            "addition": "&10"
+                          },
+                          "type": "Include"
+                        }
+                      ]
+                    },
+                    "type": "UseCase"
+                  },
+                  {
+                    "content": {
+                      "description": {
+                        "content": "",
+                        "type": "<string>"
+                      },
+                      "name": {
+                        "content": "operational",
+                        "type": "<string>"
+                      },
+                      "specification": {
+                        "content": {
+                          "basicFlow": {
+                            "content": {
+                              "postCondition": {
+                                "content": {
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "PostCondition"
+                              },
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "steps": [{
+                                "content": {
+                                  "content": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "BasicFlow"
+                          },
+                          "briefDescription": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "Normal operation",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "BriefDescription"
+                          },
+                          "description": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "name": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "primaryActor": "&11"
+                        },
+                        "type": "UseCaseSpecification"
+                      }
+                    },
+                    "type": "UseCase"
+                  },
+                  {
+                    "content": {
+                      "description": {
+                        "content": "",
+                        "type": "<string>"
+                      },
+                      "name": {
+                        "content": "intervene_break",
+                        "type": "<string>"
+                      },
+                      "specification": {
+                        "content": {
+                          "basicFlow": {
+                            "content": {
+                              "postCondition": {
+                                "content": {
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "sentences": [{
+                                    "content": {
+                                      "content": {
+                                        "content": "state==Standby",
+                                        "type": "<string>"
+                                      },
+                                      "description": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      },
+                                      "name": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      }
+                                    },
+                                    "type": "Sentence"
+                                  }]
+                                },
+                                "type": "PostCondition"
+                              },
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "steps": [
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "IF car is breaking THEN",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {"ifCondition": {
+                                          "content": "car is breaking",
+                                          "type": "<string>"
+                                        }},
+                                        "type": "IfThenNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "compositeSentences": [
+                                            "&12",
+                                            "&13",
+                                            "&14"
+                                          ],
+                                          "endIfSentence": "&14",
+                                          "elseSentence": "&13",
+                                          "ifSentence": "&12"
+                                        },
+                                        "type": "IfElseComposite"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "the user presses the breaking pedal more then the car is currently breaking",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "ELSE",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {},
+                                        "type": "ElseNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "referenceSentence": "&12",
+                                          "referenceNature": "&15"
+                                        },
+                                        "type": "ReferenceNature"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "driver presses break pedal",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "ENDIF",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {},
+                                        "type": "EndIfNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "referenceSentence": "&12",
+                                          "referenceNature": "&15"
+                                        },
+                                        "type": "ReferenceNature"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "the ACC will become inactive",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                }
+                              ]
+                            },
+                            "type": "BasicFlow"
+                          },
+                          "preCondition": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "state==Active",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "PreCondition"
+                          },
+                          "briefDescription": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "The driver wants to slow the car down because an hazard is detected",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "BriefDescription"
+                          },
+                          "description": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "name": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "primaryActor": "&4"
+                        },
+                        "type": "UseCaseSpecification"
+                      }
+                    },
+                    "type": "UseCase"
+                  },
+                  {
+                    "content": {
+                      "description": {
+                        "content": "",
+                        "type": "<string>"
+                      },
+                      "name": {
+                        "content": "override",
+                        "type": "<string>"
+                      },
+                      "specification": {
+                        "content": {
+                          "basicFlow": {
+                            "content": {
+                              "postCondition": {
+                                "content": {
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "sentences": [{
+                                    "content": {
+                                      "content": {
+                                        "content": "state==Off",
+                                        "type": "<string>"
+                                      },
+                                      "description": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      },
+                                      "name": {
+                                        "content": "",
+                                        "type": "<string>"
+                                      }
+                                    },
+                                    "type": "Sentence"
+                                  }]
+                                },
+                                "type": "PostCondition"
+                              },
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "steps": [
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "driver applies full throttle",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "the car will stop breaking",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "DO",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {},
+                                        "type": "DoNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "compositeSentences": [
+                                            "&16",
+                                            "&17"
+                                          ],
+                                          "untilSentence": "&17",
+                                          "doSentence": "&16"
+                                        },
+                                        "type": "DoComposite"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "increase acceleration",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "UNTIL the users given acceleration surpasses (or is equal to) the acceleration",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {"untilCondition": {
+                                          "content": "the users given acceleration surpasses (or is equal to) the acceleration",
+                                          "type": "<string>"
+                                        }},
+                                        "type": "UntilNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "referenceSentence": "&16",
+                                          "referenceNature": "&18"
+                                        },
+                                        "type": "ReferenceNature"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "the ACC will turn off",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                }
+                              ]
+                            },
+                            "type": "BasicFlow"
+                          },
+                          "preCondition": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "state==Collision_Avoidence",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "PreCondition"
+                          },
+                          "briefDescription": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "The driver wants to override emergency break behavior",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "BriefDescription"
+                          },
+                          "description": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "name": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "primaryActor": "&4"
+                        },
+                        "type": "UseCaseSpecification"
+                      }
+                    },
+                    "type": "UseCase"
+                  },
+                  {
+                    "content": {
+                      "description": {
+                        "content": "",
+                        "type": "<string>"
+                      },
+                      "name": {
+                        "content": "intervene_acc",
+                        "type": "<string>"
+                      },
+                      "specification": {
+                        "content": {
+                          "basicFlow": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "steps": [
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "IF car is accelerating THEN",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {"ifCondition": {
+                                          "content": "car is accelerating",
+                                          "type": "<string>"
+                                        }},
+                                        "type": "IfThenNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "compositeSentences": [
+                                            "&19",
+                                            "&20",
+                                            "&21"
+                                          ],
+                                          "endIfSentence": "&21",
+                                          "elseSentence": "&20",
+                                          "ifSentence": "&19"
+                                        },
+                                        "type": "IfElseComposite"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "the user presses the acceleration pedal more then the car is currently accelerating",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "ELSE",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {},
+                                        "type": "ElseNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "referenceSentence": "&19",
+                                          "referenceNature": "&22"
+                                        },
+                                        "type": "ReferenceNature"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "driver presses break pedalENDIF",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "ENDIF",
+                                      "type": "<string>"
+                                    },
+                                    "natures": [
+                                      {
+                                        "content": {},
+                                        "type": "EndIfNature"
+                                      },
+                                      {
+                                        "content": {
+                                          "referenceSentence": "&19",
+                                          "referenceNature": "&22"
+                                        },
+                                        "type": "ReferenceNature"
+                                      }
+                                    ],
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                },
+                                {
+                                  "content": {
+                                    "content": {
+                                      "content": "the ACC will become inactive",
+                                      "type": "<string>"
+                                    },
+                                    "description": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    },
+                                    "name": {
+                                      "content": "",
+                                      "type": "<string>"
+                                    }
+                                  },
+                                  "type": "Sentence"
+                                }
+                              ]
+                            },
+                            "type": "BasicFlow"
+                          },
+                          "preCondition": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "state==Active",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "PreCondition"
+                          },
+                          "briefDescription": {
+                            "content": {
+                              "description": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "name": {
+                                "content": "",
+                                "type": "<string>"
+                              },
+                              "sentences": [{
+                                "content": {
+                                  "content": {
+                                    "content": "The driver wants to accelerate the car because an hazard is detected",
+                                    "type": "<string>"
+                                  },
+                                  "description": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  },
+                                  "name": {
+                                    "content": "",
+                                    "type": "<string>"
+                                  }
+                                },
+                                "type": "Sentence"
+                              }]
+                            },
+                            "type": "BriefDescription"
+                          },
+                          "description": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "name": {
+                            "content": "",
+                            "type": "<string>"
+                          },
+                          "primaryActor": "&4"
+                        },
+                        "type": "UseCaseSpecification"
+                      }
+                    },
+                    "type": "UseCase"
+                  }
+                ],
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "item ACC",
+                  "type": "<string>"
+                }
+              },
+              "type": "Package"
+            },
+            {
+              "content": {
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "item CAN bus",
+                  "type": "<string>"
+                }
+              },
+              "type": "Package"
+            },
+            {
+              "content": {
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "system SteeringWheel",
+                  "type": "<string>"
+                }
+              },
+              "type": "Package"
+            },
+            {
+              "content": {
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "driver",
+                  "type": "<string>"
+                }
+              },
+              "type": "Actor"
+            },
+            {
+              "content": {
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "other_vehicle",
+                  "type": "<string>"
+                }
+              },
+              "type": "Actor"
+            },
+            {
+              "content": {
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "front_vehicle",
+                  "type": "<string>"
+                }
+              },
+              "type": "Actor"
+            },
+            {
+              "content": {
+                "specific": "&11",
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "general": "&23"
+              },
+              "type": "Generalization"
+            },
+            {
+              "content": {
+                "useCase": "&9",
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "actor": "&4"
+              },
+              "type": "Relationship"
+            },
+            {
+              "content": {
+                "useCase": "&10",
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "actor": "&4"
+              },
+              "type": "Relationship"
+            },
+            {
+              "content": {
+                "useCase": "&8",
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "actor": "&4"
+              },
+              "type": "Relationship"
+            },
+            {
+              "content": {
+                "useCase": "&24",
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "actor": "&11"
+              },
+              "type": "Relationship"
+            },
+            {
+              "content": {
+                "useCase": "&25",
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "actor": "&4"
+              },
+              "type": "Relationship"
+            },
+            {
+              "content": {
+                "useCase": "&26",
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "actor": "&4"
+              },
+              "type": "Relationship"
+            },
+            {
+              "content": {
+                "useCase": "&27",
+                "description": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "name": {
+                  "content": "",
+                  "type": "<string>"
+                },
+                "actor": "&4"
+              },
+              "type": "Relationship"
+            }
+          ],
+          "description": {
+            "content": "",
+            "type": "<string>"
+          },
+          "name": {
+            "content": "car",
+            "type": "<string>"
+          }
+        },
+        "type": "Package"
+      }],
+      "description": {
+        "content": "",
+        "type": "<string>"
+      },
+      "name": {
+        "content": "main_model",
+        "type": "<string>"
+      },
+      "diagrams": [{
+        "content": {
+          "height": {
+            "content": 0,
+            "type": "<int>"
+          },
+          "nodes": [{
+            "content": {
+              "height": {
+                "content": 563,
+                "type": "<int>"
+              },
+              "nodes": [
+                {
+                  "content": {
+                    "height": {
+                      "content": 466,
+                      "type": "<int>"
+                    },
+                    "nodes": [
+                      {
+                        "content": {
+                          "useCase": "&9",
+                          "height": {
+                            "content": 70,
+                            "type": "<int>"
+                          },
+                          "width": {
+                            "content": 140,
+                            "type": "<int>"
+                          },
+                          "left": {
+                            "content": 26,
+                            "type": "<int>"
+                          },
+                          "top": {
+                            "content": 5,
+                            "type": "<int>"
+                          }
+                        },
+                        "type": "UCDUseCaseNode"
+                      },
+                      {
+                        "content": {
+                          "useCase": "&10",
+                          "height": {
+                            "content": 70,
+                            "type": "<int>"
+                          },
+                          "width": {
+                            "content": 140,
+                            "type": "<int>"
+                          },
+                          "left": {
+                            "content": 20,
+                            "type": "<int>"
+                          },
+                          "top": {
+                            "content": 92,
+                            "type": "<int>"
+                          }
+                        },
+                        "type": "UCDUseCaseNode"
+                      },
+                      {
+                        "content": {
+                          "useCase": "&8",
+                          "height": {
+                            "content": 70,
+                            "type": "<int>"
+                          },
+                          "width": {
+                            "content": 140,
+                            "type": "<int>"
+                          },
+                          "left": {
+                            "content": 258,
+                            "type": "<int>"
+                          },
+                          "top": {
+                            "content": 47,
+                            "type": "<int>"
+                          }
+                        },
+                        "type": "UCDUseCaseNode"
+                      },
+                      {
+                        "content": {
+                          "useCase": "&24",
+                          "height": {
+                            "content": 70,
+                            "type": "<int>"
+                          },
+                          "width": {
+                            "content": 140,
+                            "type": "<int>"
+                          },
+                          "left": {
+                            "content": 23,
+                            "type": "<int>"
+                          },
+                          "top": {
+                            "content": 360,
+                            "type": "<int>"
+                          }
+                        },
+                        "type": "UCDUseCaseNode"
+                      },
+                      {
+                        "content": {
+                          "useCase": "&25",
+                          "height": {
+                            "content": 71,
+                            "type": "<int>"
+                          },
+                          "width": {
+                            "content": 148,
+                            "type": "<int>"
+                          },
+                          "left": {
+                            "content": 41,
+                            "type": "<int>"
+                          },
+                          "top": {
+                            "content": 211,
+                            "type": "<int>"
+                          }
+                        },
+                        "type": "UCDUseCaseNode"
+                      },
+                      {
+                        "content": {
+                          "useCase": "&26",
+                          "height": {
+                            "content": 70,
+                            "type": "<int>"
+                          },
+                          "width": {
+                            "content": 140,
+                            "type": "<int>"
+                          },
+                          "left": {
+                            "content": 272,
+                            "type": "<int>"
+                          },
+                          "top": {
+                            "content": 221,
+                            "type": "<int>"
+                          }
+                        },
+                        "type": "UCDUseCaseNode"
+                      },
+                      {
+                        "content": {
+                          "useCase": "&27",
+                          "height": {
+                            "content": 70,
+                            "type": "<int>"
+                          },
+                          "width": {
+                            "content": 140,
+                            "type": "<int>"
+                          },
+                          "left": {
+                            "content": 19,
+                            "type": "<int>"
+                          },
+                          "top": {
+                            "content": 255,
+                            "type": "<int>"
+                          }
+                        },
+                        "type": "UCDUseCaseNode"
+                      }
+                    ],
+                    "width": {
+                      "content": 540,
+                      "type": "<int>"
+                    },
+                    "package": "&29",
+                    "left": {
+                      "content": 200,
+                      "type": "<int>"
+                    },
+                    "top": {
+                      "content": 27,
+                      "type": "<int>"
+                    }
+                  },
+                  "type": "UCDPackage"
+                },
+                {
+                  "content": {
+                    "height": {
+                      "content": 100,
+                      "type": "<int>"
+                    },
+                    "width": {
+                      "content": 115,
+                      "type": "<int>"
+                    },
+                    "package": "&30",
+                    "left": {
+                      "content": 600,
+                      "type": "<int>"
+                    },
+                    "top": {
+                      "content": 354,
+                      "type": "<int>"
+                    }
+                  },
+                  "type": "UCDPackage"
+                },
+                {
+                  "content": {
+                    "height": {
+                      "content": 100,
+                      "type": "<int>"
+                    },
+                    "width": {
+                      "content": 164,
+                      "type": "<int>"
+                    },
+                    "package": "&31",
+                    "left": {
+                      "content": 428,
+                      "type": "<int>"
+                    },
+                    "top": {
+                      "content": 360,
+                      "type": "<int>"
+                    }
+                  },
+                  "type": "UCDPackage"
+                },
+                {
+                  "content": {
+                    "height": {
+                      "content": 89,
+                      "type": "<int>"
+                    },
+                    "width": {
+                      "content": 70,
+                      "type": "<int>"
+                    },
+                    "left": {
+                      "content": 43,
+                      "type": "<int>"
+                    },
+                    "actor": "&4",
+                    "top": {
+                      "content": 106, 
+                      "type": "<int>"
+                    }
+                  },
+                  "type": "UCDActorNode"
+                },
+                {
+                  "content": {
+                    "height": {
+                      "content": 89,
+                      "type": "<int>"
+                    },
+                    "width": {
+                      "content": 127,
+                      "type": "<int>"
+                    },
+                    "left": {
+                      "content": 44,
+                      "type": "<int>"
+                    },
+                    "actor": "&23",
+                    "top": {
+                      "content": 279,
+                      "type": "<int>"
+                    }
+                  },
+                  "type": "UCDActorNode"
+                },
+                {
+                  "content": {
+                    "height": {
+                      "content": 89,
+                      "type": "<int>"
+                    },
+                    "width": {
+                      "content": 103,
+                      "type": "<int>"
+                    },
+                    "left": {
+                      "content": 56,
+                      "type": "<int>"
+                    },
+                    "actor": "&11",
+                    "top": {
+                      "content": 400,
+                      "type": "<int>"
+                    }
+                  },
+                  "type": "UCDActorNode"
+                }
+              ],
+              "width": {
+                "content": 766,
+                "type": "<int>"
+              },
+              "package": "&28",
+              "left": {
+                "content": 1,
+                "type": "<int>"
+              },
+              "top": {
+                "content": 22,
+                "type": "<int>"
+              }
+            },
+            "type": "UCDPackage"
+          }],
+          "width": {
+            "content": 0,
+            "type": "<int>"
+          },
+          "name": {
+            "content": "overview",
+            "type": "<string>"
+          },
+          "left": {
+            "content": 0,
+            "type": "<int>"
+          },
+          "links": [
+            {
+              "content": {
+                "node1": "&32",
+                "generalization": "&33",
+                "node2": "&34"
+              },
+              "type": "UCDGeneralizationLink"
+            },
+            {
+              "content": {
+                "relationship": "&35",
+                "node1": "&36",
+                "node2": "&37"
+              },
+              "type": "UCDRelationshipLink"
+            },
+            {
+              "content": {
+                "relationship": "&38",
+                "node1": "&36",
+                "node2": "&39"
+              },
+              "type": "UCDRelationshipLink"
+            },
+            {
+              "content": {
+                "relationship": "&40",
+                "node1": "&36",
+                "node2": "&41"
+              },
+              "type": "UCDRelationshipLink"
+            },
+            {
+              "content": {
+                "node1": "&41",
+                "node2": "&37",
+                "include": "&42"
+              },
+              "type": "UCDIncludeLink"
+            },
+            {
+              "content": {
+                "node1": "&41",
+                "node2": "&39",
+                "include": "&43"
+              },
+              "type": "UCDIncludeLink"
+            },
+            {
+              "content": {
+                "relationship": "&44",
+                "node1": "&32",
+                "node2": "&45"
+              },
+              "type": "UCDRelationshipLink"
+            },
+            {
+              "content": {
+                "relationship": "&46",
+                "node1": "&36",
+                "node2": "&47"
+              },
+              "type": "UCDRelationshipLink"
+            },
+            {
+              "content": {
+                "relationship": "&48",
+                "node1": "&36",
+                "node2": "&49"
+              },
+              "type": "UCDRelationshipLink"
+            },
+            {
+              "content": {
+                "relationship": "&50",
+                "node1": "&36",
+                "node2": "&51"
+              },
+              "type": "UCDRelationshipLink"
+            }
+          ],
+          "ucModel": "&52",
+          "top": {
+            "content": 0,
+            "type": "<int>"
+          }
+        },
+        "type": "UCDiagram"
+      }]
+    },
+    "type": "UCModel"
+  },
+  "lmf.version": "1.1",
+  "reference": [
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[0].specification.basicFlow.steps[1]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[0].specification.basicFlow.steps[3]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[0].specification.basicFlow.steps[5]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[0].specification.basicFlow.steps[1].natures[1]"},
+    {"path": "<root>.modelElements[0].modelElements[3]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[1].specification.basicFlow.steps[1]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[1].specification.basicFlow.steps[4]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[1].specification.basicFlow.steps[1].natures[1]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[2]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[0]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[1]"},
+    {"path": "<root>.modelElements[0].modelElements[5]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[4].specification.basicFlow.steps[0]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[4].specification.basicFlow.steps[2]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[4].specification.basicFlow.steps[4]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[4].specification.basicFlow.steps[0].natures[1]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[5].specification.basicFlow.steps[2]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[5].specification.basicFlow.steps[4]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[5].specification.basicFlow.steps[2].natures[1]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[6].specification.basicFlow.steps[0]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[6].specification.basicFlow.steps[2]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[6].specification.basicFlow.steps[4]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[6].specification.basicFlow.steps[0].natures[1]"},
+    {"path": "<root>.modelElements[0].modelElements[4]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[3]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[4]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[5]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[6]"},
+    {"path": "<root>.modelElements[0]"},
+    {"path": "<root>.modelElements[0].modelElements[0]"},
+    {"path": "<root>.modelElements[0].modelElements[1]"},
+    {"path": "<root>.modelElements[0].modelElements[2]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[5]"},
+    {"path": "<root>.modelElements[0].modelElements[6]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[4]"},
+    {"path": "<root>.modelElements[0].modelElements[7]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[3]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[0].nodes[0]"},
+    {"path": "<root>.modelElements[0].modelElements[8]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[0].nodes[1]"},
+    {"path": "<root>.modelElements[0].modelElements[9]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[0].nodes[2]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[2].include[0]"},
+    {"path": "<root>.modelElements[0].modelElements[0].modelElements[2].include[1]"},
+    {"path": "<root>.modelElements[0].modelElements[10]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[0].nodes[3]"},
+    {"path": "<root>.modelElements[0].modelElements[11]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[0].nodes[4]"},
+    {"path": "<root>.modelElements[0].modelElements[12]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[0].nodes[5]"},
+    {"path": "<root>.modelElements[0].modelElements[13]"},
+    {"path": "<root>.diagrams[0].nodes[0].nodes[0].nodes[6]"},
+    {"path": "<root>"}
+  ]
+}
