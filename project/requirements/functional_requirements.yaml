@@ -1,0 +1,57 @@
+functional_requirements:
+  default:
+    level: system
+    assigned_to: ACC
+  ACC_FR_1:
+    text: The ACC can be in three states; Off, Active or Standby
+    values_used:
+    - type: ACC_State
+      value: 'Off'
+    - value: 'Active'
+    - value: 'Standby'
+    children_requirements:
+      ACC_FR_1.1:
+        assigned_to: ACC_Control
+        level: sw_unit
+        text: The ACC_Control unit keeps track of the states in memory
+      ACC_FR_1.2:
+        assigned_to: ACC_Buttons
+        level: hw_unit
+        text: The user presses buttons on the ACC_Control unit to change the state
+  ACC_FR_2:
+    text: Only throttle is used to control the cars speed
+    children_requirements:
+      ACC_FR_2.1:
+        assigned_to: ACC_Control
+        level: sw_unit
+        text: The to apply thottle is is calculated every 10 us
+        values_used:
+        - type: Microseconds
+          value: 10
+  ACC_FR_3:
+    text: The user must be able to set the cars maximal target_speed
+    values_used:
+    - type: InternalVariable
+      value: target_speed
+  ACC_FR_4:
+    text: The user must be able to set the cars maximal _target_distance_ from the vehicle in front of the car
+    values_used:
+    - type: InternalVariable
+      value: target_distance
+  ACC_FR_3-4.1:
+    level: component
+    assigned_to: ACC_Buttons
+    text: The user presses buttons to set the _target_speed_ and _target_distance_
+    requirement_parent: [ACC_FR_3, ACC_FR_4]
+    values_used:
+    - type: InternalVariable
+      value: target_speed
+    - value: target_distance
+  ACC_FR_3-4.2:
+    level: sw_unit
+    assigned_to: ACC_Control
+    text: The ACC system will try to keep the car at the _target_distance_, while not violating the _target_speed_
+  ACC_FR_3-4.3:
+    level: sw_unit
+    assigned_to: ACC_Control
+    text: The ACC system will try to keep the _target_speed_ while not violating the _target_distance_

@@ -1,0 +1,13 @@
+digraph G
+{
+    {#    Add r nodes    #}
+    node[shape=rect];
+    {% for id, r in requirements.items() %}
+        {{id}}[label="{{id}}\n{{r.requirement.text}}"];
+
+        {#    Add requirement_parent edges    #}
+        {% for parent in r.parents %}
+            {{id}}->{{parent.id()}};
+        {% endfor %}
+    {% endfor %}
+}

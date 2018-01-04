@@ -1,0 +1,31 @@
+non_functional_requirements:
+  default:
+  ACC_NFR_1_obstacle_detect_delegates:
+    level: system
+    assigned_to: ACC
+    text: The ACC uses the _ObstacleDetector_ system to determine the distance to the obstacle in front of the car.
+    references_used:
+    - name: ObstacleDetector
+      level: component
+  ACC_NFR_2_user_interaction:
+    level: item
+    assigned_to: ACC
+    text: The ACC the interacts with the user via the _SteeringWheel_ and _DashboardGPU_ system.
+    references_used:
+    - level: system
+      name: SteeringWheel
+    - name: DashboardGPU
+  ACC_NFR_3_system_comm:
+    level: system
+    assigned_to: ACC
+    text: The ACC interacts with the rest of the system only via the _PowertrainBus_ CAN network
+    references_used:
+    - level: CAN_network
+      name: PowertrainBus
+  ACC_NFR_4_buttons_comm:
+    level: component
+    assigned_to: ACC_buttons
+    text: The ACC_buttons interacts with the rest of the system only via the _SteeringWheel_ system
+    references_used:
+    - level: system
+      name: SteeringWheel

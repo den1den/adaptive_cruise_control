@@ -1,0 +1,107 @@
+# Safety requirements specification: This will define the SR
+# And this document will link the SR to the UseCases
+#
+# Description:
+# requirement_parent (list/str): Safety requirement or Safety goal
+# use_case: Use Case name from RUCM project
+# asil: ASIL rating (inherits form parents )
+# level: Iff the level is SWUnit or HWUnit then the requirements need to be completely refined
+#
+# Default values are:
+# status: assumed
+#
+dummy_requirement:
+  SR1_dummy:
+    level: sw_unit
+    assigned_to: ACC
+    asil: B
+    requirement_parent:
+      - SG1
+      - SG2
+    text: Keep a safe distance from the car in front.
+    use_case:
+      - turn_on
+      - turn_off
+# SG1
+safety_requirements_SG1:
+  default:
+    level: system
+    assigned_to: ACC
+  SR1:
+    asil: B
+    text: Keep a safe distance
+    requirement_parent: [SG1]
+    children_requirements:
+      default:
+        level: sw_unit
+        assigned_to: ACC_Controller
+      SR1.1: # Active state
+        text: Control the car throttle and break to keep a safe distnace when the systems ACC_State is Active
+        values_used: [type: ACC_State, value: Active]
+        children_requirements:
+          SR1.1.1:
+            text: Do not apply acceleration when the time to the nearest obstacle is less then 2 seconds
+            values_used: [type: Seconds, value: 2]
+          SR1.1.2:
+            text: Apply breaking when it is noticed that the front car is deaccelerating and the distance becomes closer then 2 seconds
+            values_used: [type: Seconds, value: 2]
+      SR1.2: # Both states
+        text: Go to ACC_State Emergency when it is noticed that passive breaking will not avoid a collision in both the Active and Standby state
+        requirement_parent: [SG2]
+        asil: B
+        values_used: [type: ACC_State, value: Emergency, value: Active, value: Standby]
+# SG2, See SR1.2
+# SG3
+safety_requirements_SG3:
+  default:
+    references_used:
+    - name: ObstacleDetector
+      level: system
+  SR3:
+    level: system
+    assigned_to: ACC
+    asil: C
+    requirement_parent: SG3
+    text: Monitor sensor input of _ObstacleDetector_ system.
+  SR3.1:
+    level: system
+    assigned_to: ObstacleDetector
+    requirement_parent: SR3
+    text: When it is uncertain if objects can still be identified and error message is send by the _ObstacleDetector_ system
+  SR3.2:
+    level: component
+    assigned_to: ACC_Control
+    requirement_parent: SR3
+    text: When the _ObstacleDetector_ system cannot recognize anymore a safe state should be reached
+    children_requirements:
+      default:
+        level: sw_unit
+        assigned_to: ACC_Control
+        references_used: []
+        values_used:
+        - type: ACC_SafeState
+      SR3.2.1:
+        text: When the system is in the State Active the SafeState is Off
+        +values_used:
+        - value: 'Off'
+        - value: 'Active'
+          type: ACC_State
+      SR3.2.2:
+        text: When the system is in the State Standby the SafeState is Warning
+        +values_used:
+        - value: 'Standby'
+        - value: 'Warning'
+          type: ACC_State
+      SR3.2.3:
+        text: When the system is in the State CollisionAvoidance the SafeState is BlindStop
+        +values_used:
+        - value: 'CollisionAvoidance'
+        - value: 'BlindStop'
+          type: ACC_State
+# SG4
+safety_requirements_SG4:
+  SR4:
+    level: system
+    assigned_to: ACC
+    requirement_children: [ACC_RR_1, ACC_RR_2]
+    text: TODO

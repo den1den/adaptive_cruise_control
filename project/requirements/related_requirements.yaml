@@ -1,0 +1,12 @@
+#
+# These requirements are form other items
+#
+related_requirements:
+  default:
+    level: system
+    assigned_to: ACC
+    asil: C
+  ACC_RR_1:
+    text: Acceleration of the car should always be possible when driving
+  ACC_RR_2:
+    text: Deceleration of the car should always be possible when driving
