@@ -1,0 +1,33 @@
+{
+  "Distance": {
+    "super": "Real",
+    "range": [
+      0,
+      10000
+    ],
+    "description": "Distance in meters"
+  },
+  "Velocity": {
+    "super": "Real",
+    "range": [
+      0,
+      1000
+    ],
+    "description": "Velocity in km/h"
+  },
+  "PedalAmount": {
+    "super": "Real",
+    "range": [
+      0,
+      1
+    ],
+    "description": "The amount in which a pedal is pressed, as reported by the system"
+  },
+  "Miliseconds": {
+    "super": "Integer"
+  },
+  "Seconds": null,
+  "ACC_State": null,
+  "InternalVariable": null,
+  "ACC_SafeState": null
+}

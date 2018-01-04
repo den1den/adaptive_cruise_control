@@ -1,0 +1,63 @@
+{
+  "Seconds": {
+    "2": [
+      "SR1.1.2",
+      "SR1.1.1"
+    ]
+  },
+  "Miliseconds": {
+    "1": [
+      "OD_FR_1"
+    ]
+  },
+  "Microseconds": {
+    "10": [
+      "ACC_FR_2.1"
+    ]
+  },
+  "InternalVariable": {
+    "target_speed": [
+      "ACC_FR_3-4.1",
+      "ACC_FR_3"
+    ],
+    "target_distance": [
+      "ACC_FR_3-4.1",
+      "ACC_FR_4"
+    ]
+  },
+  "ACC_SafeState": {
+    "Off": [
+      "SR3.2.1"
+    ],
+    "CollisionAvoidance": [
+      "SR3.2.3"
+    ],
+    "Standby": [
+      "SR3.2.2"
+    ]
+  },
+  "ACC_State": {
+    "Off": [
+      "ACC_FR_1"
+    ],
+    "Active": [
+      "SR1.2",
+      "ACC_FR_1",
+      "SR3.2.1",
+      "SR1.1"
+    ],
+    "Warning": [
+      "SR3.2.2"
+    ],
+    "Emergency": [
+      "SR1.2"
+    ],
+    "Standby": [
+      "SR1.2",
+      "ACC_FR_1"
+    ],
+    "BlindStop": [
+      "SR3.2.3"
+    ]
+  }
+}

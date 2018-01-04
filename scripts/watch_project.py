@@ -44,7 +44,7 @@ class FileExtEventHandler(FileSystemEventHandler):
                 extension not in self.extensions:
             return
         if self.filenames is not None and \
-                filename not in self.filenames:
+                basename not in self.filenames:
             return
         if self.filename_endings is not None and \
                 len([x for x in self.filename_endings if

@@ -1,0 +1,26 @@
+#
+# Classes
+# that can be used as a value
+#
+Distance:
+  super: Real
+  range: [0, 10000]
+  description: "Distance in meters"
+Velocity:
+  super: Real
+  range: [0, 1000]
+  description: "Velocity in km/h"
+PedalAmount:
+  super: Real
+  range: [0, 1]
+  description: "The amount in which a pedal is pressed, as reported by the system"
+Miliseconds:
+  super: Integer
+Microseconds:
+  super: Integer
+Seconds:
+  super: Integer
+ACC_State:
+  values: ['Off', Standby, Emergency, BlindStop, Warning, Active]
+InternalVariable:
+ACC_SafeState:

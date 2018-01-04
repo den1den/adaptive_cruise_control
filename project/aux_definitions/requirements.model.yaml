@@ -1,0 +1,33 @@
+<requirements_set_name>:
+  ?default:
+    key: val
+    ...
+  <id>:
+    text: text
+    assigned_to: system_name/component_name
+    level: system/component/sw_unit/hw_unit
+    ?values_used:
+    - value: val
+      type: Class
+    ?references_used:
+    - name: ComponentName
+      level: component/system/...
+    use_case:
+    - USE_CASE_SPEC
+    ?requirement_parent: [ids] / ids
+    ?children_requirements:
+      default:
+        <hidden>requirement_parent: <id>
+        ...
+      <child_id>:
+        requirements...
+
+interface_requirements:
+  <id>:
+    interface:
+      function_name: objectAppeared
+      ?parameters:
+      - name: id
+        type: int
+        description: The shortest distance from the car to the object
+

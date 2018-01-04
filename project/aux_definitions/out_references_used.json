@@ -1,0 +1,100 @@
+{
+  "DashboardGPU": {
+    "system": [
+      "ACC_NFR_2_user_interaction"
+    ]
+  },
+  "PowertrainBus": {
+    "CAN_network": [
+      "ACC_NFR_3_system_comm"
+    ]
+  },
+  "ACC_Buttons": {
+    "component": [
+      "ACC_FR_3-4.1"
+    ],
+    "hw_unit": [
+      "ACC_FR_1.2"
+    ]
+  },
+  "ObstacleDetector": {
+    "component": [
+      "ACC_NFR_1_obstacle_detect_delegates"
+    ],
+    "system": [
+      "OD_FR_2.3",
+      "SR3.2",
+      "OD_FR_2",
+      "SR3.1",
+      "OD_FR_2.4",
+      "OD_FR_2.1",
+      "OD_FR_1",
+      "OD_FR_2.2",
+      "OD_NF_1",
+      "OD_FR_3",
+      "OF_FR_2.5"
+    ]
+  },
+  "ACC_buttons": {
+    "component": [
+      "ACC_NFR_4_buttons_comm"
+    ]
+  },
+  "ACC": {
+    "item": [
+      "ACC_NFR_2_user_interaction"
+    ],
+    "system": [
+      "ACC_LR_4",
+      "ACC_LR_1",
+      "SR3",
+      "ACC_FR_1",
+      "ACC_RR_1",
+      "ACC_NFR_1_obstacle_detect_delegates",
+      "ACC_LR_3",
+      "SR1",
+      "ACC_NFR_3_system_comm",
+      "ACC_FR_4",
+      "SR4",
+      "ACC_FR_2",
+      "ACC_FR_3",
+      "ACC_RR_2",
+      "ACC_LR_2"
+    ]
+  },
+  "ACC_Control": {
+    "component": [
+      "SR3.2"
+    ],
+    "sw_unit": [
+      "ACC_FR_3-4.3",
+      "ACC_FR_2.1",
+      "SR3.2.3",
+      "SR3.2.1",
+      "SR3.2.2",
+      "ACC_FR_3-4.2",
+      "ACC_FR_1.1"
+    ]
+  },
+  "ObstacleDetectorSwUnit": {
+    "sw_unit": [
+      "OD_I_1.1",
+      "OD_I_1.3",
+      "OD_I_1.2"
+    ]
+  },
+  "SteeringWheel": {
+    "system": [
+      "ACC_NFR_4_buttons_comm",
+      "ACC_NFR_2_user_interaction"
+    ]
+  },
+  "ACC_Controller": {
+    "sw_unit": [
+      "SR1.2",
+      "SR1.1.2",
+      "SR1.1",
+      "SR1.1.1"
+    ]
+  }
+}

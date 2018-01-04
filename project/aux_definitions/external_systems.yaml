@@ -1,0 +1,7 @@
+# The external systems that are outside of this item
+# format:
+# [level, name]
+- [system, ObstacleDetector]
+- [system, PowertrainBus]
+- [CAN_network, PowertrainBus]
+- [system, SteeringWheel]
