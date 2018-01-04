@@ -5,5 +5,8 @@ test folder/
 ISO_model/*.txt
 ISO_model/*.json
 project/project.zip
-project/safety_requirements/*.json
+project/*requirement*/*.json
+project/diagrams/*.json
+project/**definitions/*.json
 *.tmp.dot
+*.tmp.png

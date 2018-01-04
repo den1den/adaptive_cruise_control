@@ -8,14 +8,15 @@ digraph G
    * Clauses
    */
   node[shape=ellipse];
-  3.5[label="3-5"];
-  3.6[label="3-6"];
-  3.7[label="3-7"];
+  2.6[label="2-6\nSafety management during the item development"]
+  3.5[label="3-5\nItem definition"];
+  3.6[label="3-6\nInitiation of the safety lifecycle"];
+  3.7[label="3-7\nHazard analysis and risk assessment"];
   3.8[label="3-8\nFunctional safety concept"];
-  8.6[label="8-6"];
-  8.9[label="8-9"];
-  9.5[label="9-5"];
-  9.7[label="9-7"];
+  8.6[label="8-6\nSpecification of software safety requirements"];
+  8.9[label="8-9\nSoftware unit testing"];
+  9.5[label="9-5\nRequirements decomposition with respect to ASIL tailoring"];
+  9.7[label="9-7\nAnalysis of dependent failures"];
   // Usefull
   edge[style=dotted, label="Usefull"]
   9.7 -> 3.8;
