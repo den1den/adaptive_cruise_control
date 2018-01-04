@@ -10,6 +10,7 @@ class ParseText:
     SUMMATION_ordered_regex = re.compile(r'^\s*([a-z0-9]+)\)\s*(.*)$')
     SUMMATION_unordered_regex = re.compile(r'^\s*⎯\s*(.*)$')
     EXAMPLE_regex = re.compile(r'^\s*EXAMPLE\s*(?:\d+\s*)?(.*)$')
+    ANNOTATION_HEADER_regex = re.compile(r'^([A-Z]+)>(.*)$')
 
     def __init__(self):
         self.output = []
@@ -25,6 +26,14 @@ class ParseText:
 
         no = 0
         for line in lines:
+
+            # Parse annotation
+            annotation = ''
+            m = ParseText.ANNOTATION_HEADER_regex.match(line)
+            if m is not None:
+                annotation = m.group(1)
+                line = m.group(2)
+
             no += 1
             self.prev_line = self.curr_line
             self.curr_line = {
@@ -32,7 +41,7 @@ class ParseText:
                 'line_no': no,
             }
 
-            m = self.title_regex.match(line)
+            m = ParseText.title_regex.match(line)
             if m is not None:
                 # write previous element
                 if self.element is not None:
@@ -40,26 +49,30 @@ class ParseText:
                         self.element['text'] = self.missed_lines
                         self.missed_lines = []
 
-                    self.output.append(self.element)
+                    ignore = self.element.pop('ignore')
+                    if not ignore:
+                        self.output.append(self.element)
 
                 # prepare next
                 self.element = {
                     'id': m.group(1),
                     'title': m.group(2).strip(),
                     'line_no': no,
+                    'header': 'H' in annotation,
+                    'ignore': 'I' in annotation,
                 }
 
                 self.curr_SUM = None
                 self.curr_ordered_SUM = None
                 continue
 
-            m = self.NOTE_regex.match(line)
+            m = ParseText.NOTE_regex.match(line)
             if m is not None:
                 self.element.setdefault('notes', [])
                 self.element['notes'] += [m.group(1)]
                 continue
 
-            m = self.SUMMATION_ordered_regex.match(line)
+            m = ParseText.SUMMATION_ordered_regex.match(line)
             if m is not None:
                 if self.curr_ordered_SUM is None:
                     # start new summation
@@ -71,7 +84,7 @@ class ParseText:
                     self.element.setdefault('sums', [])
                     self.element['sums'] += [self.curr_ordered_SUM]
 
-                    if not self.title_regex.match(self.prev_line['text']):
+                    if not ParseText.title_regex.match(self.prev_line['text']):
                         self.missed_lines.pop()
 
                 self.curr_ordered_SUM['elements'] += [{
@@ -83,7 +96,7 @@ class ParseText:
             else:
                 self.curr_ordered_SUM = None
 
-            m = self.SUMMATION_unordered_regex.match(line)
+            m = ParseText.SUMMATION_unordered_regex.match(line)
             if m is not None:
                 if self.curr_SUM is None:
                     # start new summation
@@ -95,7 +108,7 @@ class ParseText:
                     self.element.setdefault('sums', [])
                     self.element['sums'] += [self.curr_SUM]
 
-                    if not self.title_regex.match(self.prev_line['text']):
+                    if not ParseText.title_regex.match(self.prev_line['text']):
                         self.missed_lines.pop()
 
                 self.curr_SUM['elements'] += [{
@@ -106,7 +119,7 @@ class ParseText:
             else:
                 self.curr_SUM = None
 
-            m = self.EXAMPLE_regex.match(line)
+            m = ParseText.EXAMPLE_regex.match(line)
             if m is not None:
                 self.element.setdefault('examples', [])
                 self.element['examples'] += [m.group(1)]
