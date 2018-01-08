@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated MM -->
+      <package
+            uri="acc-mm.acc"
+            class="acc.AccPackage"/>
+   </extension>
+   <extension
+         point="org.eclipse.epsilon.evl.emf.validation">
+      <constraintsBinding
+            compose="true"
+            constraints="model/validate.evl"
+            namespaceURI="acc-mm.acc">
+      </constraintsBinding>
+   </extension>
+
+</plugin>

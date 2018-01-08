@@ -1,0 +1,6 @@
+context Requirement {
+  constraint HasName {
+    check : self.text <> ""
+    message : "Requirement " + self + " must have text"
+  }
+}

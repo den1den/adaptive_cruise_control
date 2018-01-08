@@ -10,3 +10,6 @@ project/diagrams/*.json
 project/**definitions/*.json
 *.tmp.dot
 *.tmp.png
+venv
+acc-mm.diagram
+meetings
