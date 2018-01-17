@@ -1,9 +1,11 @@
 *.bak
+**/bak
 Link to *
 .idea
 test folder/
 ISO_model/*.txt
 ISO_model/*.json
+ISO_model/part*
 project/project.zip
 project/*requirement*/*.json
 project/diagrams/*.json
@@ -11,5 +13,11 @@ project/**definitions/*.json
 *.tmp.dot
 *.tmp.png
 venv
-acc-mm.diagram
 meetings
+AUTOSAR
+/ISO_model/generated/
+/tools/rucm.nightlybuild.20130917/
+/*.pptx
+/SOAM.png
+/acc_mm/src/
+/ISO_model/scripts/tmp/
