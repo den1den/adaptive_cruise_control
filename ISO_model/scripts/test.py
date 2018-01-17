@@ -18,7 +18,7 @@ class TestParseOCL(TestCase):
 
     def check_test(self, txt):
         print(txt)
-        matches = parse_summations(txt)
+        matches = extract_summations(txt)
         assert len(matches) == 2
         assert len(matches[0]) == 2
         assert matches[0][0] == 'the safety goals'

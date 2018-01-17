@@ -32,7 +32,8 @@ WORDS3_rx = r'(?:the )?\w+(?: \w+){0,2}'
 summation_rx = r'({0}?(?: ?, ?{0})*) and ({0}) ?(?:[,:;]|$)'.format(WORDS3_rx)
 r_summation = re.compile(summation_rx)
 
-def parse_summations(spaced_txt):
+
+def extract_summations(spaced_txt):
     ms = r_summation.finditer(spaced_txt)
     if ms:
         summations = []
@@ -44,13 +45,12 @@ def parse_summations(spaced_txt):
         return summations
 
 
-class ParseOCL:
-    #rRel_shall_be_specified = re.compile(r'at least (w+) (.*) shall be specified for each (.*)')
+class IsoOCLParser:
+    # rRel_shall_be_specified = re.compile(r'at least (w+) (.*) shall be specified for each (.*)')
     rCondition = re.compile('if (.*)(?: then (.*)| ?, ?(.*))')
     rRel_shall_be_specified = re.compile(r'(the )?(?:at least (\w*) )?(.*) shall be specified')
     rRel_shall_be_derived = re.compile(r'(the )?(.*) shall be derived from (.*)')
     rRel_shall_be_specified_accordance = re.compile(r'(.*) shall be specified in accordance with (.*)')
-
 
     def __init__(self):
         self.output = []
@@ -63,7 +63,6 @@ class ParseOCL:
         all_text = [title] + text
 
         if_body = None
-        if_condition = None
 
         DEBUG_ONLY = (
             # '8.4.2.2',
@@ -77,11 +76,11 @@ class ParseOCL:
             line = ' '.join(t['tokens'])
             print(t['original'])
 
-            m = ParseOCL.rRel_shall_be_specified_accordance.match(line)
+            m = IsoOCLParser.rRel_shall_be_specified_accordance.match(line)
             if m:
                 print("accordance: %s" % (m.groups(), ))
 
-            m = ParseOCL.rCondition.match(line)
+            m = IsoOCLParser.rCondition.match(line)
             if m:
                 if_condition = m.group(1)
                 if m.group(2) is None:
@@ -99,7 +98,7 @@ class ParseOCL:
                 existence = self.parse_existence(line)
                 print(existence)
 
-            s = parse_summations(line)
+            s = extract_summations(line)
             if s:
                 print("%s\nSummations: %s" % (line, s, ))
 
@@ -107,13 +106,12 @@ class ParseOCL:
             tokens = nltk.word_tokenize(raw)
             tagged = nltk.pos_tag(tokens)
             entities = nltk.chunk.ne_chunk(tagged)
-            #print(entities)
+            print(entities)
 
             print()
 
-
     def parse_existence(self, text):
-        m = ParseOCL.rRel_shall_be_specified.match(text)
+        m = IsoOCLParser.rRel_shall_be_specified.match(text)
         if m:
             subject = m.group(3)
             subject = stemmer.stem(subject)
@@ -126,7 +124,6 @@ class ParseOCL:
                 return ['>=%d' % n, subject]
             return ['', subject]
 
-
     def __call__(self, elements):
         for el in elements:
             self.el = el
@@ -138,5 +135,5 @@ class ParseOCL:
 
 
 if __name__ == '__main__':
-    parser = ParseOCL()
+    parser = IsoOCLParser()
     parser(json.load(open('ISO_model/part3-text.json')))

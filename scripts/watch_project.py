@@ -1,3 +1,4 @@
+import json
 import math
 import operator
 import os
@@ -7,10 +8,13 @@ from functools import reduce
 from shutil import move
 
 import sys
+
+import yaml
 from PIL import Image
 from watchdog import events
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+from yaml.scanner import ScannerError
 
 from project.requirement_checking import process_srs
 from scripts.dot_template_renderer import dot_to_png
@@ -99,9 +103,16 @@ class Yaml2Json(FileExtEventHandler):
     def on_changed(self, filename):
         out_filename = filename[:-5] + ".json"
         with open(out_filename, 'w+') as json_f:
+            try:
+                obj = yaml.safe_load(open(filename))
+                json.dump(obj, json_f, indent=2, sort_keys=True)
+            except Exception as e:
+                print("Could not read YAML: %s" % (e, ), file=sys.stderr)
+                return
+            json_f.close()
             # sudo npm -g install yaml2json
-            if subprocess.call(['yaml2json', '--pretty', filename], stdout=json_f) != 0:
-                raise Exception("Could not parse %s" % filename)
+            # if subprocess.call(['yaml2json', '--pretty', filename], stdout=json_f) != 0:
+            #    raise Exception("Could not parse %s" % filename)
         print("Json written to %s" % out_filename)
 
 
@@ -177,6 +188,7 @@ if __name__ == "__main__":
     observer = Observer()
     # observer.schedule(DotToPng(), 'ISO_model', recursive=True)
     observer.schedule(Yaml2Json(), 'project', recursive=True)
+    observer.schedule(Yaml2Json(), 'ISO_model', recursive=True)
     observer.schedule(DownloadImageTracker(), '/home/dennis/Downloads', recursive=True)
     observer.schedule(SrsHandler(), 'project', recursive=True)
     observer.schedule(TmpImageTracker(), 'project', recursive=True)
