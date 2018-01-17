@@ -1,3 +1,6 @@
+"""
+Checks consitency and initial ISO requirements on the Requirements of this project
+"""
 import json
 import os
 import sys

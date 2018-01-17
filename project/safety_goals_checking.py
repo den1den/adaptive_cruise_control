@@ -1,8 +1,7 @@
+"""
+Safety goal related checking
+"""
 import re
-from functools import total_ordering
-
-import sys
-from json import JSONEncoder
 
 from project.scripts.asil import Asil
 

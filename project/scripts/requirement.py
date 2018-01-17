@@ -7,6 +7,7 @@ external_systems = yaml.safe_load(open(
     os.path.join(os.path.dirname(__file__), '../aux_definitions/external_systems.yaml')
 ))
 
+
 class Requirement:
     """
     A requirement (with its dependency tree)
