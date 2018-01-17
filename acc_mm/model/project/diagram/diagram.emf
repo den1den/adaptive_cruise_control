@@ -1,0 +1,74 @@
+@namespace(uri="iso_research", prefix="")
+/*
+Used to make a tool to model the project
+@Depricated
+*/
+package project_diagram;
+
+@gmf.diagram
+class A__Diagram {
+	val Requirement[*] reqs;
+	val Component[*] components;
+	val RInterface[*] rInterface;
+}
+
+@gmf.node(label="rId")
+class Requirement {
+	attr String[1] rId;
+	@gmf.label()
+	attr String[1] text;
+	@gmf.link()
+	ref Component[*] assigned_to;
+	@gmf.link()
+	ref Requirement[*] requirement_parent;
+	@gmf.affixed
+	val RInterface[*] rInterfaces;
+}
+
+@gmf.node(label="name")
+class Component {
+	attr String[1] name;
+	@gmf.label()
+	attr Level[1] level;
+}
+
+@gmf.node(label="function_name", label.icon="false", figure="rectangle")
+class RInterface {
+	attr String[1] function_name;
+	@gmf.affixed()
+	val RInterfaceParameter[*] parameters;
+}
+
+@gmf.node(label="name", label.icon="false", figure="rectangle")
+class RInterfaceParameter {
+	attr String[1] name;
+	@gmf.label()
+	attr ValueClass[1] vClass;
+}
+
+enum Level {
+	system;
+	component;
+	sw_unit;
+	hw_unit;
+}
+
+enum ValueClass {
+	Distance;
+	Velocity;
+	PedalAmount;
+	Miliseconds;
+	Seconds;
+	ACC_State;
+	InternalVariable;
+	ACC_SafeState;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+
+
