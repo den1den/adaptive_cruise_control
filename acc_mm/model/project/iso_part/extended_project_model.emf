@@ -1,0 +1,29 @@
+@namespace(uri="extended_project_model", prefix="epm")
+/*
+This document contains the final model in which a project will be instantiated:
+- project_model
+- iso_model
+- Extra classes to link the two together or help in validation
+*/
+package extended_project_model;
+
+import "platform:/resource/acc-mm/model/project/project_model.ecore";
+import "platform:/resource/acc-mm/model/iso/iso_model/iso_model.ecore";
+
+
+class ClauseApplication {
+	ref iso_model.Clause[1] clause;
+	ref project_model.Artifact[1] to;
+}
+
+// ISO elements
+abstract class ISO_ELEMENT{}
+class ClauseReference extends ISO_ELEMENT {
+	attr String[1] clause;
+	ref IsoRefere[*] refers_to;
+}
+class Clause {
+	attr String[1] name; // ID: part-section
+	attr String[1] title;
+}
+abstract class IsoRefere{}

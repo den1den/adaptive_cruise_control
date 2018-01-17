@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="extended_project_model" nsURI="extended_project_model" nsPrefix="epm">
+  <eClassifiers xsi:type="ecore:EClass" name="ClauseApplication">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="clause" lowerBound="1"
+        eType="ecore:EClass ../../iso/iso_model/iso_model.ecore#//Clause"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="to" lowerBound="1" eType="ecore:EClass ../project_model.ecore#//Artifact"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ISO_ELEMENT" abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ClauseReference" eSuperTypes="#//ISO_ELEMENT">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="clause" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="refers_to" upperBound="-1"
+        eType="#//IsoRefere"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Clause">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="title" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IsoRefere" abstract="true"/>
+</ecore:EPackage>

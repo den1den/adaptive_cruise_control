@@ -1,0 +1,31 @@
+/*
+These are classes which can be used during the evaluation of an interpertation of the IsoRequirements
+*/
+operation ensureExistsByName(Class, name: String) {
+	for (el : Class in Class.allInstances()) {
+		if(el.name == name){
+			return el;
+		}
+	}
+	var el : Class = new Class;
+	var el.name = name;
+	("Created new " + c).println();
+	return el;
+}
+
+// BEGIN_TEMPLATE ensureHasCheck(,attribute,)
+operation ensureHasCheckTemplate(Class, aspect) {
+	for (subj : Class in Class.allInstances()){
+		var has = false;
+		for (ch : Check in subj.attribute) {
+			if(ch.aspect.name.equals(aspect.name)){
+				has = true;
+				break;
+			}
+		}
+		if(not has){
+			subj.attribute.add(aspect);
+		}
+	}
+}
+// END

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="project_model" nsURI="project_model" nsPrefix="pm">
+  <eClassifiers xsi:type="ecore:EClass" name="Element"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Item">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="requirements" upperBound="-1"
+        eType="#//Requirement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="description" lowerBound="1"
+        eType="#//Description" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="check_description_purpose"
+        lowerBound="1" eType="#//CheckTextContains" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="check_description_functionality"
+        lowerBound="1" eType="#//CheckTextContains" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="boundry" lowerBound="1"
+        eType="#//Description" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="check_boundry" eType="#//CheckIsCondsidered"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="interfaces" lowerBound="1"
+        eType="#//Description" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="check_interfaces" eType="#//CheckIsCondsidered"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="assumptions_on_other" lowerBound="1"
+        eType="#//Description" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="check_assumptions_on_other"
+        eType="#//CheckIsCondsidered" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Requirement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="rId" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" lowerBound="1" eType="#//RequirementType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="related_to" eType="#//RequirementSource"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SafetyRequirement" eSuperTypes="#//Requirement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PreviouslyKnownSafetyRequirements" eSuperTypes="#//SafetyRequirement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="derived_from" eType="#//PKSRDerivation"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Artifact" abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="WorkProduct" eSuperTypes="#//Artifact">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Description" eSuperTypes="#//Artifact">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="contents" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Unidentified" eSuperTypes="#//Artifact">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="contents" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Check" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="aspect" lowerBound="1"
+        eType="#//Aspect" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="checked" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBooleanObject"
+        defaultValueLiteral="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Aspect">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Aspect_3_5_4_3" eSuperTypes="#//Aspect"/>
+  <eClassifiers xsi:type="ecore:EClass" name="CheckTextContains" eSuperTypes="#//Check"/>
+  <eClassifiers xsi:type="ecore:EClass" name="CheckIsCondsidered" eSuperTypes="#//Check"/>
+  <eClassifiers xsi:type="ecore:EClass" name="RequirementType">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RequirementSource">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PKSRDerivation">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ItemExternalAssumptionTypes">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="RequirementLevel">
+    <eLiterals name="HARA"/>
+    <eLiterals name="Safety_Goal" value="1"/>
+    <eLiterals name="Functional" value="2"/>
+    <eLiterals name="Technical" value="3"/>
+    <eLiterals name="HW_SW" value="4"/>
+  </eClassifiers>
+</ecore:EPackage>

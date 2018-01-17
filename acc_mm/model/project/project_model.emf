@@ -1,0 +1,87 @@
+@namespace(uri="project_model", prefix="pm")
+/*
+This document contains the model for elements of the project 
+*/
+package project_model;
+
+//
+// Techincal elements (Iso defined)
+//
+class Element{
+	
+}
+class Item {
+	attr String[1] name;
+	val Requirement[*] requirements;
+	val Description[1] description;
+	val CheckTextContains[1] check_description_purpose;
+	val CheckTextContains[1] check_description_functionality;
+	
+	val Description[1] boundry;
+	val CheckIsCondsidered check_boundry;
+	val Description[1] interfaces;
+	val CheckIsCondsidered check_interfaces;
+	val Description[1] assumptions_on_other;
+	val CheckIsCondsidered check_assumptions_on_other;
+}
+class Requirement {
+	attr String[1] rId;
+	ref RequirementType[1] type;
+	ref RequirementSource[0..1] related_to;
+}
+class SafetyRequirement extends Requirement{
+}
+class PreviouslyKnownSafetyRequirements extends SafetyRequirement {
+	ref PKSRDerivation[0..1] derived_from;
+}
+
+//
+// Artifacts
+//
+abstract class Artifact {} 
+class WorkProduct extends Artifact {
+	attr String[1] name;
+}
+class Description extends Artifact {
+	attr String[1] contents;
+}
+class Unidentified extends Artifact {
+	attr String[1] contents;
+}
+
+//
+// Verification process atts
+//
+abstract class Check{
+	val Aspect[1] aspect; 
+	attr Boolean[1] checked = false;
+}
+class Aspect {
+	attr String[1] name;
+}
+class Aspect_3_5_4_3 extends Aspect {}
+class CheckTextContains extends Check {
+}
+class CheckIsCondsidered extends Check {
+}
+
+//
+// Project structure elements
+//
+class RequirementType {
+	attr String[1] name;
+}
+class RequirementSource {
+	attr String[1] name;
+}
+class PKSRDerivation {
+	attr String[1] name;
+}
+class ItemExternalAssumptionTypes {
+	attr String[1] name;
+}
+enum RequirementLevel {
+	HARA; Safety_Goal; Functional; Technical; HW_SW;
+}
+
+

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/acc-mm/src" modelPluginID="acc-mm" modelName="Complete"
+    rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="8.0" copyrightFields="false" usedGenPackages="#//extended_project_model"
+    operationReflection="true" importOrganizing="true">
+  <foreignModel>extended_project_model.ecore</foreignModel>
+  <genPackages prefix="Extended_project_model" disposableProviderFactory="true" ecorePackage="extended_project_model.ecore#/">
+    <genClasses ecoreClass="extended_project_model.ecore#//ClauseApplication">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference extended_project_model.ecore#//ClauseApplication/clause"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference extended_project_model.ecore#//ClauseApplication/to"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="extended_project_model.ecore#//ISO_ELEMENT"/>
+    <genClasses ecoreClass="extended_project_model.ecore#//ClauseReference">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute extended_project_model.ecore#//ClauseReference/clause"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference extended_project_model.ecore#//ClauseReference/refers_to"/>
+    </genClasses>
+    <genClasses ecoreClass="extended_project_model.ecore#//Clause">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute extended_project_model.ecore#//Clause/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute extended_project_model.ecore#//Clause/title"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="extended_project_model.ecore#//IsoRefere"/>
+  </genPackages>
+</genmodel:GenModel>
