@@ -7,11 +7,18 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: acc,
- acc.impl,
- acc.util
+Export-Package: extended_project_model,
+ extended_project_model.impl,
+ extended_project_model.util,
+ iso_model,
+ iso_model.impl,
+ iso_model.util,
+ project_model,
+ project_model.impl,
+ project_model.util
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
+ acc-mm;visibility:=reexport,
  org.eclipse.ui.ide;bundle-version="3.12.3",
  org.eclipse.epsilon.evl.emf.validation;bundle-version="1.4.0"
 Bundle-ActivationPolicy: lazy

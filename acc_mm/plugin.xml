@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-
-<!--
--->
-
 <plugin>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated project_generation -->
+      <package
+            uri="iso_research"
+            class="project.ProjectPackage"
+            genModel="model/project/complete.genmodel"/>
+   </extension>
 
    <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated MM -->
+      <!-- @generated complete -->
       <package
-            uri="acc-mm.acc"
-            class="acc.AccPackage"/>
-   </extension>
-   <extension
-         point="org.eclipse.epsilon.evl.emf.validation">
-      <constraintsBinding
-            compose="true"
-            constraints="model/validate.evl"
-            namespaceURI="acc-mm.acc">
-      </constraintsBinding>
+            uri="extended_project_model"
+            class="extended_project_model.Extended_project_modelPackage"
+            genModel="model/project/iso_part/complete.genmodel"/>
    </extension>
 
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated complete -->
+      <package
+            uri="iso_model"
+            class="iso_model.Iso_modelPackage"
+            genModel="model/project/iso_part/complete.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated complete -->
+      <package
+            uri="project_model"
+            class="project_model.Project_modelPackage"
+            genModel="model/project/iso_part/complete.genmodel"/>
+   </extension>
 </plugin>
