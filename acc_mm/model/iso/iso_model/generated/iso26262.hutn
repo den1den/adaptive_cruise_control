@@ -1,0 +1,403 @@
+@Spec { metamodel "iso_research" { nsUri: "iso_research" } }
+
+iso_model {
+	IsoRequirement "ir3-5.1" {
+		id: "3-5.1"
+		name: "Objectives"
+	}
+	IsoRequirement "ir3-5.2" {
+		id: "3-5.2"
+		name: "General"
+	}
+	IsoRequirement "ir3-5.3" {
+		id: "3-5.3"
+		name: "Inputs to this clause"
+	}
+	IsoRequirement "ir3-5.3.1" {
+		id: "3-5.3.1"
+		name: "Prerequisites"
+	}
+	IsoRequirement "ir3-5.3.2" {
+		id: "3-5.3.2"
+		name: "Further supporting information"
+	}
+	IsoRequirement "ir3-5.4" {
+		id: "3-5.4"
+		name: "Requirements and recommendations"
+	}
+	IsoRequirement "ir3-5.4.1" {
+		id: "3-5.4.1"
+		name: "The functional requirements of the item as well as the dependencies between the item and its environment shall be available. This information includes:"
+	}
+	IsoRequirement "ir3-5.4.2" {
+		id: "3-5.4.2"
+		name: "Already known safety requirements for the item shall be available, based on:"
+	}
+	IsoRequirement "ir3-5.4.3" {
+		id: "3-5.4.3"
+		name: "It shall be ensured that the boundary of the item and the item's interfaces, as well as assumptions concerning other items and elements, are determined by considering:"
+	}
+	IsoRequirement "ir3-6.1" {
+		id: "3-6.1"
+		name: "Objectives"
+	}
+	IsoRequirement "ir3-6.2" {
+		id: "3-6.2"
+		name: "General"
+	}
+	IsoRequirement "ir3-6.3" {
+		id: "3-6.3"
+		name: "Inputs to this clause"
+	}
+	IsoRequirement "ir3-6.3.1" {
+		id: "3-6.3.1"
+		name: "Prerequisites"
+	}
+	IsoRequirement "ir3-6.3.2" {
+		id: "3-6.3.2"
+		name: "Further supporting information"
+	}
+	IsoRequirement "ir3-6.4" {
+		id: "3-6.4"
+		name: "Requirements and recommendations"
+	}
+	IsoRequirement "ir3-6.4.1" {
+		id: "3-6.4.1"
+		name: "Determination of the development category"
+	}
+	IsoRequirement "ir3-6.4.2" {
+		id: "3-6.4.2"
+		name: "Impact analysis and tailored safety lifecycle in the case of modification"
+	}
+	IsoRequirement "ir3-6.4.2.1" {
+		id: "3-6.4.2.1"
+		name: "An analysis shall be carried out in order to identify the intended modification applied to the item and its environment and to assess the impact of these modifications."
+	}
+	IsoRequirement "ir3-6.4.2.2" {
+		id: "3-6.4.2.2"
+		name: "This analysis shall address changes between previous and future conditions of use of the item, including:"
+	}
+	IsoRequirement "ir3-6.4.2.3" {
+		id: "3-6.4.2.3"
+		name: "In the case of modifications to the item, the modifications shall be described and the areas affected by the modifications to the item shall be identified."
+	}
+	IsoRequirement "ir3-6.4.2.4" {
+		id: "3-6.4.2.4"
+		name: "In the case of changes to the environment of the item, the changes to the environment shall be described."
+	}
+	IsoRequirement "ir3-6.4.2.5" {
+		id: "3-6.4.2.5"
+		name: "In the absence of modifications to the item itself and of changes to its environment, the results of the impact analysis shall be recorded."
+	}
+	IsoRequirement "ir3-6.4.2.6" {
+		id: "3-6.4.2.6"
+		name: "The implication of the modification on functional safety shall be described."
+	}
+	IsoRequirement "ir3-6.4.2.7" {
+		id: "3-6.4.2.7"
+		name: "The affected work products that need to be updated shall be identified."
+	}
+	IsoRequirement "ir3-6.4.2.8" {
+		id: "3-6.4.2.8"
+		name: "The results of the impact analysis shall be recorded."
+	}
+	IsoRequirement "ir3-6.4.2.9" {
+		id: "3-6.4.2.9"
+		name: "The safety activities shall be tailored in accordance with the applicable lifecycle phases:"
+	}
+	IsoRequirement "ir3-7.1" {
+		id: "3-7.1"
+		name: "Objectives"
+	}
+	IsoRequirement "ir3-7.2" {
+		id: "3-7.2"
+		name: "General"
+	}
+	IsoRequirement "ir3-7.3" {
+		id: "3-7.3"
+		name: "Inputs to this clause"
+	}
+	IsoRequirement "ir3-7.3.1" {
+		id: "3-7.3.1"
+		name: "Prerequisites"
+	}
+	IsoRequirement "ir3-7.3.2" {
+		id: "3-7.3.2"
+		name: "Further supporting information"
+	}
+	IsoRequirement "ir3-7.4" {
+		id: "3-7.4"
+		name: "Requirements and recommendations"
+	}
+	IsoRequirement "ir3-7.4.1" {
+		id: "3-7.4.1"
+		name: "The hazard analysis and risk assessment shall be based on the item definition."
+	}
+	IsoRequirement "ir3-7.4.2" {
+		id: "3-7.4.2"
+		name: "The hazard analysis, risk assessment, determination of safety goals and their respective ASIL shall be conducted in accordance with the requirements in 7.4."
+	}
+	IsoRequirement "ir3-7.4.3" {
+		id: "3-7.4.3"
+		name: "The item without a safety mechanism shall be evaluated during the hazard analysis and risk assessment (i.e. safety mechanisms intended to be implemented or that have already been implemented in predecessor systems shall not be considered as a means for providing risk reduction)."
+	}
+	IsoRequirement "ir3-7.4.4" {
+		id: "3-7.4.4"
+		name: "Situation analysis and hazard identification"
+	}
+	IsoRequirement "ir3-7.4.4.1" {
+		id: "3-7.4.4.1"
+		name: "The operational situations and operating modes in which an item's malfunctioning behaviour is able to trigger hazards shall be described; both for cases when the item is correctly used and when it is incorrectly used in a foreseeable way."
+	}
+	IsoRequirement "ir3-7.4.4.2" {
+		id: "3-7.4.4.2"
+		name: "A list of operational situations to be evaluated shall be prepared."
+	}
+	IsoRequirement "ir3-7.4.4.3" {
+		id: "3-7.4.4.3"
+		name: "The hazards of the item shall be determined systematically."
+	}
+	IsoRequirement "ir3-7.4.4.4" {
+		id: "3-7.4.4.4"
+		name: "Hazards shall be defined in terms of the conditions or events that can be observed at the vehicle level."
+	}
+	IsoRequirement "ir3-7.4.4.5" {
+		id: "3-7.4.4.5"
+		name: "The consequences of hazardous events shall be identified for relevant operational situations and operating modes."
+	}
+	IsoRequirement "ir3-7.4.4.6" {
+		id: "3-7.4.4.6"
+		name: "If hazards are identified in the course of hazard identification, which are outside of the scope of ISO 26262 (see Clause 1), then the need for appropriate measures shall be indicated."
+	}
+	IsoRequirement "ir3-7.4.5" {
+		id: "3-7.4.5"
+		name: "Hazard classification"
+	}
+	IsoRequirement "ir3-7.4.5.1" {
+		id: "3-7.4.5.1"
+		name: "All hazards identified in 7.4.4 during the previous stage shall be classified, except for those that are outside the scope of ISO 26262."
+	}
+	IsoRequirement "ir3-7.4.5.2" {
+		id: "3-7.4.5.2"
+		name: "Estimation of potential severity"
+	}
+	IsoRequirement "ir3-7.4.5.2.1" {
+		id: "3-7.4.5.2.1"
+		name: "The severity of potential harm shall be estimated for each hazardous event. The severity shall be assigned to one of the severity classes S0, S1, S2 or S3 in accordance with Table 1."
+	}
+	IsoRequirement "ir3-7.4.5.2.2" {
+		id: "3-7.4.5.2.2"
+		name: "The severity class S0 may be assigned if the hazard analysis determines that the consequences of an unintended behaviour of the item are clearly limited to material damage and do not involve harm to persons. If a hazard is assigned to severity class S0, no ASIL assignment is required."
+	}
+	IsoRequirement "ir3-7.4.5.3" {
+		id: "3-7.4.5.3"
+		name: "Estimation of the probability of exposure in the operational situations"
+	}
+	IsoRequirement "ir3-7.4.5.3.1" {
+		id: "3-7.4.5.3.1"
+		name: "The probability of exposure of each operational situation shall be estimated. The probability of exposure shall be assigned to one of the probability classes E0, E1, E2, E3 and E4 in accordance with Table 2."
+	}
+	IsoRequirement "ir3-7.4.5.3.2" {
+		id: "3-7.4.5.3.2"
+		name: "The number of vehicles equipped with the item shall not be considered when estimating the probability of exposure."
+	}
+	IsoRequirement "ir3-7.4.5.3.3" {
+		id: "3-7.4.5.3.3"
+		name: "Class E0 may be used for those situations that are suggested during hazard and risk analysis, but which are considered to be extremely unusual, or incredible and therefore not followed up. A rationale shall be available for the exclusion of these situations. If a hazard is assigned to exposure class E0, no ASIL assignment is required."
+	}
+	IsoRequirement "ir3-7.4.5.4" {
+		id: "3-7.4.5.4"
+		name: "Estimation of controllability"
+	}
+	IsoRequirement "ir3-7.4.5.4.1" {
+		id: "3-7.4.5.4.1"
+		name: "The controllability of each hazardous event, by the driver or other traffic participants, shall be estimated. The controllability shall be assigned to one of the controllability classes C0, C1, C2 and C3 in accordance with Table 3."
+	}
+	IsoRequirement "ir3-7.4.5.4.2" {
+		id: "3-7.4.5.4.2"
+		name: "Class C0 may be used for hazards addressing the unavailability of the item if it does not affect the safe operation of the vehicle (e.g. driver assisting system). Class C0 may also be assigned if dedicated regulations exist that specify the functional performance with respect to a defined hazard and this is argued using the corresponding existing experience. If a hazard is assigned to the controllability class C0, no ASIL assignment is required."
+	}
+	IsoRequirement "ir3-7.4.6" {
+		id: "3-7.4.6"
+		name: "An ASIL shall be determined for each hazardous event using the estimation parameters severity (S), probability of exposure (E) and controllability (C) in accordance with Table 4."
+	}
+	IsoRequirement "ir3-7.4.7" {
+		id: "3-7.4.7"
+		name: "During hazard analysis and risk assessment, having established the list of operational situations and having estimated the values of the S, E and C parameters for each situation, it shall be ensured that the chosen level of detail of the list of operational situations does not lead to an inappropriate lowering of the ASIL of the corresponding safety goals."
+	}
+	IsoRequirement "ir3-7.4.8" {
+		id: "3-7.4.8"
+		name: "A safety goal shall be determined for each hazardous event evaluated in the hazard analysis."
+	}
+	IsoRequirement "ir3-7.4.9" {
+		id: "3-7.4.9"
+		name: "The hazard analysis, risk assessment and the safety goals shall be reviewed: To show completeness with regard to situations and hazards, compliance with the item definition, and consistency with related hazard analyses and risk assessments."
+	}
+	IsoRequirement "ir3-7.5.1" {
+		id: "3-7.5.1"
+		name: "Hazard analysis and risk assessment as a result of requirements 7.4.1 to 7.4.7."
+	}
+	IsoRequirement "ir3-7.5.2" {
+		id: "3-7.5.2"
+		name: "Safety goals as a result of requirement 7.4.8."
+	}
+	IsoRequirement "ir3-7.5.3" {
+		id: "3-7.5.3"
+		name: "Verification review of hazard analysis and risk assessment and safety goals as a result of requirement 7.4.9."
+	}
+	IsoRequirement "ir3-8.1" {
+		id: "3-8.1"
+		name: "Objectives"
+	}
+	IsoRequirement "ir3-8.2" {
+		id: "3-8.2"
+		name: "General"
+	}
+	IsoRequirement "ir3-8.4" {
+		id: "3-8.4"
+		name: "Requirements and recommendations"
+	}
+	IsoRequirement "ir3-8.4.1" {
+		id: "3-8.4.1"
+		name: "General"
+	}
+	IsoRequirement "ir3-8.4.2" {
+		id: "3-8.4.2"
+		name: "Derivation of functional safety requirements"
+	}
+	IsoRequirement "ir3-8.4.2.1" {
+		id: "3-8.4.2.1"
+		name: "The functional safety requirements shall be derived from the safety goals and safe states, considering the preliminary architectural assumptions, functional concept, operating modes and system states."
+	}
+	IsoRequirement "ir3-8.4.2.2" {
+		id: "3-8.4.2.2"
+		name: "At least one functional safety requirement shall be specified for each safety goal."
+	}
+	IsoRequirement "ir3-8.4.2.3" {
+		id: "3-8.4.2.3"
+		name: "Each functional safety requirement shall be specified considering the following information, if applicable:"
+	}
+	IsoRequirement "ir3-8.4.2.4" {
+		id: "3-8.4.2.4"
+		name: "The warning and degradation concept shall be specified."
+	}
+	IsoRequirement "ir3-8.4.2.5" {
+		id: "3-8.4.2.5"
+		name: "If a safe state cannot be reached by immediately switching off, an emergency operation shall be specified."
+	}
+	IsoRequirement "ir3-8.4.2.6" {
+		id: "3-8.4.2.6"
+		name: "If assumptions are made on the necessary actions of the driver, or other endangered persons, in order to comply with the safety goals:"
+	}
+	IsoRequirement "ir3-8.4.3" {
+		id: "3-8.4.3"
+		name: "Allocation of functional safety requirements"
+	}
+	IsoRequirement "ir3-8.4.3.1" {
+		id: "3-8.4.3.1"
+		name: "A safety architecture concept shall be developed."
+	}
+	IsoRequirement "ir3-8.4.3.2" {
+		id: "3-8.4.3.2"
+		name: "The functional safety requirements shall be allocated:"
+	}
+	IsoRequirement "ir3-8.4.3.3" {
+		id: "3-8.4.3.3"
+		name: "If the functional safety concept relies on elements of other technologies then the following shall apply:"
+	}
+	IsoRequirement "ir3-8.4.3.4" {
+		id: "3-8.4.3.4"
+		name: "If the functional safety concept relies on external risk reduction measures then the following shall apply:"
+	}
+	IsoRequirement "ir3-8.4.4" {
+		id: "3-8.4.4"
+		name: "The functional safety concept shall be verified in accordance with ISO 26262-8: —, Clause 9 for consistency and compliance with the safety goals."
+	}
+	IsoRequirement "ir3-8.4.5" {
+		id: "3-8.4.5"
+		name: "The functional safety requirements should be evaluated to determine their effectiveness."
+	}
+	IsoRequirement "ir3-8.4.6" {
+		id: "3-8.4.6"
+		name: "The criteria for safety validation of the item shall be specified in the functional safety concept."
+	}
+	IsoRequirement "ir3-8.4.7" {
+		id: "3-8.4.7"
+		name: "A review of the functional safety requirements shall provide a rationale that the functional safety requirements comply with the safety goals."
+	}
+	Clause "cl1-1" {
+		id: "1-1"
+		name: "Terms and definitions"
+	}
+	Clause "cl2-6" {
+		id: "2-6"
+		name: "Safety management during the item development"
+	}
+	Clause "cl3-5" {
+		id: "3-5"
+		name: "Item definition"
+	}
+	Clause "cl3-6" {
+		id: "3-6"
+		name: "Initiation of the safety lifecycle"
+	}
+	Clause "cl3-7" {
+		id: "3-7"
+		name: "Hazard analysis and risk assessment"
+	}
+	Clause "cl3-8" {
+		id: "3-8"
+		name: "Functional safety concept"
+	}
+	Clause "cl8-6" {
+		id: "8-6"
+		name: "Specification of software safety requirements"
+	}
+	Clause "cl8-9" {
+		id: "8-9"
+		name: "Software unit testing"
+	}
+	Clause "cl9-5" {
+		id: "9-5"
+		name: "Requirements decomposition with respect to ASIL tailoring"
+	}
+	Clause "cl9-7" {
+		id: "9-7"
+		name: "Analysis of dependent failures"
+	}
+	WorkProductType "wpt3-5.5" {
+		based_on: IsoRequirement "ir3-5.4.1", IsoRequirement "ir3-5.4.2", IsoRequirement "ir3-5.4.3"
+		id: "3-5.5"
+		name: "Item definition"
+	}
+	WorkProductType "wpt3-6.5" {
+		based_on: IsoRequirement "ir3-6.4.2.1", IsoRequirement "ir3-6.4.2.2", IsoRequirement "ir3-6.4.2.3", IsoRequirement "ir3-6.4.2.4", IsoRequirement "ir3-6.4.2.5", IsoRequirement "ir3-6.4.2.6", IsoRequirement "ir3-6.4.2.7"
+		id: "3-6.5"
+		name: "Impact analysis"
+	}
+	WorkProductType "wpt3-7.5.1" {
+		based_on: IsoRequirement "ir3-7.4.1", IsoRequirement "ir3-7.4.2", IsoRequirement "ir3-7.4.3", IsoRequirement "ir3-7.4.4", IsoRequirement "ir3-7.4.5", IsoRequirement "ir3-7.4.6"
+		id: "3-7.5.1"
+		name: "Hazard analysis and risk assessment"
+	}
+	WorkProductType "wpt3-7.5.2" {
+		based_on: IsoRequirement "ir3-7.4.8"
+		id: "3-7.5.2"
+		name: "Safety goals"
+	}
+	WorkProductType "wpt3-7.5.3" {
+		based_on: IsoRequirement "ir3-7.4.9"
+		id: "3-7.5.3"
+		name: "Verification review of hazard analysis and risk assessment and safety goals"
+	}
+	WorkProductType "wpt3-8.5.1" {
+		based_on: IsoRequirement "ir3-8.4.2", IsoRequirement "ir3-8.4.3", IsoRequirement "ir3-8.4.4", IsoRequirement "ir3-8.4.5"
+		id: "3-8.5.1"
+		name: "Functional safety concept"
+	}
+	WorkProductType "wpt3-8.5.2" {
+		based_on: IsoRequirement "ir3-8.4.7"
+		id: "3-8.5.2"
+		name: "Review of the functional safety requirements"
+	}
+}

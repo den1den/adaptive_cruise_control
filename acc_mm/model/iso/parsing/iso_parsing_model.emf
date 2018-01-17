@@ -1,0 +1,81 @@
+@namespace(uri="iso_parsing_model", prefix="")
+/*
+This document describes the classes which can be used to parse the ISO document.
+@Depricated
+*/
+package iso_parsing_model;
+
+import "platform:/resource/acc-mm/model/iso/iso_research_metamodel.ecore";
+
+class ISO26266 {
+  val ISODocument[*] documents;
+  val Clause[*] clauses;
+}
+
+abstract class Paragraph {
+  attr String text;
+  ref Ref[*] refs;
+  ref Source source;
+  ref Paragraph next;
+}
+
+class HeaderP extends Paragraph {
+  attr String ~id;
+}
+
+class PlainTextP extends Paragraph {
+}
+
+class SummationElP extends Paragraph {
+  attr String key;
+  ref Summation[1] parent;
+}
+
+class TypedP extends Paragraph {
+  attr String keyword;
+}
+
+abstract class Ref {
+  attr int used_at_offset;
+  attr int used_at_length;
+}
+
+class InternalRef extends Ref {
+  ref Clause to;
+}
+
+class ExternalRef extends Ref {
+  attr String description;
+}
+
+class ISODocument {
+  attr String name;
+  val Paragraph[*] otherPs;
+  val RequirementSection[*] requirements;
+}
+
+class Clause {
+  attr String name;
+  ref ISODocument in_document;
+}
+
+class RequirementSection {
+  val HeaderP[1] header;
+  val Paragraph[*] lines;
+  val Summation[*] summations;
+  ref iso_research_metamodel.IsoRequirement[0..1] requirement;
+}
+
+class Summation {
+  ref Paragraph header;
+  ref SummationElP[*] elements;
+}
+
+abstract class Source {
+}
+
+class TextSource extends Source {
+  attr String filename;
+  attr int linenumber;
+}
+

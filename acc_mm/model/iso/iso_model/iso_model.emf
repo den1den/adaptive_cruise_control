@@ -1,0 +1,21 @@
+@namespace(uri="iso_model", prefix="ism")
+/*
+This document describes the model for elements of the ISO which the project might reference to
+*/
+package iso_model;
+
+class Clause {
+	attr String[1] ~id;
+	attr String[1] name;
+}
+
+class IsoRequirement {
+	attr String[1] ~id;
+	attr String[1] name;
+}
+
+class WorkProductType {
+	attr String[1] ~id;
+	attr String[1] name;
+	ref IsoRequirement[*] based_on;
+}

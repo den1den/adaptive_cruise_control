@@ -1,0 +1,44 @@
+//removeAll(Clause);
+
+ensureClause("1-1 Terms and definitions");
+ensureClause("2-6\nSafety management during the item development");
+ensureClause("3-5 Item definition");
+ensureClause("3-6 Initiation of the safety lifecycle");
+ensureClause("3-7 Hazard analysis and risk assessment");
+ensureClause("3-8 Functional safety concept");
+ensureClause("8-6\nSpecification of software safety requirements");
+ensureClause("8-9\nSoftware unit testing");
+ensureClause("9-5\nRequirements decomposition with respect to ASIL tailoring");
+ensureClause("9-7\nAnalysis of dependent failures");
+
+"done".println();
+
+operation removeAll(cls) {
+	for (el in cls.allInstances.clone()) {
+		("deleting "+cls+": " + el).println();
+		delete el;
+	}
+}
+
+operation getSingleton(Class) {
+	if(Class.allInstances.isEmpty()){
+		return new Class();
+	} else {
+		return Class.allInstances.first();
+	}
+}
+
+operation ensureClause(str: String) {
+	var spl = str.split("\\s+");
+	var name = spl.removeAt(0);
+	var title = spl.concat(' ');
+	
+	if(not Clause.allInstances.exists(c | c.name = name)){
+
+		var c : new Clause();
+		c.name = name;
+		c.title = title;
+		("created "+c).println();
+	}
+}
+
