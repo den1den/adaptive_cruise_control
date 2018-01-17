@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_ZdLfwPXUEeeKL7bE_UZbqw">
+  <imports href="iso_research#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_IoYiUPXTEeeKL7bE_UZbqw" name="hasClause">
+    <parameters xmi:id="_yiiIsPXWEeeKL7bE_UZbqw" name="clause" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </parameters>
+    <lhs xmi:id="_Ioa-kPXTEeeKL7bE_UZbqw" name="Lhs">
+      <formula xsi:type="henshin:NestedCondition" xmi:id="_LZYDQ_XTEeeKL7bE_UZbqw">
+        <conclusion xmi:id="_LZYDRPXTEeeKL7bE_UZbqw">
+          <nodes xmi:id="_LZYDQPXTEeeKL7bE_UZbqw">
+            <type href="iso_research#//ClauseReference"/>
+            <attributes xmi:id="_MDohMPXTEeeKL7bE_UZbqw" value="clause">
+              <type href="iso_research#//ClauseReference/clause"/>
+            </attributes>
+          </nodes>
+        </conclusion>
+      </formula>
+    </lhs>
+    <rhs xmi:id="_Ioa-kfXTEeeKL7bE_UZbqw" name="Rhs"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="_QymKsPXTEeeKL7bE_UZbqw" name="createClause">
+    <parameters xmi:id="_1DELwPXWEeeKL7bE_UZbqw" name="clause" kind="IN">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </parameters>
+    <lhs xmi:id="_QypOAPXTEeeKL7bE_UZbqw" name="Lhs"/>
+    <rhs xmi:id="_QypOAfXTEeeKL7bE_UZbqw" name="Rhs">
+      <nodes xmi:id="_SAVJIPXTEeeKL7bE_UZbqw">
+        <type href="iso_research#//ClauseReference"/>
+        <attributes xmi:id="_SiCvEPXTEeeKL7bE_UZbqw" value="clause">
+          <type href="iso_research#//ClauseReference/clause"/>
+        </attributes>
+      </nodes>
+    </rhs>
+  </units>
+  <units xsi:type="henshin:ConditionalUnit" xmi:id="_ZqbuEPXTEeeKL7bE_UZbqw" name="ensureClause" description="" if="_IoYiUPXTEeeKL7bE_UZbqw" then="_pGWpgPXTEeeKL7bE_UZbqw" else="_QymKsPXTEeeKL7bE_UZbqw">
+    <parameters xmi:id="_ubYtIPXWEeeKL7bE_UZbqw" name="clause" kind="IN"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="_pGWpgPXTEeeKL7bE_UZbqw" name="tau" description="">
+    <lhs xmi:id="_pGcJEPXTEeeKL7bE_UZbqw" name="Lhs"/>
+    <rhs xmi:id="_pGcJEfXTEeeKL7bE_UZbqw" name="Rhs"/>
+  </units>
+</henshin:Module>

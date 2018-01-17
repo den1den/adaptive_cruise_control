@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="iso_research_metamodel" nsURI="iso_research" nsPrefix="">
+  <eClassifiers xsi:type="ecore:EClass" name="IsoRequirement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="IsoRequirementInterpetation">
+    <eAnnotations source="json"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="of_requirement" lowerBound="1"
+        eType="#//IsoRequirement"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="explicitly_defines" upperBound="-1"
+        eType="#//ProjectMetaModelElements"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="references" upperBound="-1"
+        eType="#//IsoObligation"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="unclear" upperBound="-1"
+        eType="#//DomainExpertClarificationRequest"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="constraints" upperBound="-1"
+        eType="#//projectObligation"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EvaluationMetaModel">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="project_part" lowerBound="1"
+        upperBound="-1" eType="#//ProjectMetaModelElements" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="iso_part" lowerBound="1"
+        upperBound="-1" eType="#//ISOMetaModelElements" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ProjectMetaModelElements"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Project">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="instance_of" lowerBound="1"
+        eType="#//EvaluationMetaModel"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IsoObligation" eSuperTypes="#//Transformation"/>
+  <eClassifiers xsi:type="ecore:EClass" name="projectObligation" eSuperTypes="#//Validation"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DomainExpertClarificationRequest"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ISOMetaModelElements">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="related_to" eType="#//ProjectMetaModelElements"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Validation">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="defined_on" lowerBound="1"
+        eType="#//EvaluationMetaModel"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="checks" eType="#//Project"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Transformation">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="defined_on" lowerBound="1"
+        eType="#//EvaluationMetaModel"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="checks" eType="#//Project"/>
+  </eClassifiers>
+</ecore:EPackage>

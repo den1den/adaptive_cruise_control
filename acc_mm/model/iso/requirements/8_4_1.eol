@@ -1,0 +1,21 @@
+
+
+"Something".println();
+
+for (c in project_model!Clause.allInstances) {
+	c.println();
+    //c.extends = project_model!Clause.allInstances.random();
+}
+
+operation getClause(name: String) {
+	for (c : Clause in Clause.allInstances) {
+		if(c.name == name){
+			return c;
+		}
+	}
+	var c : Clause = new Clause;
+	var c.name = name;
+	("Created new clause " + c).println();
+	return c;
+}
+var thisClause : getClause("8.4");

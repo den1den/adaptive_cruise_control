@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_bqu2EPXMEeeKL7bE_UZbqw">
+  <imports href="iso_research#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_dZ_NMPXMEeeKL7bE_UZbqw" name="addRef" description="">
+    <lhs xmi:id="_dae8cPXMEeeKL7bE_UZbqw" name="Lhs">
+      <nodes xmi:id="_gridgPXMEeeKL7bE_UZbqw">
+        <type href="iso_research#//Requirement"/>
+      </nodes>
+      <nodes xmi:id="_ShjuQPXQEeeKL7bE_UZbqw" name="" description="">
+        <type href="iso_research#//ClauseReference"/>
+        <attributes xmi:id="_ShjuQfXQEeeKL7bE_UZbqw" value="&quot;8-6&quot;">
+          <type href="iso_research#//ClauseReference/clause"/>
+        </attributes>
+      </nodes>
+      <formula xsi:type="henshin:NestedCondition" xmi:id="_dzOPwPXQEeeKL7bE_UZbqw">
+        <conclusion xmi:id="_dzOPwfXQEeeKL7bE_UZbqw">
+          <nodes xmi:id="_dzOPwvXQEeeKL7bE_UZbqw" outgoing="_tYvI4PXMEeeKL7bE_UZbqw">
+            <type href="iso_research#//Requirement"/>
+          </nodes>
+          <nodes xmi:id="_iApZ0PXNEeeKL7bE_UZbqw" description="" incoming="_tYvI4PXMEeeKL7bE_UZbqw">
+            <type href="iso_research#//RType"/>
+            <attributes xmi:id="_iApZ0fXNEeeKL7bE_UZbqw" value="&quot;functional safety&quot;">
+              <type href="iso_research#//RType/name"/>
+            </attributes>
+          </nodes>
+          <nodes xmi:id="_dzO21PXQEeeKL7bE_UZbqw" name="" description="">
+            <type href="iso_research#//ClauseReference"/>
+            <attributes xmi:id="_dzO21fXQEeeKL7bE_UZbqw" value="&quot;8-6&quot;">
+              <type href="iso_research#//ClauseReference/clause"/>
+            </attributes>
+          </nodes>
+          <edges xmi:id="_tYvI4PXMEeeKL7bE_UZbqw" source="_dzOPwvXQEeeKL7bE_UZbqw" target="_iApZ0PXNEeeKL7bE_UZbqw">
+            <type href="iso_research#//Requirement/type"/>
+          </edges>
+        </conclusion>
+        <mappings xmi:id="_dzOPw_XQEeeKL7bE_UZbqw" origin="_gridgPXMEeeKL7bE_UZbqw" image="_dzOPwvXQEeeKL7bE_UZbqw"/>
+        <mappings xmi:id="_dzO21vXQEeeKL7bE_UZbqw" origin="_ShjuQPXQEeeKL7bE_UZbqw" image="_dzO21PXQEeeKL7bE_UZbqw"/>
+      </formula>
+    </lhs>
+    <rhs xmi:id="_dae8cfXMEeeKL7bE_UZbqw" name="Rhs">
+      <nodes xmi:id="_iAr2EPXNEeeKL7bE_UZbqw" incoming="_RyC84PXQEeeKL7bE_UZbqw">
+        <type href="iso_research#//Requirement"/>
+      </nodes>
+      <nodes xmi:id="_ShjuQ_XQEeeKL7bE_UZbqw" name="" description="" outgoing="_RyC84PXQEeeKL7bE_UZbqw">
+        <type href="iso_research#//ClauseReference"/>
+        <attributes xmi:id="_ShjuRPXQEeeKL7bE_UZbqw" value="&quot;8-6&quot;">
+          <type href="iso_research#//ClauseReference/clause"/>
+        </attributes>
+      </nodes>
+      <edges xmi:id="_RyC84PXQEeeKL7bE_UZbqw" source="_ShjuQ_XQEeeKL7bE_UZbqw" target="_iAr2EPXNEeeKL7bE_UZbqw">
+        <type href="iso_research#//ClauseReference/refers_to"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_iAr2EfXNEeeKL7bE_UZbqw" origin="_gridgPXMEeeKL7bE_UZbqw" image="_iAr2EPXNEeeKL7bE_UZbqw"/>
+    <mappings xmi:id="_ShjuRfXQEeeKL7bE_UZbqw" origin="_ShjuQPXQEeeKL7bE_UZbqw" image="_ShjuQ_XQEeeKL7bE_UZbqw"/>
+  </units>
+  <units xsi:type="henshin:SequentialUnit" xmi:id="_4ywGYPXSEeeKL7bE_UZbqw" name="main" description="">
+    <subUnits xsi:type="henshin:ConditionalUnit" href="ensureClause.henshin#_ZqbuEPXTEeeKL7bE_UZbqw"/>
+    <subUnits xsi:type="henshin:Rule" href="#_dZ_NMPXMEeeKL7bE_UZbqw"/>
+  </units>
+</henshin:Module>

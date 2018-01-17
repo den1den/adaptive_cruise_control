@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmi:id="_ZdMG0PXUEeeKL7bE_UZbqw" type="Henshin" name="ensureClause.henshin_diagram" measurementUnit="Pixel">
+  <styles xmi:type="notation:DiagramStyle" xmi:id="_ZdMG0fXUEeeKL7bE_UZbqw"/>
+  <element xmi:type="henshin:Module" href="ensureClause.henshin#_ZdLfwPXUEeeKL7bE_UZbqw"/>
+</notation:Diagram>

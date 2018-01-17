@@ -1,0 +1,27 @@
+context project_metamodel!Cxt{
+
+	constraint AllTypesAreInContext {
+		// Can be generalized
+		check : self.types.includesAll(RType.allInstances)
+	} 
+
+	constraint FunctionalSafetyTypeExists {
+		// Can be generalized
+		check {
+			for (t : RType in self.types) {
+				if (t.name == "functional safety") {
+					return true;
+				}
+			}
+			return false;
+		}
+		fix {
+			title : "Create RType \"functional safety\""
+			do {
+				var t : new RType;
+				t.name = "functional safety";
+        		self.types.add(t);
+    		}
+		}
+	}
+}
