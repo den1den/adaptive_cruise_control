@@ -6,9 +6,9 @@ from ISO_model.schemes.schemes import *
 
 class WorkProduct(jsl.Document):
     name = jsl.StringField(required=True)
-    based_on = ArrayField([
-        RequirementId()
-    ])
+    based_on = ArrayField(
+        RequirementId,
+    )
 
 
 class WorkProducts(jsl.DictField):

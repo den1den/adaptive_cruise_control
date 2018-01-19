@@ -1,0 +1,25 @@
+definitions:
+requirements_test:
+  3-5.4.1:
+    classification: [existence, structure]
+    pr_model:
+    - Item.requirements
+    - RequirementSuperType
+    - RequirementSuperType.functional
+    - Item.requirements__where__type__is__functional
+    - Item.env_dependency
+    - EnvironmentalDependency
+    - Item.of__env_dependency
+    ocl:
+      satisfies:
+      - c: TestItem
+        pre:
+        - 'for (x : TestItem in TestItem.all().select(x|x.my_check.isUndefined()) ) {'
+        - ' x.my_check=new CheckComplete;'
+        - '}'
+        ts:
+        - CHECK my_check
+        - self.my_check.checked
+    status: gen
+work_products:
+  3-5.5: {}
