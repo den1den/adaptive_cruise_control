@@ -1,43 +1,81 @@
 @namespace(uri="project_model", prefix="pm")
-/*
-This document contains the model for elements of the project 
-*/
+// This document contains the model for elements of the project
 package project_model;
 
-//
-// Techincal elements (Iso defined)
-//
-class Element{
-	
+class Project{
+	attr ProjectType[1] type;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dummy and tests 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class TestItem {
+	val CheckTextContains[1] c__my_check;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Techincal elements (Iso defined)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Item {
 	attr String[1] name;
-	val Requirement[*] requirements;
-	val Description[1] description;
-	val CheckTextContains[1] check_description_purpose;
-	val CheckTextContains[1] check_description_functionality;
 	
-	val Description[1] boundry;
-	val CheckIsCondsidered check_boundry;
-	val Description[1] interfaces;
-	val CheckIsCondsidered check_interfaces;
-	val Description[1] assumptions_on_other;
-	val CheckIsCondsidered check_assumptions_on_other;
+	val Description[1] description;
+	val CheckTextContains[1] c__description__contains__itempurpose;
+	val CheckTextContains[1] c__description__contains__functionality;
+	
+	val Requirement[*] requirements;
+	val CheckComplete[1] c__requirements__where__type__is__functional;
+	val CheckComplete[1] c__requirements__where__type2__is__operational;
+	val CheckComplete[1] c__requirements__where__type2__is__environmental;
+	val CheckComplete[1] c__requirements__where__type__is__legal;
+	
+	val CheckTextContains[1] c__description__contains__constraints;
+	
+	val EnvironmentalDependency[*] env_dependency;
+	val CheckComplete[1] c__of__env_dependency;
+	
+	val CheckTextContains[1] c__description__contains__itemboundry;
+	val CheckTextContains[1] c__description__contains__iteminterfaces;
+	val CheckTextContains[1] c__description__contains__itemassumptions_on_other;
+	
+	val ItemSafetyRequirement[*] safety_requirements;
+	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_functions;
+	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_systems;
+	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_elements;
+	
+	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__assumptions_itembehavior;
+	
+	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_shortfalls;
+	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__failure_modes;
+	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__hazards;
+	
+	//ref Object[0..*] constraints;
 }
 class Requirement {
 	attr String[1] rId;
-	ref RequirementType[1] type;
-	ref RequirementSource[0..1] related_to;
+	attr RequirementSuperType[1] type;
+	attr RequirementSubType[0..1] type2;
+	attr RequirementSource[0..1] related_to;
+}
+class ItemSafetyRequirement extends SafetyRequirement {
+	attr boolean[1] wasAlreadyKnown;
 }
 class SafetyRequirement extends Requirement{
+	attr ASIL[1] asil;
+
+	attr SafetyRequirementLevel[1] level;
+	ref SafetyRequirement[*] parent;
+	
+	attr String[1] specification_natural_language;
+	attr SafetyRequirementSpecificationManner[1] specification_manner;
 }
 class PreviouslyKnownSafetyRequirements extends SafetyRequirement {
 	ref PKSRDerivation[0..1] derived_from;
 }
 
-//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Artifacts
-//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 abstract class Artifact {} 
 class WorkProduct extends Artifact {
 	attr String[1] name;
@@ -49,39 +87,63 @@ class Unidentified extends Artifact {
 	attr String[1] contents;
 }
 
-//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Verification process atts
-//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// With the descriptions of notation used
+// Note that the exact meaning should be in the requirements, only an plausible distinction shoule be made with the naming of the attribute
 abstract class Check{
-	val Aspect[1] aspect; 
 	attr Boolean[1] checked = false;
 }
-class Aspect {
-	attr String[1] name;
+class CheckComplete extends Check {
+	// Checks if all elements in an attribute are complete.
+	// of__<attribute[*]>
+	// <attribute[*]>__where__<attribute.class.attribute>__is__<enum>
+	// <attribute[*]>__where__<attribute.class.attribute>__is__<bool>
 }
-class Aspect_3_5_4_3 extends Aspect {}
 class CheckTextContains extends Check {
+	// Check if some text contains a required specification
+	// <String attribute[1]>__contains__<<Aspect>>
 }
-class CheckIsCondsidered extends Check {
+/*class CheckFilled extends Check {
+	attr String[1] attribute_name;
+	ref Object[1] attribute_eq_value;
+}*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Project structure elements
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+enum RequirementSuperType {
+	functional; non_functional; legal;
+}
+enum RequirementSubType {
+	operational; environmental;
+}
+enum RequirementSource {
+	
 }
 
-//
-// Project structure elements
-//
-class RequirementType {
-	attr String[1] name;
-}
-class RequirementSource {
-	attr String[1] name;
-}
 class PKSRDerivation {
 	attr String[1] name;
 }
 class ItemExternalAssumptionTypes {
 	attr String[1] name;
 }
-enum RequirementLevel {
+class EnvironmentalDependency {
+	attr String[1] description; // Could be "No dependency"
+}
+enum SafetyRequirementLevel {
 	HARA; Safety_Goal; Functional; Technical; HW_SW;
 }
-
-
+enum SafetyRequirementSpecificationManner {
+	informal; semi_formal; formal;
+}
+enum ProjectType {
+	model_based_development; other;
+}
+enum IsoConcept {
+	management_of_safety_requirements;
+}
+enum ASIL {
+	QM;A;B;C;D;
+}
