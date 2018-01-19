@@ -5,4 +5,4 @@
 . venv/bin/activate
 export PYTHONPATH=.
 
-python ISO_model/scripts/extract_emfatic.py $1 || exit -1
+python ISO_model/scripts/parsers/emf_model_parser.py $1 || exit -1

@@ -1,9 +1,16 @@
 non_functional_requirements:
+# These can be in functional
+#
+# These should be about: performance and quality
+# performace: It should reach the target speed in 2 seconds
+#
+#
   default:
   ACC_NFR_1_obstacle_detect_delegates:
     level: system
     assigned_to: ACC
     text: The ACC uses the _ObstacleDetector_ system to determine the distance to the obstacle in front of the car.
+    # It does not say much about the use so its vague.
     references_used:
     - name: ObstacleDetector
       level: component
@@ -11,6 +18,7 @@ non_functional_requirements:
     level: item
     assigned_to: ACC
     text: The ACC the interacts with the user via the _SteeringWheel_ and _DashboardGPU_ system.
+    # It does not say much about the use so its vague.
     references_used:
     - level: system
       name: SteeringWheel

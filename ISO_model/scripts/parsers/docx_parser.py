@@ -5,8 +5,10 @@ from xml.dom import minidom
 import os
 from xml.dom.minidom import Node
 
+from ISO_model.scripts.parsers.parser import Parser
 
-class DocxToTextParser:
+
+class DocxParser(Parser):
     NS = {
         "wpc": "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas",
         "mc": "http://schemas.openxmlformats.org/markup-compatibility/2006",
@@ -39,8 +41,10 @@ class DocxToTextParser:
         self.listing_el = None
         self.ignore_regex = re.compile('^\s*$')
 
-    def parse(self, infile):
-        extract_zip(infile)
+    def load(self, file_name):
+        extract_zip(file_name)
+
+    def parse(self):
         document = minidom.parse(os.path.join('tmp', 'word', 'word', 'document.xml'))
 
         self.table = False
@@ -62,9 +66,9 @@ class DocxToTextParser:
             if self.ignore_regex.match(txt):
                 pass
             else:
-                if DocxToTextParser.re_table.match(txt):
+                if DocxParser.re_table.match(txt):
                     self.table = True
-                if DocxToTextParser.re_requirement.match(txt):
+                if DocxParser.re_requirement.match(txt):
                     self.table = False
 
                 if not self.table:
@@ -239,21 +243,22 @@ def get_parent(tag, element):
 
 
 def main():
-    # parser = DocxToTextParser(start_regex=re.compile('1\.\d'), stop_regex='2 Abbreviated terms')
+    # parser = DocxParser(start_regex=re.compile('1\.\d'), stop_regex='2 Abbreviated terms')
     # parser.parse(r'/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-1_DIS_20090813 (Vocabulary).docx')
-    # parser.write(r'../part1-text.2.txt')
+    # parser.write(r'ISO_model/part1-text.2.txt')
 
     start = '7.4 Requirements and recommendations'
     start = '8.3 Inputs to this clause'
     start = '6 Initiation of the safety lifecycle'
     start = 'Item definition\s*$'
-    parser = DocxToTextParser(start, stop_regex='Annex')
-    parser.parse(r'/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-3_DIS_20090813 (Concept phase).docx')
-    parser.write(r'../part3-text.2.txt')
+    parser = DocxParser(start, stop_regex='Annex')
+    parser.load(r'/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-3_DIS_20090813 (Concept phase).docx')
+    parser.parse()
+    parser.write(r'ISO_model/part3-text.3.txt')
 
-    # parser = DocxToTextParser()
+    # parser = DocxParser()
     # parser.parse(r'/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-4_DIS_20090813 (Product development - system level).docx')
-    # parser.write('../part4-text.2.txt')
+    # parser.write('ISO_model/part4-text.2.txt')
 
 
 if __name__ == '__main__':

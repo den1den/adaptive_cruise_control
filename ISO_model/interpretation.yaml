@@ -15,7 +15,6 @@ requirements_3:
     - Item.requirements
     - RequirementSuperType
     - Item.c__requirements__where__type__is__functional
-
     - EnvironmentalDependency
     - Item.env_dependency
     - Item.c__of__env_dependency
@@ -53,6 +52,8 @@ requirements_3:
     - RequirementSubType.environmental
     - Item.c__requirements__where__type2__is__operational
     - Item.c__requirements__where__type2__is__environmental
+    - Requirement.type
+    - Requirement.type2
     ocl:
       structure:
       - c: Requirement
@@ -90,47 +91,45 @@ requirements_3:
   3-5.4.2:
     pr_model:
     - ItemSafetyRequirement
-    - ItemSafetyRequirement.wasAlreadyKnown
-    - Item.safety_requirements
+    - Item.already_known_srs
     ocl:
       warning:
       - c: Item
-        t: self.safety_requirements.length() == 0
+        t: self.already_known_srs.length() == 0
     status: gen
   3-5.4.2.a:
     pr_model:
-    - Item.safety_requirements
-    - Item.c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_functions
-    - Item.c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_systems
-    - Item.c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_elements
+    - Item.c__already_known_srs__wrt__behavior_similar_functions
+    - Item.c__already_known_srs__wrt__behavior_similar_systems
+    - Item.c__already_known_srs__wrt__behavior_similar_elements
     ocl:
       satisfies:
       - c: Item
         ts:
-        - CHECK c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_functions
-        - CHECK c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_systems
-        - CHECK c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_elements
+        - CHECK c__already_known_srs__wrt__behavior_similar_functions
+        - CHECK c__already_known_srs__wrt__behavior_similar_systems
+        - CHECK c__already_known_srs__wrt__behavior_similar_elements
     status: gen
   3-5.4.2.b:
     pr_model:
-    - Item.c__safety_requirements__where__wasAlreadyKnown__true__wrt__assumptions_itembehavior
+    - Item.c__already_known_srs__wrt__assumptions_itembehavior
     ocl:
       satisfies:
       - c: Item
-        t: CHECK c__safety_requirements__where__wasAlreadyKnown__true__wrt__assumptions_itembehavior
+        t: CHECK c__already_known_srs__wrt__assumptions_itembehavior
     status: gen
   3-5.4.2.c:
     pr_model:
-    - Item.c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_shortfalls
-    - Item.c__safety_requirements__where__wasAlreadyKnown__true__wrt__failure_modes
-    - Item.c__safety_requirements__where__wasAlreadyKnown__true__wrt__hazards
+    - Item.c__already_known_srs__wrt__behavior_shortfalls
+    - Item.c__already_known_srs__wrt__failure_modes
+    - Item.c__already_known_srs__wrt__hazards
     ocl:
       satisfies:
       - c: Item
         ts:
-        - CHECK c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_shortfalls
-        - CHECK c__safety_requirements__where__wasAlreadyKnown__true__wrt__failure_modes
-        - CHECK c__safety_requirements__where__wasAlreadyKnown__true__wrt__hazards
+        - CHECK c__already_known_srs__wrt__behavior_shortfalls
+        - CHECK c__already_known_srs__wrt__failure_modes
+        - CHECK c__already_known_srs__wrt__hazards
     status: gen
 
 
@@ -189,7 +188,8 @@ requirements_3:
       ensureHasCheck(Item, check_interfaces, a);
       ensureHasCheck(Item, check_assumptions_on_other, a);
 requirements_86: # Clause 8-6 Specification and management of safety requirements
-  8-6.1: {status: todo }
+  8-6.1:
+    status: todo
   8-6.2:
     status: todo
     quality: low

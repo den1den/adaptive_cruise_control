@@ -3,7 +3,7 @@ Safety goal related checking
 """
 import re
 
-from project.scripts.asil import Asil
+from acc_project.scripts.asil import Asil
 
 
 def get_safety_goals(in_md_file='project/3-7.5.2 Safety goals.md'):

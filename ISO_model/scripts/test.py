@@ -1,4 +1,3 @@
-import unittest
 from unittest import TestCase
 
 from ISO_model.scripts.extract_OCL import *

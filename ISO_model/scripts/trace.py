@@ -1,5 +1,6 @@
 import json
 
+
 def has_model_reference(req_interpetation, model_ref):
     if 'pr_model' not in req_interpetation:
         return False
@@ -12,6 +13,7 @@ def has_model_reference(req_interpetation, model_ref):
             if val == model_ref:
                 return True
     return False
+
 
 # att = input('Give an attribute or class: (Class.attr)\n')
 att = 'PKSRDerivation'
@@ -31,7 +33,7 @@ for att in atts:
             has_match = True
             matches += [req_id]
     if len(matches) > 0:
-        print("%s match: %s" % (i, matches, ))
+        print("%s match: %s" % (i, matches,))
     i += 1
 
 if not has_match:

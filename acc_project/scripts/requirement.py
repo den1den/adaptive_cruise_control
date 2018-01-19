@@ -1,7 +1,7 @@
 import os
 import yaml
 
-from project.scripts.asil import Asil
+from acc_project.scripts.asil import Asil
 
 external_systems = yaml.safe_load(open(
     os.path.join(os.path.dirname(__file__), '../aux_definitions/external_systems.yaml')

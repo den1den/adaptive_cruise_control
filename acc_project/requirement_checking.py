@@ -7,10 +7,10 @@ import sys
 
 import yaml
 
-from project.safety_goals_checking import get_safety_goals
-from project.scripts.asil import Asil
-from project.scripts.requirement import make_dep_tree, Requirement
-from project.scripts.requirement_parser import RequirementParser, print_errors
+from acc_project.safety_goals_checking import get_safety_goals
+from acc_project.scripts.asil import Asil
+from acc_project.scripts.requirement import make_dep_tree, Requirement
+from acc_project.scripts.requirement_parser import RequirementParser, print_errors
 from scripts.dot_template_renderer import yaml_and_template_to_dot, template_to_dot, template_to_png
 
 value_classes = yaml.safe_load(open(

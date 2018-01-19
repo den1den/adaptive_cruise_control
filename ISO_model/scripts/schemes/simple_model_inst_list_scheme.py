@@ -1,8 +1,6 @@
 import json
 import jsl
 
-from ISO_model.schemes.schemes import *
-
 
 class ModelFields(jsl.DictField):
     def __init__(self):

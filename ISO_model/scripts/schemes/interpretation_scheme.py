@@ -1,10 +1,4 @@
-import os
-import sys
-
-import yaml
-from jsonschema.validators import validate as json_scheme_validate
-
-from ISO_model.schemes.schemes import *
+from ISO_model.scripts.schemes.schemes import *
 
 RequirementClassifications = (
     'structure',  # specifies structure of the project
@@ -44,7 +38,7 @@ class EOLSingleCheckWithName(jsl.Document):
 class OCLConstraintBase(jsl.Document):  # abstract
     # Common
     c = ModelClassName(description='The EVL context', required=True)
-    pre = ArrayField(EolStatements, description='@pre actions for this context')
+    pre = EolStatements(description='@pre actions for this context')
     g = EolBool(description='Filters the context')
 
 
@@ -83,8 +77,7 @@ class InterpretationRequirement(jsl.Document):
     pr_model = SingleOrArray(
         ModelReference(),
         description='References to parts of the model which are created when interpreting this requirement')
-    pre = ArrayField(
-        EolStatements,
+    pre = EolStatements(
         description='@pre actions for each context. ' +
                     'These actions can possibly create parts of the project instance which are needed later on')
     ocl = SameTargetDict(

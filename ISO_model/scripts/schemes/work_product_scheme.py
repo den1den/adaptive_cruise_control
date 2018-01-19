@@ -1,7 +1,5 @@
 import json
-import jsl
-
-from ISO_model.schemes.schemes import *
+from .schemes import *
 
 
 class WorkProduct(jsl.Document):

@@ -2,7 +2,6 @@ import jsl  # http://jsl.readthedocs.io/en/latest/tutorial.html
 
 # http://json-schema.org/implementations.html
 # npm install -g pajv
-from jsl import Document
 from jsl.document import DocumentMeta
 
 re_REQUIREMENT_ID = r'\d(\.\d)*'
@@ -56,9 +55,10 @@ class RequirementId(jsl.StringField):
 
 
 def _create_model_reference_enum():
-    from ISO_model.scripts.extract_emfatic import EmfaticParser
-    emf_parser = EmfaticParser()
-    emf_parser.parse_file('/home/dennis/Dropbox/0cn/acc_mm/model/project/project_model.emf')
+    from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
+    emf_parser = EmfModelParser()
+    emf_parser.load()
+    emf_parser.parse()
     enum = []
     for class_name, atts in emf_parser.atts.items():
         enum.append(class_name)
@@ -113,13 +113,6 @@ class EolBool(jsl.StringField):
         super(EolBool, self).__init__(**kwargs)
 
 
-class EolStatements(jsl.StringField):
-    def __init__(self, **kwargs):
-        kwargs.setdefault('Eol commands, referencing utils.eol file')
-        kwargs.setdefault('min_length', 1)
-        super(EolStatements, self).__init__(**kwargs)
-
-
 class AnyOf(jsl.AnyOfField):
     def __init__(self, *any_of, **kwargs):
         instances = [
@@ -136,11 +129,18 @@ class ArrayField(jsl.ArrayField):
     """Array of any of the `items`"""
 
     def __init__(self, *any_of, **kwargs):
-        kwargs.setdefault('min_items', 1)
         kwargs.setdefault('unique_items', True)
         super().__init__(
             AnyOf(*any_of),
             **kwargs)
+
+
+class EolStatements(ArrayField):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('Eol statements or comments, referencing utils.eol file')
+        kwargs.setdefault('min_length', 0)
+        kwargs.setdefault('unique_items', False)
+        super(EolStatements, self).__init__(jsl.StringField(), **kwargs)
 
 
 class SingleOrArray(AnyOf):

@@ -7,8 +7,8 @@ from ruamel.yaml import YAML
 from ruamel.yaml.constructor import SafeConstructor
 from yaml.parser import ParserError
 
-from project.scripts.asil import Asil
-from project.scripts.requirement import Requirement
+from acc_project.scripts.asil import Asil
+from acc_project.scripts.requirement import Requirement
 
 requirement_types = yaml.safe_load(open(
     os.path.join(os.path.dirname(__file__), '../aux_definitions/requirement_types.yaml')

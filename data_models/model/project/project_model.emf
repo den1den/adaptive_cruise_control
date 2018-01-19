@@ -19,6 +19,7 @@ class TestItem {
 class Item {
 	attr String[1] name;
 	
+	//5.4.1
 	val Description[1] description;
 	val CheckTextContains[1] c__description__contains__itempurpose;
 	val CheckTextContains[1] c__description__contains__functionality;
@@ -34,22 +35,22 @@ class Item {
 	val EnvironmentalDependency[*] env_dependency;
 	val CheckComplete[1] c__of__env_dependency;
 	
+	//5.4.2
+	val ItemSafetyRequirement[*] already_known_srs;
+	val CheckComplete[1] c__already_known_srs__wrt__behavior_similar_functions;
+	val CheckComplete[1] c__already_known_srs__wrt__behavior_similar_systems;
+	val CheckComplete[1] c__already_known_srs__wrt__behavior_similar_elements;
+	
+	val CheckComplete[1] c__already_known_srs__wrt__assumptions_itembehavior;
+	
+	val CheckComplete[1] c__already_known_srs__wrt__behavior_shortfalls;
+	val CheckComplete[1] c__already_known_srs__wrt__failure_modes;
+	val CheckComplete[1] c__already_known_srs__wrt__hazards;
+	
+	//5.4.3 ...
 	val CheckTextContains[1] c__description__contains__itemboundry;
 	val CheckTextContains[1] c__description__contains__iteminterfaces;
 	val CheckTextContains[1] c__description__contains__itemassumptions_on_other;
-	
-	val ItemSafetyRequirement[*] safety_requirements;
-	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_functions;
-	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_systems;
-	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_similar_elements;
-	
-	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__assumptions_itembehavior;
-	
-	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__behavior_shortfalls;
-	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__failure_modes;
-	val CheckComplete[1] c__safety_requirements__where__wasAlreadyKnown__true__wrt__hazards;
-	
-	//ref Object[0..*] constraints;
 }
 class Requirement {
 	attr String[1] rId;
@@ -58,7 +59,6 @@ class Requirement {
 	attr RequirementSource[0..1] related_to;
 }
 class ItemSafetyRequirement extends SafetyRequirement {
-	attr boolean[1] wasAlreadyKnown;
 }
 class SafetyRequirement extends Requirement{
 	attr ASIL[1] asil;
@@ -71,6 +71,7 @@ class SafetyRequirement extends Requirement{
 }
 class PreviouslyKnownSafetyRequirements extends SafetyRequirement {
 	ref PKSRDerivation[0..1] derived_from;
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +86,7 @@ class Description extends Artifact {
 }
 class Unidentified extends Artifact {
 	attr String[1] contents;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

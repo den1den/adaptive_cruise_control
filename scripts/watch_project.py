@@ -16,7 +16,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from yaml.scanner import ScannerError
 
-from project.requirement_checking import process_srs
+from acc_project.requirement_checking import process_srs
 from scripts.dot_template_renderer import dot_to_png
 
 

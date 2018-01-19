@@ -1,3 +1,6 @@
+"""
+Deprecated
+"""
 import json
 import os
 import re
@@ -5,7 +8,7 @@ import re
 import yaml
 
 from ISO_model.scripts.extract_OCL import tokenize
-from ISO_model.scripts.extract_text_to_json import SimpleTextToJsonParser
+from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser
 
 
 class DefSearcher:
@@ -24,7 +27,7 @@ class DefSearcher:
         return self.output
 
     def parse_l(self, line):
-        m = SimpleTextToJsonParser.re_title.match(line)
+        m = IsoTextParser.re_title.match(line)
         if m:
             # prepare next
             self.element = {
@@ -68,7 +71,7 @@ class DefSearcher:
             if uses_ref:
                 reqs_with_ref += 1
             else:
-                print("NO REF ------> %s" % l)
+                print("NO REF ------> %s" % el)
 
         referenced_terms = set(referenced_terms)
 
@@ -113,7 +116,7 @@ def fix_clauses():
     json.dump(out, open('../clauses.2.json', 'w+'), indent=2, sort_keys=True)
 
 
-def explore_ISO_generation():
+def explore_iso_generation():
     infile = 'ISO_model/part3-text.json'
     outfile = 'ISO_model/part3-model.yaml'
     if os.path.exists(outfile):

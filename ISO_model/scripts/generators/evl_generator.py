@@ -2,50 +2,11 @@ import os
 import re
 import sys
 
-from ISO_model.scripts.extract_emfatic import EmfaticParser
-from ISO_model.scripts.extract_interpretation import InterpretationParser
+from ISO_model.scripts.generators.eol_generator import EolGenerator
+from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 
 
-class EVLDocumentGenerator:
-
-    def __init__(self, outfile) -> None:
-        self.out = open(outfile, 'w+')
-        self.indent = 0
-
-    def _print(self, line=None, indent_inc=0):
-        if line:
-            print('\t' * self.indent + line, file=self.out)
-        else:
-            print(file=self.out)
-        self.indent += indent_inc
-
-    def p_close_block(self):
-        self.indent -= 1
-        self._print('}')
-
-    def p_open_block(self, title):
-        self._print(title + ' {', 1)
-
-    def p_block(self, title, fn):
-        self.p_open_block(title)
-        fn()
-        self.p_close_block()
-
-    def _finish(self):
-        for i in range(self.indent):
-            self.p_close_block()
-        self.out.close()
-
-    def p_comment(self, msg: str):
-        self._print('// %s' % msg)
-
-    def p_comment_heading(self, header: str):
-        N = 80
-        self._print('/'*N)
-        self._print('// '+(header+' ').ljust(N-3, '/'))
-        self._print('/'*N)
-
-    # EVL specific:
+class EvlGenerator(EolGenerator):
 
     def p_inform(self, msg: str):
         self._print('inform("%s")' % msg)
@@ -125,23 +86,17 @@ def get_single_or_array(d: dict, key):
     return val
 
 
-class InterpretationEVLGenerator(EVLDocumentGenerator):
+class InterpretationEVLGenerator(EvlGenerator):
     eol_var_name = '[a-z_][a-zA-Z0-9_]*'
     eol_class_name = '[a-zA-Z0-9_]*'
     eol_value = '(?:{cls}\.)?{var}'.format(cls=eol_class_name, var=eol_var_name)
     re_possible_att = re.compile(r'^CHECK\s+({var})$'.format(var=eol_var_name))
     re_DEFINE = re.compile(r'DEFINE\s+((?:{var}\.)?{var})\s+({value})'.format(var=eol_var_name, value=eol_value))
 
-    def __init__(self, outfile) -> None:
-        super(InterpretationEVLGenerator, self).__init__(outfile)
+    def __init__(self, interpretation) -> None:
+        super(InterpretationEVLGenerator, self).__init__()
         self.ocl_per_level = {}
-        self.ip = InterpretationParser()
-
-        self.model = EmfaticParser()
-        self.model.parse_file('/home/dennis/Dropbox/0cn/acc_mm/model/project/project_model.emf')
-
-    def load_requirements(self, filename=None):
-        self.ip.load_interpretation_yaml(filename)
+        self.ip = interpretation
 
     def _interpret_ocl(self, req_id, ocl_level, ocl_root: dict, init_pre: list, init_post: list):
         # Each OCL entry defines a context
@@ -154,31 +109,15 @@ class InterpretationEVLGenerator(EVLDocumentGenerator):
         }
         i = 0
         default_name = '%s_%s_%s' % (req_id, ocl_level, i)
-        if 't' in ocl_root:  # normalize
-            ocl_root['ts'] = [{
-                't': ocl_root['t'],
-                'name': ocl_root.get('name', default_name)
-            }]
         for t in ocl_root['ts']:
             # Add a constraint
-            if type(t) is str:
-                # Most simpe one
-                constraint = {
-                    'name': default_name,
-                    'guards': None,
-                    'checks': t,
-                    'messages': None,
-                    'fixes': None,
-                }
-            else:
-                constraint = {
-                    'name': t.get('name', default_name),
-                    'guards': t.get('g'),
-                    'checks': t['t'],
-                    'messages': t.get('messages'),
-                    'fixes': t.get('fixes'),
-                }
-            self._process_constraint(constraint, context)
+            constraint = {
+                'name': t.get('name', default_name),
+                'guards': t.get('g'),
+                'checks': t['t'],
+                'messages': t.get('messages'),
+                'fixes': t.get('fixes'),
+            }
 
             context['constraints'].append(constraint)
             i += 1
@@ -207,37 +146,11 @@ class InterpretationEVLGenerator(EVLDocumentGenerator):
                 found = True
         return eol
 
-    def _process_constraint(self, constraint, context):
-        # Parse the constraint
-        constraint_text = constraint['checks']
-        item_class = context['name']
-        m = InterpretationEVLGenerator.re_possible_att.match(constraint_text)
-        if m:
-            item_attribute = m.group(1)
-            ac = self.model.has_att(item_class, item_attribute)
-            if not ac:
-                raise AssertionError("Attribute %s not found in %s, off %s" % (item_attribute, item_class, constraint_text))
-            if not self.model.class_is_subclass_of(ac, 'Check'):
-                raise AssertionError("Expected sub-class of Check, but got %s in %s" % (ac, constraint_text))
-            # Interpret check attribute keyword
-            check_class = ac
-            # Generate pre
-            create_missing_evl = (
-                    'for (x : {item_class} in {item_class}.all().select(x|x.{item_attribute}.isUndefined()) ) {{' +
-                    ' x.{item_attribute} = new {check_class}; ' +
-                    '}}'
-            ).format(item_class=item_class, item_attribute=item_attribute, check_class=check_class)
-            context['pre'] += [
-                '// CREATE '+item_class+'.'+item_attribute,
-                create_missing_evl,
-                '//'
-            ]
-            # Overwrite check
-            constraint['checks'] = (
-                'self.{item_attribute}.checked'
-            ).format(item_attribute=item_attribute)
-
-    def generate(self):
+    def generate(self, outfile=None):
+        if outfile:
+            self.out = open(outfile, 'w+')
+        else:
+            self.out = sys.stdout
         for req_id, req_interpretation in self.ip.interpretation['requirements'].items():
             for ocl_level, ocl_roots in req_interpretation.get('ocl', {}).items():
                 for ocl_root in ocl_roots:
@@ -256,21 +169,35 @@ class InterpretationEVLGenerator(EVLDocumentGenerator):
 
 
 def main():
+    from ISO_model.scripts.parsers.interpretation_parser import InterpretationParser
+    emf_model = EmfModelParser()
+    emf_model.load()
+    emf_model.parse()
+
     if len(sys.argv) > 1:
         interpretation_file = sys.argv[1]
+        interpretation = InterpretationParser()
+        interpretation.load(interpretation_file)
+        interpretation.parse()
+        interpretation.normalize(emf_model)
+
+        g = InterpretationEVLGenerator(interpretation)
+
         file_base = os.path.splitext(os.path.basename(interpretation_file))[0]
-        g = InterpretationEVLGenerator('acc_mm/model/acc/CHECK_%s.evl' % file_base)
-        g.load_requirements(interpretation_file)
-        g.generate()
+        g.generate('data_models/model/acc/GEN_%s.evl' % file_base)
         return
 
-    g = InterpretationEVLGenerator('../../acc_mm/model/acc/TEST.evl')
-    g.load_requirements('../interpretation_test.yaml', )
-    # g.load_requirements_yaml('../interpretation.yaml', )
+    interpretation = InterpretationParser()
+    interpretation.load('ISO_model/interpretation_test.yaml')
+    interpretation.parse()
+    interpretation.normalize(emf_model)
+
+    g = InterpretationEVLGenerator(interpretation)
     print()
     print('------------------------------------')
     print()
     g.generate()
+    g.generate(r'data_models/model/checks/TEST.evl')
 
 
 if __name__ == '__main__':

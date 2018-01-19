@@ -1,18 +1,25 @@
-definitions:
 requirements_test:
-  test_requirement1:
-    classification: [existence, structure]
-    pr_model:
-    - Item.requirements
-    - RequirementSuperType
-    - RequirementSuperType.functional
-    - Item.env_dependency
-    - EnvironmentalDependency
+#  test_requirement1:
+#    classification: [existence, structure]
+#    pr_model:
+#    - Item.requirements
+#    - RequirementSuperType
+#    - RequirementSuperType.functional
+#    - Item.env_dependency
+#    - EnvironmentalDependency
+#    ocl:
+#      satisfies:
+#      - c: TestItem
+#        ts:
+#        - CHECK c__my_check
+#    status: gen
+  3-5.4.1.a:
     ocl:
       satisfies:
-      - c: TestItem
+      - c: Item
         ts:
-        - CHECK c__my_check
+        - t: CHECK c__description__contains__itempurpose
+        - t: CHECK c__description__contains__functionality
     status: gen
 work_products:
   3-5.5: {}

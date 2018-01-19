@@ -1,10 +1,11 @@
-import json
 import re
 
 import sys
 
+from ISO_model.scripts.parsers.parser import Parser
 
-class EmfaticParser:
+
+class EmfModelParser(Parser):
     re_namespace = re.compile(r'@namespace\(.*\)')
     re_comment_block = re.compile(r'/\*(?:(?:[^*])|(?:\*[^/]))*\*/')
     re_comment = re.compile(r'//.*$', re.MULTILINE)
@@ -21,18 +22,19 @@ class EmfaticParser:
         self._doc_str = ''
         self.atts = {}
 
-    def parse_file(self, filename=r'/home/dennis/Dropbox/0cn/acc_mm/model/project/project_model.emf'):
-        lines = '\n'.join([l for l in open(filename)])
+    def load(self, file_name=None):
+        if file_name is None:
+            file_name = r'/home/dennis/Dropbox/0cn/data_models/model/project/project_model.emf'
+        lines = '\n'.join([l for l in open(file_name)])
         lines = re.sub('[ \t]+', ' ', lines)
         lines = re.sub('\n+', '\n', lines)
         self._doc_str = lines
-        self._parse()
 
-    def _parse(self):
+    def parse(self):
         self._skip_comments()
-        self._re_skip(EmfaticParser.re_namespace)
+        self._re_skip(EmfModelParser.re_namespace)
         self._skip_comments()
-        self._re_skip(EmfaticParser.re_package)
+        self._re_skip(EmfModelParser.re_package)
 
         while True:
             if self._skip_comments():
@@ -48,11 +50,11 @@ class EmfaticParser:
 
     def _skip_comments(self):
         self._skip_whitespace()
-        m = EmfaticParser.re_comment_block.match(self._doc_str)
+        m = EmfModelParser.re_comment_block.match(self._doc_str)
         if m:
             self._doc_str = self._doc_str[m.end():]
             return True
-        m = EmfaticParser.re_comment.match(self._doc_str)
+        m = EmfModelParser.re_comment.match(self._doc_str)
         if m:
             self._doc_str = self._doc_str[m.end():]
             return True
@@ -69,7 +71,7 @@ class EmfaticParser:
         self._doc_str = self._doc_str[m.end():]
 
     def _match_class(self):
-        m = EmfaticParser.re_class.match(self._doc_str)
+        m = EmfModelParser.re_class.match(self._doc_str)
         if not m:
             return None
         class_abstract = m.group(1) is not None
@@ -86,20 +88,20 @@ class EmfaticParser:
 
     def _match_class_contents(self, class_name, txt):
         self.atts.setdefault(class_name, {})
-        for m in EmfaticParser.re_statement.finditer(txt):
+        for m in EmfModelParser.re_statement.finditer(txt):
             a_rel = m.group(1)
             a_type = m.group(2)
             a_name = m.group(3)
             self.atts[class_name][a_name] = a_type
 
     def _match_enum(self):
-        m = EmfaticParser.re_enum.match(self._doc_str)
+        m = EmfModelParser.re_enum.match(self._doc_str)
         if not m:
             return None
         enum_name = m.group(1)
         enum_statements = m.group(2)
         stmts = []
-        for stmt in EmfaticParser.re_enum_statements.finditer(enum_statements):
+        for stmt in EmfModelParser.re_enum_statements.finditer(enum_statements):
             stmts.append(stmt.group(1))
         self.enums[enum_name] = stmts
         self._doc_str = self._doc_str[m.end():]
@@ -131,6 +133,10 @@ class EmfaticParser:
     def check_conforms(self, interpretation):
         check = True
         for class_name, atts in self.atts.items():
+
+            if self.class_is_subclass_of(class_name, 'Artifact'):
+                continue
+
             for att_name, att_class in atts.items():
                 att_ref = class_name + '.' + att_name
                 if not att_ref in interpretation.model_refs:
@@ -140,20 +146,27 @@ class EmfaticParser:
 
 
 def main():
+    from ISO_model.scripts.parsers.interpretation_parser import InterpretationParser
+    emf_model = EmfModelParser()
+    inter = InterpretationParser()
     if len(sys.argv) > 1:
-        ep = EmfaticParser()
-        ep.parse_file(sys.argv[1])
+        emf_model.load(sys.argv[1])
+        inter.load()  # from default location
+    else:
+        emf_model.load()
+        inter = InterpretationParser()
+        # inter.load(r'ISO_model/interpretation_test.yaml')
+        inter.load()
 
-        from ISO_model.scripts.extract_interpretation import InterpretationParser
-        ip = InterpretationParser()
-        ip.load_interpretation_yaml()  # from default location
+    emf_model.parse()
 
-        if not ep.check_conforms(ip):
-            raise AssertionError("Emfatic file does not conform to interpretation")
-        return
+    inter.parse()
+    inter.normalize(emf_model)
 
-    ep = EmfaticParser()
-    ep.parse_file()
+    if not emf_model.check_conforms(inter):
+        print("\nEmfatic file does not conform to interpretation", file=sys.stderr)
+        exit(-1)
+
 
 if __name__ == '__main__':
     main()

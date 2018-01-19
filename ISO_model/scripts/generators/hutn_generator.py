@@ -1,12 +1,3 @@
-import json
-import re
-
-import sys
-from jsonschema import validate as json_scheme_validate
-
-from ISO_model.schemes.simple_model_inst_list_scheme import ModelInstanceIdList
-
-
 def class_name_to_hutn_prefix(class_name):
     cln_capitals = ''.join(filter(str.isupper, class_name))
     if len(cln_capitals) >= 2:
@@ -17,10 +8,10 @@ def class_name_to_hutn_prefix(class_name):
 
 class HutnGenerator:
 
-    def __init__(self, outfile) -> None:
-        self.out = open(outfile, 'w+')
+    def __init__(self) -> None:
         self.indent = 0
         self.instances = {}
+        self.out = None
 
     def _finish(self):
         for i in range(self.indent):
@@ -84,51 +75,11 @@ class HutnGenerator:
             return "%d" % value
         raise AssertionError("value type `%s` not recognized for `%s`" % (type(value), value))
 
-    def print_model_instances(self, filename):
+    def print_model_instances(self, ijson_parser):
         # filename must adhere to `model_inst_list` scheme
-        root = json.load(open(filename))
-        json_scheme_validate(root, ModelInstanceIdList.get_schema())
+        root = ijson_parser.get()
         class_name = root['class_name']
         instances_dict = root['instances']
         for inst_id, instance_data in sorted(instances_dict.items()):
             instance_data.setdefault('id', inst_id)
             self.inst_with_id(class_name, instance_data)
-
-
-class IsoModelHutnGenerator(HutnGenerator):
-    def __init__(self, outfile) -> None:
-        super(IsoModelHutnGenerator, self).__init__(outfile)
-        self.requirements = {}
-        # self.out = sys.stdout
-
-    def load_requirements(self, *files):
-        for file in files:
-            self.requirements.update(json.load(open(file)))
-
-    def generate_iso(self, work_products_file):
-        self._print('@Spec { metamodel "iso_research" { nsUri: "iso_research" } }')
-        self._print()
-
-        package = 'project_model'
-        package = 'iso_model'
-        self._print(package + ' {', 1)
-
-        # Requirements
-        for r_id, r in sorted(self.requirements.items()):
-            if any((r['annotations'].get(a, False) for a
-                    in ('ignore', 'work_product'))):
-                continue
-            r['name'] = r['title']
-            r.setdefault('id', r_id)
-            self.inst_with_id('IsoRequirement', r, ('id', 'name'))
-
-        self.print_model_instances('../clauses.json')
-        self.print_model_instances(work_products_file)
-
-        self._finish()
-
-
-if __name__ == '__main__':
-    g = IsoModelHutnGenerator('../../acc_mm/model/iso/iso_model/generated/iso26262.hutn')
-    g.load_requirements('../generated/part3-text.2.json',)
-    g.generate_iso('../generated/work_products.json')

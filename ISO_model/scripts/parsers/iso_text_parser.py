@@ -1,20 +1,20 @@
 # converts a .txt file of ISO document to an json file
 import json
 import os
-import shutil
-import sys
 import re
+import shutil
+
 from jsonschema import validate as json_scheme_validate
 
-from ISO_model.schemes.simple_model_inst_list_scheme import ModelInstanceIdList
-from ISO_model.schemes.work_product_scheme import WorkProduct
+from ISO_model.scripts.schemes.simple_model_inst_list_scheme import ModelInstanceIdList
+from ISO_model.scripts.parsers.parser import Parser
 
 
 def str_rev(string: str):
     return ''.join(reversed(string))
 
 
-class SimpleTextToJsonParser:
+class IsoTextParser(Parser):
     re_title = re.compile(r'^(\d{1,3}(?:\.\d{1,3}){1,5})\s*(.*)$')
     re_note = re.compile(r'^\s*NOTE\s*(.*)$')
     re_ordered_summation = re.compile(r'^\s*([a-z0-9]+)\)\s*(.*)$')
@@ -28,6 +28,8 @@ class SimpleTextToJsonParser:
     re_simple_req_summation_rev = re.compile(r'\s*\.?([\d.]+) dna ([\d.]+)(?: ,([\d.]+))*', re.I)
 
     def __init__(self, read_from_annotations_file=None):
+        self.lines = []
+        self.id_prefix = ''
         self.output = {}
         self.annotations = json.load(open(read_from_annotations_file)) if read_from_annotations_file else {}
         self.work_products = {}  # Is not an input for this parser
@@ -40,21 +42,18 @@ class SimpleTextToJsonParser:
         self.id_prefix = ''
         self.next_is_wp = False
 
-    def parse_file(self, text_file):
-        return self.parse(
-            [l for l in open(text_file, 'r')],
-            re.match('.*part-?(\d+).*', text_file).group(1) + '-'
-        )
+    def load(self, text_file):
+        self.lines = [l for l in open(text_file, 'r')]
+        self.id_prefix = re.match('.*part-?(\d+).*', text_file).group(1) + '-'
 
-    def parse(self, lines, id_prefix):
-        self.id_prefix = id_prefix
+    def parse(self):
         self.curr_line = None
         self.element = None
 
         self.missed_lines = []
 
         no = 0
-        for line in lines:
+        for line in self.lines:
             no += 1
             self.prev_line = self.curr_line
             self.curr_line = {
@@ -68,7 +67,7 @@ class SimpleTextToJsonParser:
         line_number = self.curr_line['line_no']
         text, annotation = self.parse_annotations(self.curr_line['text'])
 
-        m = SimpleTextToJsonParser.re_title.match(text)
+        m = IsoTextParser.re_title.match(text)
         if m:
             # Requirement header found
             if self.element:
@@ -118,14 +117,14 @@ class SimpleTextToJsonParser:
                 self.parse_work_product()
 
         # search notes
-        m = SimpleTextToJsonParser.re_note.match(text)
+        m = IsoTextParser.re_note.match(text)
         if m:
             self.element.setdefault('notes', [])
             self.element['notes'] += [m.group(1)]
             return
 
         # search summation
-        m = SimpleTextToJsonParser.re_ordered_summation.match(text)
+        m = IsoTextParser.re_ordered_summation.match(text)
         if m:
             if self.curr_ordered_SUM is None:
                 # start new summation
@@ -149,7 +148,7 @@ class SimpleTextToJsonParser:
         else:
             self.curr_ordered_SUM = None
 
-        m = SimpleTextToJsonParser.re_unordered_summation.match(text)
+        m = IsoTextParser.re_unordered_summation.match(text)
         if m:
             if self.curr_SUM is None:
                 # start new summation
@@ -161,7 +160,7 @@ class SimpleTextToJsonParser:
                 self.element.setdefault('sums', [])
                 self.element['sums'] += [self.curr_SUM]
 
-                if not SimpleTextToJsonParser.re_title.match(self.prev_line['text']):
+                if not IsoTextParser.re_title.match(self.prev_line['text']):
                     self.missed_lines.pop()
 
             self.curr_SUM['elements'] += [{
@@ -173,7 +172,7 @@ class SimpleTextToJsonParser:
             self.curr_SUM = None
 
         # search example
-        m = SimpleTextToJsonParser.re_example.match(text)
+        m = IsoTextParser.re_example.match(text)
         if m:
             self.element.setdefault('examples', [])
             self.element['examples'] += [m.group(1)]
@@ -185,11 +184,11 @@ class SimpleTextToJsonParser:
         title = self.element['title']
         rid = self.element['id']
         ann_work_product = self.annotations[rid].get('work_product', False)
-        m = SimpleTextToJsonParser.re_work_product.match(title)
+        m = IsoTextParser.re_work_product.match(title)
         if ann_work_product or m:
             if not m:
                 raise AssertionError(
-                    "Work product fail '%s' to %s" % (title, SimpleTextToJsonParser.re_work_product))
+                    "Work product fail '%s' to %s" % (title, IsoTextParser.re_work_product))
             work_product_name = m.group(1)
             work_product_range = m.group(2)
 
@@ -199,19 +198,19 @@ class SimpleTextToJsonParser:
             }
 
             while True:
-                rm = SimpleTextToJsonParser.re_simple_req_range.match(work_product_range)
+                rm = IsoTextParser.re_simple_req_range.match(work_product_range)
                 if rm:
                     base = rm.group(1)
                     WP['based_on__refs_to_id'] = 'IsoRequirement'
                     WP['based_on'] = [self.id_prefix + '%s.%d' % (base, digit) for digit in
-                                          range(int(rm.group(2)), int(rm.group(3)))]
+                                      range(int(rm.group(2)), int(rm.group(3)))]
                     break
-                rm = SimpleTextToJsonParser.re_simple_req_summation_rev.match(str_rev(work_product_range))
+                rm = IsoTextParser.re_simple_req_summation_rev.match(str_rev(work_product_range))
                 if rm:
                     WP['based_on__refs_to_id'] = 'IsoRequirement'
                     WP['based_on'] = [self.id_prefix + str_rev(r) for r in reversed(rm.groups())]
                     break
-                rm = SimpleTextToJsonParser.re_requirement_ref.match(work_product_range)
+                rm = IsoTextParser.re_requirement_ref.match(work_product_range)
                 if rm:
                     WP['based_on__refs_to_id'] = 'IsoRequirement'
                     WP['based_on'] = [self.id_prefix + rm.group(1)]
@@ -227,13 +226,13 @@ class SimpleTextToJsonParser:
     }
 
     def parse_annotations(self, line):
-        m = SimpleTextToJsonParser.re_annotation.match(line)
+        m = IsoTextParser.re_annotation.match(line)
         annotation = {}
         if m:
             annotation_str = m.group(1)
             for char in annotation_str:
-                if char in SimpleTextToJsonParser.boolean_annotations:
-                    annotation[SimpleTextToJsonParser.boolean_annotations[char]] = True
+                if char in IsoTextParser.boolean_annotations:
+                    annotation[IsoTextParser.boolean_annotations[char]] = True
                 else:
                     raise AssertionError("Unknown annotation '%s' in %s" % (char, self.curr_line))
             line = m.group(2)
@@ -247,7 +246,7 @@ class SimpleTextToJsonParser:
         for l in unmis:
             self.missed_lines.remove(l)
 
-    def write(self, out_filename):
+    def write_iso_json(self, out_filename):
         if len(self.missed_lines) > 0:
             raise Exception("Parsing failed")
         # Also append annotations
@@ -280,7 +279,6 @@ class SimpleTextToJsonParser:
         }
         json_scheme_validate(work_ps, ModelInstanceIdList.get_schema())
         json.dump(work_ps, open(filename, 'w+'), indent=2, sort_keys=True)
-
 
 
 def dict_update(ori: dict, update):
@@ -318,13 +316,14 @@ def json_load_and_backup(filename, default=None):
 
 
 def main():
-    parser = SimpleTextToJsonParser('ISO_model/annotations.json')
-    if not parser.parse_file(r'ISO_model/part3-text.2.txt'):
+    parser = IsoTextParser('ISO_model/annotations.json')
+    parser.load(r'ISO_model/part3-text.2.txt')
+    if not parser.parse():
         print("Could not parse, some lines were not identified")
         print(parser.missed_lines)
     else:
         # parser.print()
-        parser.write(r'ISO_model/generated/part3-text.2.json')
+        parser.write_iso_json(r'ISO_model/generated/part3-text.2.json')
         parser.var_dump_annotations('ISO_model/generated/annotations.json')
         parser.write_work_products('ISO_model/generated/work_products.json')
 
