@@ -23,3 +23,4 @@ AUTOSAR
 /acc_mm/model/project/project_model.ecore
 /acc_mm/model/iso/iso_model/iso_model.ecore
 /acc_mm/model/project/iso_part/extended_project_model.ecore
+/ISO_model/interpretation.yaml

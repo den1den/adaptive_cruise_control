@@ -1,15 +1,9 @@
-import json
 import os
 import re
-
 import sys
-import yaml
 
-from ISO_model.schemes.interpretation_scheme import InterpretationDocument
-from jsonschema.validators import validate as json_scheme_validate
-
-from ISO_model.schemes.schemes import ModelReference
 from ISO_model.scripts.extract_emfatic import EmfaticParser
+from ISO_model.scripts.extract_interpretation import InterpretationParser
 
 
 class EVLDocumentGenerator:
@@ -141,20 +135,13 @@ class InterpretationEVLGenerator(EVLDocumentGenerator):
     def __init__(self, outfile) -> None:
         super(InterpretationEVLGenerator, self).__init__(outfile)
         self.ocl_per_level = {}
-        self.interpretation = {'requirements': {}}
+        self.ip = InterpretationParser()
 
         self.model = EmfaticParser()
         self.model.parse_file('/home/dennis/Dropbox/0cn/acc_mm/model/project/project_model.emf')
 
-    def load_requirements_yaml(self, *files):
-        scheme = InterpretationDocument().get_schema()
-        for file in files:
-            i_doc = yaml.safe_load(open(file))
-            json_scheme_validate(i_doc, scheme)
-            # silent overwrite
-            for key, vals in i_doc.items():
-                if key.startswith('requirement'):
-                    self.interpretation['requirements'].update(vals)
+    def load_requirements(self, filename=None):
+        self.ip.load_interpretation_yaml(filename)
 
     def _interpret_ocl(self, req_id, ocl_level, ocl_root: dict, init_pre: list, init_post: list):
         # Each OCL entry defines a context
@@ -228,8 +215,10 @@ class InterpretationEVLGenerator(EVLDocumentGenerator):
         if m:
             item_attribute = m.group(1)
             ac = self.model.has_att(item_class, item_attribute)
-            assert ac
-            assert self.model.class_is_subclass_of(ac, 'Check')
+            if not ac:
+                raise AssertionError("Attribute %s not found in %s, off %s" % (item_attribute, item_class, constraint_text))
+            if not self.model.class_is_subclass_of(ac, 'Check'):
+                raise AssertionError("Expected sub-class of Check, but got %s in %s" % (ac, constraint_text))
             # Interpret check attribute keyword
             check_class = ac
             # Generate pre
@@ -249,7 +238,7 @@ class InterpretationEVLGenerator(EVLDocumentGenerator):
             ).format(item_attribute=item_attribute)
 
     def generate(self):
-        for req_id, req_interpretation in self.interpretation['requirements'].items():
+        for req_id, req_interpretation in self.ip.interpretation['requirements'].items():
             for ocl_level, ocl_roots in req_interpretation.get('ocl', {}).items():
                 for ocl_root in ocl_roots:
                     self._interpret_ocl(
@@ -266,22 +255,18 @@ class InterpretationEVLGenerator(EVLDocumentGenerator):
                     self.p_context(**context)
 
 
-
 def main():
-    ModelReference.verbose = False
-
     if len(sys.argv) > 1:
         interpretation_file = sys.argv[1]
         file_base = os.path.splitext(os.path.basename(interpretation_file))[0]
         g = InterpretationEVLGenerator('acc_mm/model/acc/CHECK_%s.evl' % file_base)
-        g.load_requirements_yaml(interpretation_file)
+        g.load_requirements(interpretation_file)
         g.generate()
         return
 
-
     g = InterpretationEVLGenerator('../../acc_mm/model/acc/TEST.evl')
-    g.load_requirements_yaml('../interpretation_test.yaml', )
-    #g.load_requirements_yaml('../interpretation.yaml', )
+    g.load_requirements('../interpretation_test.yaml', )
+    # g.load_requirements_yaml('../interpretation.yaml', )
     print()
     print('------------------------------------')
     print()

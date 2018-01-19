@@ -122,17 +122,9 @@ class InterpretationDocument(DictIgnore_):
 if __name__ == '__main__':
     import json
 
-    ModelReference.silent = False
+    ModelReference.verbose = 1
     s = InterpretationDocument().get_schema()
 
     # Save scheme
     json.dump(s, open('/home/dennis/Dropbox/0cn/ISO_model/generated/interpretation_scheme.json', 'w+'), indent=2)
     print("Scheme created")
-
-    if len(sys.argv) > 1:
-        # Check scheme against provided *.yaml file
-        filename = sys.argv[1]
-        if filename.endswith('.yaml'):
-            inst = yaml.safe_load(open(filename))
-            json_scheme_validate(inst, s)
-            print("%s is valid" % os.path.basename(filename))

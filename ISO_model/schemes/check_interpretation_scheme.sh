@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
+
+# Creates interpretation JSON scheme
+# Tests with `pajv` command
+# Generates EVL file
+
 . venv/bin/activate
 export PYTHONPATH=.
 
 # rebuild the interpretation scheme
 python ISO_model/schemes/interpretation_scheme.py || exit -1
 
-# Check using command line `pajv`
 # with custom filtering
 set -o pipefail
 echo

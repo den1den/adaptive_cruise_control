@@ -1,6 +1,8 @@
 import json
 import re
 
+import sys
+
 
 class EmfaticParser:
     re_namespace = re.compile(r'@namespace\(.*\)')
@@ -19,7 +21,7 @@ class EmfaticParser:
         self._doc_str = ''
         self.atts = {}
 
-    def parse_file(self, filename):
+    def parse_file(self, filename=r'/home/dennis/Dropbox/0cn/acc_mm/model/project/project_model.emf'):
         lines = '\n'.join([l for l in open(filename)])
         lines = re.sub('[ \t]+', ' ', lines)
         lines = re.sub('\n+', '\n', lines)
@@ -126,12 +128,32 @@ class EmfaticParser:
                 return False
             class_name = self.extensions[class_name]
 
+    def check_conforms(self, interpretation):
+        check = True
+        for class_name, atts in self.atts.items():
+            for att_name, att_class in atts.items():
+                att_ref = class_name + '.' + att_name
+                if not att_ref in interpretation.model_refs:
+                    print('Emfatic file has un interpreted attribute: ' + att_ref)
+                    check = False
+        return check
+
 
 def main():
-    p = EmfaticParser()
-    p.parse_file('/home/dennis/Dropbox/0cn/acc_mm/model/project/project_model.emf')
-    print(json.dumps(p.atts, indent=2))
+    if len(sys.argv) > 1:
+        ep = EmfaticParser()
+        ep.parse_file(sys.argv[1])
 
+        from ISO_model.scripts.extract_interpretation import InterpretationParser
+        ip = InterpretationParser()
+        ip.load_interpretation_yaml()  # from default location
+
+        if not ep.check_conforms(ip):
+            raise AssertionError("Emfatic file does not conform to interpretation")
+        return
+
+    ep = EmfaticParser()
+    ep.parse_file()
 
 if __name__ == '__main__':
     main()

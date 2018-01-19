@@ -5,8 +5,6 @@ import jsl  # http://jsl.readthedocs.io/en/latest/tutorial.html
 from jsl import Document
 from jsl.document import DocumentMeta
 
-from ISO_model.scripts.extract_emfatic import EmfaticParser
-
 re_REQUIREMENT_ID = r'\d(\.\d)*'
 """Ex: 4.1"""
 re_FULL_REQUIREMENT_ID = r'\d-\d(\.\d)*'
@@ -57,7 +55,8 @@ class RequirementId(jsl.StringField):
         super().__init__(**kwargs)
 
 
-def _get_model_reference_enum():
+def _create_model_reference_enum():
+    from ISO_model.scripts.extract_emfatic import EmfaticParser
     emf_parser = EmfaticParser()
     emf_parser.parse_file('/home/dennis/Dropbox/0cn/acc_mm/model/project/project_model.emf')
     enum = []
@@ -74,22 +73,31 @@ def _get_model_reference_enum():
         enum.append(enum_name)
         for enum_val in enum_vals:
             enum.append(enum_name + '.' + enum_val)
-    print("Using strict ModelReferenceField with enum =\n%s" % enum)
     return enum
 
 
 class ModelReference(jsl.StringField):
     strict = True
+    verbose = 0
+    enum = None
 
     def __init__(self, **kwargs):
         if ModelReference.strict:
-            kwargs['enum'] = _get_model_reference_enum()
+            if not ModelReference.enum:
+                ModelReference.enum = _create_model_reference_enum()
+            kwargs['enum'] = ModelReference.enum
         else:
             kwargs['pattern'] = r'^[A-Z]\w*(\.\w*)*(\[\d(..(\d|\*))?\])?$'
         kwargs.setdefault('title', 'References to elements in the project model')
         kwargs.setdefault('description', 'References to elements in the project model')
         kwargs.setdefault('min_length', 1)
         super(ModelReference, self).__init__(**kwargs)
+
+    def resolve(self, role):
+        if ModelReference.verbose > 0:
+            print("Using strict ModelReferenceField with enum =\n%s\n---\n" % ModelReference.enum)
+            ModelReference.verbose = 0
+        return super().resolve(role)
 
 
 class ModelClassName(jsl.StringField):
