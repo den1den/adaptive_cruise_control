@@ -20,3 +20,6 @@ AUTOSAR
 /SOAM.png
 /acc_mm/src/
 /ISO_model/scripts/tmp/
+/acc_mm/model/project/project_model.ecore
+/acc_mm/model/iso/iso_model/iso_model.ecore
+/acc_mm/model/project/iso_part/extended_project_model.ecore
