@@ -7,11 +7,15 @@ class ContextDocument(DictField):
     def __init__(self):
         super().__init__(properties={
             'context': DictField(properties={
-                    'model_files': ArrayField(FileField('.emf'), required=True),
-                    'evl_output_file': FileField('.evl', required=True),
-                    'requirement_files': ArrayField(FileField('.txt')),
-                    'normalized_output_file': FileField('.json'),
-                    'file_test_instances': ArrayField(FileField()),  # Don't know yet
+                # input files
+                'model_files': ArrayField(FileField('.emf'), required=True),
+                'requirement_files': ArrayField(FileField('.txt')),
+                # output files
+                'evl_output_file': FileField('.evl', must_exist=False, required=True),
+                'normalized_output_file': FileField('.json', must_exist=False),
+                'json_output_file': FileField('.json', must_exist=False),
+                # Don't know yet
+                'file_test_instances': ArrayField(FileField()),
             })},
             additional_properties=True,
         )

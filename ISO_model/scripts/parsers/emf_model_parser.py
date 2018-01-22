@@ -1,3 +1,4 @@
+import json
 import re
 
 import sys
@@ -16,16 +17,27 @@ class EmfModelParser(Parser):
     re_enum_statements = re.compile(r'(\w+);\s*')
 
     def __init__(self):
+        self.interpretation_json = {}
         self.abstract_classes = set()
         self.extensions = {}
         self.enums = {}
         self._doc_str = ''
         self.atts = {}
+        self.context = {}
 
-    def load(self, file_name=None):
-        if file_name is None:
-            file_name = r'/home/dennis/Dropbox/0cn/data_models/model/project/project_model.emf'
-        lines = '\n'.join([l for l in open(file_name)])
+    def load(self, file_name):
+        lines = [l for l in open(file_name)]
+        # Extract context
+        json_match = re.match(r'\s*//\s*({\s*"context".*)', lines[0])
+        if json_match:
+            for c_key, c_val in json.loads(json_match.group(1))['context'].items():
+                if type(c_val) is list:
+                    self.context.setdefault(c_key, []).extend(c_val)
+                else:
+                    self.context.setdefault(c_key, []).append(c_val)
+            lines = lines[1:]
+        # Normalize whitespace
+        lines = '\n'.join(lines)
         lines = re.sub('[ \t]+', ' ', lines)
         lines = re.sub('\n+', '\n', lines)
         self._doc_str = lines
@@ -130,39 +142,38 @@ class EmfModelParser(Parser):
                 return False
             class_name = self.extensions[class_name]
 
-    def check_conforms(self, interpretation):
+    def check_conforms(self):
+        interpretation_json = {}
+        for i_file in self.context.get('interpretation_files', []):
+            for key, val in json.load(open(i_file)).items():
+                interpretation_json.setdefault(key, {}).update(val)
+
         check = True
         for class_name, atts in self.atts.items():
 
             if self.class_is_subclass_of(class_name, 'Artifact'):
                 continue
 
+            if len(atts) == 0:
+                if class_name not in interpretation_json['model_refs']:
+                    print('Emfatic file has an class which is never referenced: %s' % class_name)
+                    check = False
             for att_name, att_class in atts.items():
                 att_ref = class_name + '.' + att_name
-                if not att_ref in interpretation.model_refs:
-                    print('Emfatic file has un interpreted attribute: ' + att_ref)
+                if att_ref not in interpretation_json['model_refs']:
+                    print('Emfatic file has un interpreted attribute: %s' % att_ref)
                     check = False
         return check
 
-    _default_inst = None
+    emf_model_for_scheme = None
 
     @staticmethod
-    def set_default(filename):
+    def set_for_scheme(filename):
         i = EmfModelParser()
         i.load(filename)
         i.parse()
-        EmfModelParser._default_inst = i
+        EmfModelParser.emf_model_for_scheme = i
         print("EmfModelParser.set_default attributes=\n%s" % i.get_all_attribute_notations())
-
-    @staticmethod
-    def default():
-        if EmfModelParser._default_inst is None:
-            i = EmfModelParser()
-            i.load()
-            i.parse()
-            EmfModelParser._default_inst = i
-            print("default created")
-        return EmfModelParser._default_inst
 
     def get_all_attribute_notations(self):
         all_attributes = []
@@ -194,24 +205,20 @@ class EmfModelParser(Parser):
 
 
 def main():
-    from ISO_model.scripts.parsers.interpretation_parser import InterpretationParser
-    emf_model = EmfModelParser()
-    inter = InterpretationParser()
     if len(sys.argv) > 1:
+        emf_model = EmfModelParser()
         emf_model.load(sys.argv[1])
-        inter.load()  # from default location
-    else:
-        emf_model.load()
-        inter = InterpretationParser()
-        # inter.load(r'ISO_model/interpretation_test.yaml')
-        inter.load()
+        emf_model.parse()
+        if not emf_model.check_conforms():
+            print("Warnings in %s:\n" % sys.argv[1], file=sys.stderr)
+            exit(-1)
+        return
 
+    emf_model = EmfModelParser()
+    #emf_model.load(r'/home/dennis/Dropbox/0cn/data_models/model/project/project_model.emf')
+    emf_model.load(r'/home/dennis/Dropbox/0cn/data_models/model/project/fsc_project_model.emf')
     emf_model.parse()
-
-    inter.parse()
-    inter.normalize(emf_model)
-
-    if not emf_model.check_conforms(inter):
+    if not emf_model.check_conforms():
         print("\nEmfatic file does not conform to interpretation", file=sys.stderr)
         exit(-1)
 

@@ -51,7 +51,8 @@ class FileField(jsl.StringField):
     all_files_per_ext = {}
 
     def __init__(self, extension='', **kwargs):
-        if FileField.strict:
+        kwargs['pattern'] = '%s$' % extension.replace('.', '\.')
+        if kwargs.get('must_exist', True) and FileField.strict:
             if extension not in FileField.all_files_per_ext:
                 FileField.all_files_per_ext[extension] = [
                     os.path.relpath(os.path.join(dirpath, filename))
@@ -72,7 +73,7 @@ class ModelReference(jsl.StringField):
     def __init__(self, **kwargs):
         if ModelReference.strict:
             from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
-            kwargs['enum'] = EmfModelParser.default().get_all_attribute_notations()
+            kwargs['enum'] = EmfModelParser.emf_model_for_scheme.get_all_attribute_notations()
         else:
             kwargs['pattern'] = r'^[A-Z]\w*(\.\w*)*(\[\d(..(\d|\*))?\])?$'
         kwargs.setdefault('title', 'References to elements in the project model')
@@ -86,7 +87,7 @@ class ModelClassName(jsl.StringField):
         kwargs.setdefault('title', 'A class name')
         if ModelReference.strict:
             from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
-            kwargs['enum'] = EmfModelParser.default().get_all_classes()
+            kwargs['enum'] = EmfModelParser.emf_model_for_scheme.get_all_classes()
         super(ModelClassName, self).__init__(**kwargs)
 
 

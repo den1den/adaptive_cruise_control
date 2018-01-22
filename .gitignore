@@ -29,3 +29,5 @@ Link to *
 /data_models/.settings/
 /data_models/bin/
 /data_models/model/acc/
+/data_models/model/**/*.evl
+!/data_models/model/iso/requirements/*.evl

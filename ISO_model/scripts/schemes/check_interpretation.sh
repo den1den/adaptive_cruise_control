@@ -24,5 +24,8 @@ python ISO_model/scripts/schemes/interpretation_scheme.py $1 ${scheme} || exit 3
 echo
 ISO_model/scripts/schemes/pajv.sh -s ${scheme} -d $1 --verbose --errors=text --all-errors || exit 4
 
+# write the json file
+python ISO_model/scripts/parsers/interpretation_parser.py $1 || exit 4
+
 # build the EVL file
-python ISO_model/scripts/generators/evl_generator.py $1 || exit 4
+python ISO_model/scripts/generators/evl_generator.py $1 || exit 5

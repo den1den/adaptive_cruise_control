@@ -16,6 +16,7 @@ DEFAULT_REQUIREMENT_FILES = [
     '/home/dennis/Dropbox/0cn/ISO_model/part3-text.2.txt',
     '/home/dennis/Dropbox/0cn/ISO_model/part4-text.2.txt',
 ]
+DEFAULT_INTERPRETATION_JSON_FILE = r'/home/dennis/Dropbox/0cn/ISO_model/generated/interpretation.json'
 
 
 class InterpretationParser(Parser):
@@ -42,6 +43,7 @@ class InterpretationParser(Parser):
             self.requirements_model.load(req_file)
 
     def validate(self):
+        EmfModelParser.emf_model_for_scheme = self.emf_model
         from ISO_model.scripts.schemes.interpretation_scheme import InterpretationScheme
         json_scheme_validate(self.source, InterpretationScheme().get_schema())
 
@@ -134,20 +136,33 @@ class InterpretationParser(Parser):
                     'self.{item_attribute}.checked'
                 ).format(item_attribute=item_attribute)
 
+    def write_json(self):
+        filename = self.get_context('json_output_file')
+        # original = json.load(open(filename))
+        json.dump({
+            'model_refs': self.model_refs,
+        }, open(filename, 'w+'))
+
 
 def main():
     if len(sys.argv) > 1:
         inter = InterpretationParser()
         inter.load(sys.argv[1])
-        inter.validate()
+        inter.parse()
+        inter.normalize()
+        inter.write_json()
+
         return
 
     inter = InterpretationParser()
-    inter.load('ISO_model/interpretation_test.yaml')
+    # inter.load('ISO_model/interpretation_test.yaml')
+    # inter.load('ISO_model/interpretation.yaml')
+    inter.load('/home/dennis/Dropbox/0cn/ISO_model/interpretation_fsc.yaml')
     inter.validate()
     inter.parse()
     inter.normalize()
     inter.validate_normalized()
+    inter.write_json()
     for ref, req_id in sorted(inter.model_refs.items()):
         print('%s: %s' % (ref, req_id))
 

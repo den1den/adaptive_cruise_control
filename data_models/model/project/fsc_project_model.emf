@@ -1,3 +1,11 @@
+//{"context": {"interpretation_files": ["ISO_model/generated/interpretation_fsc.json"]}}
 @namespace(uri="project_model", prefix="pm")
 // This document contains the model for elements of the project
 package project_model;
+
+class FunctionalSafetyRequirements{
+}
+
+class Dummy{
+	
+}

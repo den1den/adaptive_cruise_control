@@ -1,3 +1,4 @@
+//{"context": {"interpretation_files": ["ISO_model/generated/interpretation.json"]}}
 @namespace(uri="project_model", prefix="pm")
 // This document contains the model for elements of the project
 package project_model;

@@ -181,7 +181,10 @@ def main():
     if len(sys.argv) > 2:
         # assert the document is already valid w.r.t. context
         context_document = yaml.safe_load(open(sys.argv[1]))
-        EmfModelParser.set_default(context_document.get('context', {}).get('file_model'))
+        EmfModelParser.emf_model_for_scheme = EmfModelParser()
+        for emf_file in context_document['context']['model_files']:
+            EmfModelParser.emf_model_for_scheme.load(emf_file)
+        EmfModelParser.emf_model_for_scheme.parse()
         output = sys.argv[2]
     else:
         output = '/home/dennis/Dropbox/0cn/ISO_model/generated/interpretation_scheme.json'
