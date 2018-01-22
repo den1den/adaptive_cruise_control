@@ -1,3 +1,5 @@
+import os
+
 import jsl  # http://jsl.readthedocs.io/en/latest/tutorial.html
 
 # http://json-schema.org/implementations.html
@@ -18,6 +20,7 @@ class Enum(jsl.StringField):
 class DictField(jsl.DictField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('additional_properties', False)
+        kwargs.setdefault('required', True)
         super().__init__(*args, **kwargs)
 
 
@@ -41,6 +44,26 @@ class RequirementId(jsl.StringField):
     def __init__(self, **kwargs):
         kwargs['pattern'] = re_REQUIREMENT_ID
         super().__init__(**kwargs)
+
+
+class FileField(jsl.StringField):
+    strict = True
+    all_files_per_ext = {}
+
+    def __init__(self, extension='', **kwargs):
+        if FileField.strict:
+            if extension not in FileField.all_files_per_ext:
+                FileField.all_files_per_ext[extension] = [
+                    os.path.relpath(os.path.join(dirpath, filename))
+                    for dirpath, dirnames, filenames in os.walk('.')
+                    for filename in filenames
+                    if filename.endswith(extension)
+                ]
+                print("Identified %s files" % len(FileField.all_files_per_ext[extension]))
+            kwargs['enum'] = FileField.all_files_per_ext[extension]
+        kwargs.setdefault('min_length', 1)
+        super(FileField, self).__init__(**kwargs)
+
 
 
 class ModelReference(jsl.StringField):

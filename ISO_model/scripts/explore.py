@@ -132,8 +132,7 @@ def explore_iso_generation():
 
 
 def print_all_requirement_ids():
-    reqs = {}
-    reqs.update(json.load(open('ISO_model/generated/part3-text.json')))
+    reqs = json.load(open('ISO_model/generated/part3-text.json'))
     for rid in sorted(reqs.keys()):
         print(rid)
 

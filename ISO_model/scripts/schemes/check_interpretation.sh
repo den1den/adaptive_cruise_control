@@ -6,13 +6,23 @@
 
 . venv/bin/activate
 export PYTHONPATH=.
-
-# rebuild the interpretation scheme
-python ISO_model/scripts/schemes/interpretation_scheme.py || exit 1
-
-# with custom filtering
 set -o pipefail
+
+filename=$(basename $1)
+filename=${filename%.*}
+
+# build the context scheme
+python ISO_model/scripts/schemes/context_scheme.py || exit 1
+# check against context scheme
+ISO_model/scripts/schemes/pajv.sh -s "ISO_model/generated/context_scheme.json" -d $1 --verbose --errors=text --all-errors || exit 2
+
+# build the interpretation scheme
+scheme=ISO_model/generated/${filename}_scheme.json
+python ISO_model/scripts/schemes/interpretation_scheme.py $1 ${scheme} || exit 3
+
+# check against interpretation scheme
 echo
-pajv -s "ISO_model/generated/interpretation_scheme.json" -d $1 --verbose --errors=text --all-errors 2>&1 \
-| sed 's/,\s/\n/g' | sed 's/should NOT have additional properties/Has some wrong key/g' \
-&& python ISO_model/scripts/generators/evl_generator.py $1 || exit 2
+ISO_model/scripts/schemes/pajv.sh -s ${scheme} -d $1 --verbose --errors=text --all-errors || exit 4
+
+# build the EVL file
+python ISO_model/scripts/generators/evl_generator.py $1 || exit 4

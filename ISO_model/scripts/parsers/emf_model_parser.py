@@ -147,12 +147,21 @@ class EmfModelParser(Parser):
     _default_inst = None
 
     @staticmethod
+    def set_default(filename):
+        i = EmfModelParser()
+        i.load(filename)
+        i.parse()
+        EmfModelParser._default_inst = i
+        print("EmfModelParser.set_default attributes=\n%s" % i.get_all_attribute_notations())
+
+    @staticmethod
     def default():
         if EmfModelParser._default_inst is None:
             i = EmfModelParser()
             i.load()
             i.parse()
             EmfModelParser._default_inst = i
+            print("default created")
         return EmfModelParser._default_inst
 
     def get_all_attribute_notations(self):

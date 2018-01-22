@@ -1,6 +1,7 @@
 import json
 import sys
 
+import os
 import yaml
 from jsonschema.validators import validate as json_scheme_validate
 
@@ -8,12 +9,19 @@ from ISO_model.scripts.generators.evl_generator import InterpretationEVLGenerato
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser
 from ISO_model.scripts.parsers.parser import Parser
-from acc_project.scripts.requirement_parser import ProjectRequirementParser
+
+
+DEFAULT_REQUIREMENT_FILES = [
+    '/home/dennis/Dropbox/0cn/ISO_model/part1-text.2.txt',
+    '/home/dennis/Dropbox/0cn/ISO_model/part3-text.2.txt',
+    '/home/dennis/Dropbox/0cn/ISO_model/part4-text.2.txt',
+]
 
 
 class InterpretationParser(Parser):
     def __init__(self) -> None:
-        self.emf_model = None
+        self.emf_model = EmfModelParser()
+        self.requirements_model = IsoTextParser()
         self.source = {}
         self.interpretation = {'requirements': {}}
         self.model_refs = {}
@@ -27,22 +35,22 @@ class InterpretationParser(Parser):
         else:
             self.source.update(json.load(open(file_name)))
 
+        # load context
+        for model_file in self.get_context('model_files'):
+            self.emf_model.load(model_file)
+        for req_file in self.get_context('requirement_files', DEFAULT_REQUIREMENT_FILES):
+            self.requirements_model.load(req_file)
+
     def validate(self):
-        from ISO_model.scripts.schemes.interpretation_scheme import InterpretationDocument
-        json_scheme_validate(self.source, InterpretationDocument().get_schema())
+        from ISO_model.scripts.schemes.interpretation_scheme import InterpretationScheme
+        json_scheme_validate(self.source, InterpretationScheme().get_schema())
 
-    def normalize(self, emf_model=None, normalize_out_file=None, requirements_model=None):
-        from ISO_model.scripts.schemes.interpretation_scheme import InterpretationDocument
-        self.emf_model = emf_model or self.emf_model
-        if self.emf_model is None:
-            self.emf_model = EmfModelParser()
-            self.emf_model.load()
-            self.emf_model.parse()
-        if requirements_model is None:
-            requirements_model = IsoTextParser()
-            requirements_model.load(r'ISO_model/part3-text.2.txt')
-            requirements_model.parse()
+    def validate_normalized(self):
+        # check if the normalized document is valid as well
+        from ISO_model.scripts.schemes.interpretation_scheme import InterpretationScheme
+        json_scheme_validate(self.interpretation, InterpretationScheme().get_schema())
 
+    def normalize(self):
         for req_id, req_obj in self.interpretation['requirements'].items():
             # Normalize ocl notation
             for ocl_level, ocl_roots in req_obj.setdefault('ocl', {}).items():
@@ -53,7 +61,7 @@ class InterpretationParser(Parser):
                         # Replace t <- ts
                         ocl['ts'] = [{
                             't': ocl['t'],
-                            'messages': '"%s"' % requirements_model.output[req_id]
+                            'messages': '"%s"' % self.requirements_model.output.get(req_id, 'Requirement not in JSON')
                         }]
                         del ocl['t']
                     elif 'ts' in ocl:
@@ -70,21 +78,21 @@ class InterpretationParser(Parser):
             for model_ref in req_obj.get('pr_model', []):
                 self.model_refs.setdefault(model_ref, []).append(req_id)
 
-        if normalize_out_file:
-            json.dump(self.interpretation, open(normalize_out_file, 'w+'))
+    def dump_normalized(self):
+        json.dump(self.interpretation, open(self.get_context('normalized_output_file'), 'w+'))
 
-        # check if the normalized document is valid as well
-        try:
-            json_scheme_validate(self.interpretation, InterpretationDocument().get_schema())
-        except Exception as e:
-            if normalize_out_file:
-                print('Run: pajv -s "ISO_model/generated/interpretation_scheme.json" -d %s'
-                      ' --verbose --errors=text --all-errors' % normalize_out_file)
-                exit(-1)
+    def get_context(self, context_param, default=None):
+        v = self.source['context'].get(context_param)
+        if v is None:
+            if default is None:
+                raise Exception("context.%s not set" % context_param)
             else:
-                raise e
+                return default
+        return v
 
     def parse(self):
+        self.emf_model.parse()
+        self.requirements_model.parse()
         # Fill all requirements
         for key, vals in self.source.items():
             if key.startswith('requirement'):
@@ -134,14 +142,12 @@ def main():
         inter.validate()
         return
 
-    emf_model = EmfModelParser()
-    emf_model.load()
-    emf_model.parse()
-
     inter = InterpretationParser()
     inter.load('ISO_model/interpretation_test.yaml')
+    inter.validate()
     inter.parse()
-    inter.normalize(emf_model)
+    inter.normalize()
+    inter.validate_normalized()
     for ref, req_id in sorted(inter.model_refs.items()):
         print('%s: %s' % (ref, req_id))
 

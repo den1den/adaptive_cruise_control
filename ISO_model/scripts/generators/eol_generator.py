@@ -1,7 +1,7 @@
 class EolGenerator:
     def __init__(self) -> None:
         self.indent = 0
-        self.out = None
+        self.out = None  # is overwritten in subclass
 
     def _print(self, line=None, indent_inc=0):
         if line:

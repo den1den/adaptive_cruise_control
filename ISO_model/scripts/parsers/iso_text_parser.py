@@ -6,6 +6,7 @@ import shutil
 
 from jsonschema import validate as json_scheme_validate
 
+from ISO_model.scripts.lib.util import dict_update
 from ISO_model.scripts.schemes.simple_model_inst_list_scheme import ModelInstanceIdList
 from ISO_model.scripts.parsers.parser import Parser
 
@@ -279,11 +280,6 @@ class IsoTextParser(Parser):
         }
         json_scheme_validate(work_ps, ModelInstanceIdList.get_schema())
         json.dump(work_ps, open(filename, 'w+'), indent=2, sort_keys=True)
-
-
-def dict_update(ori: dict, update):
-    ori.update(update)
-    return ori
 
 
 def update_only_add_dict(original: dict, addition: dict):

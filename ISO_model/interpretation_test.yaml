@@ -1,3 +1,7 @@
+context:
+  model_files:
+  - data_models/model/test/inter_test_model.emf
+  evl_output_file: data_models/model/test/inter_test_model.evl
 requirements:
 #  test_requirement1:
 #    classification: [existence, structure]

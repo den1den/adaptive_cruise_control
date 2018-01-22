@@ -2,11 +2,7 @@
 #  - &fr
 #    pr_model: [Requirement.type]
 #    prs_pre: ensureExistsByName(RequirementType, "functional")
-context:
-  model_files:
-  - data_models/model/project/project_model.emf
-  evl_output_file: data_models/model/project/interpretation.evl
-requirements:
+requirements_3:
   3-5.1:
     pr_model:
     - Item
@@ -69,10 +65,10 @@ requirements:
         - '}}'
         ts:
         - g: self.type2=RequirementSubType.operational
-          messages: 'Operational requirements are a subset of Non functional'
+          message: 'Operational requirements are a subset of Non functional'
           t: r.type = RequirementSuperType.non_functional
         - g: self.type2=RequirementSubType.environmental
-          messages: 'Environmental requirements are a subset of Non functional'
+          message: 'Environmental requirements are a subset of Non functional'
           t: r.type = RequirementSuperType.non_functional
       satisfies:
       - c: Item
@@ -206,7 +202,7 @@ requirements:
     ocl:
       needs:
       - c: Item
-# Clause 8-6 Specification and management of safety requirements
+requirements_86: # Clause 8-6 Specification and management of safety requirements
   8-6.1:
     status: todo
   8-6.2:

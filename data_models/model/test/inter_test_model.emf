@@ -1,0 +1,2 @@
+@namespace(uri="project_model", prefix="pm")
+package project_model;

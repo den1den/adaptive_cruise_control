@@ -1,0 +1,215 @@
+// Generated at 2018-01-22 16:41:37.433882
+////////////////////////////////////////////////////////////////////////////////
+// ocl level needs /////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// needs of requirement 3-5.4.1.b
+pre Requirement {
+	// Sets the default value for the Requirement.type
+	for (r : Requirement in Requirement.allInstances) {
+	  if(r.type2=RequirementSubType.operational or r.type2=RequirementSubType.environmental){
+	    if(r.type.isUndefined()){r.type=RequirementSuperType.non_functional;}
+	}}
+}
+context Requirement {
+	constraint n3m5_4_1_b_needs_0 {
+		guard : self.type2=RequirementSubType.operational
+		check : r.type = RequirementSuperType.non_functional
+		message : Operational requirements are a subset of Non functional
+	}
+	constraint n3m5_4_1_b_needs_1 {
+		guard : self.type2=RequirementSubType.environmental
+		check : r.type = RequirementSuperType.non_functional
+		message : Environmental requirements are a subset of Non functional
+	}
+}
+// needs of requirement 3-5.4.3.a
+pre Item {
+	var a = ensureExistsByName(Aspect_3_5_4_3, "The elements of the item"); ensureHasCheck(Item, check_boundry, a); ensureHasCheck(Item, check_interfaces, a); ensureHasCheck(Item, check_assumptions_on_other, a);
+}
+context Item {
+}
+// needs of requirement 3-5.4.3.b
+pre Item_1 {
+	var a = ensureExistsByName(Aspect_3_5_4_3, "The assumptions concerning the effects of the item's behaviour on other items or elements, that is the environment of the item, including interactions") ensureHasCheck(Item, check_boundry, a); ensureHasCheck(Item, check_interfaces, a); ensureHasCheck(Item, check_assumptions_on_other, a);
+}
+context Item {
+}
+// needs of requirement 3-5.4.3.c
+pre Item_1 {
+	var a = ensureExistsByName(Aspect_3_5_4_3, "Requirements received from other items, elements and the environment") ensureHasCheck(Item, check_boundry, a); ensureHasCheck(Item, check_interfaces, a); ensureHasCheck(Item, check_assumptions_on_other, a);
+}
+context Item {
+}
+// needs of requirement 3-5.4.3.d
+pre Item_1 {
+	var a = ensureExistsByName(Aspect_3_5_4_3, "Requirements on other items, elements and the environment") ensureHasCheck(Item, check_boundry, a); ensureHasCheck(Item, check_interfaces, a); ensureHasCheck(Item, check_assumptions_on_other, a);
+}
+context Item {
+}
+// needs of requirement 3-5.4.3.e
+pre Item_1 {
+	var a = ensureExistsByName(Aspect_3_5_4_3, "The allocation and distribution of functions among the systems and elements involved") ensureHasCheck(Item, check_boundry, a); ensureHasCheck(Item, check_interfaces, a); ensureHasCheck(Item, check_assumptions_on_other, a);
+}
+context Item {
+}
+// needs of requirement 3-5.4.3.f
+pre Item_1 {
+	var a = ensureExistsByName(Aspect_3_5_4_3, "Operating scenarios of the item if they impact the functionality of the item") ensureHasCheck(Item, check_boundry, a); ensureHasCheck(Item, check_interfaces, a); ensureHasCheck(Item, check_assumptions_on_other, a);
+}
+context Item {
+}
+////////////////////////////////////////////////////////////////////////////////
+// ocl level satisfies /////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// satisfies of requirement 3-5.4.1
+pre Item_1 {
+	// CREATE Item.c__requirements__where__type__is__functional
+	for (x : Item in Item.all().select(x|x.c__requirements__where__type__is__functional.isUndefined()) ) { x.c__requirements__where__type__is__functional = new CheckComplete[1]; }
+	//
+}
+context Item {
+	constraint n3m5_4_1_satisfies_0 {
+		check : self.c__requirements__where__type__is__functional.checked
+	}
+	constraint n3m5_4_1_satisfies_1 {
+		check : self.requirements.select(r|r.type=RequirementSuperType.functional).length() > 0
+	}
+	constraint n3m5_4_1_satisfies_2 {
+		check : self.c__of__env_dependency.checked
+	}
+}
+// satisfies of requirement 3-5.4.1.a
+pre Item_1 {
+	// CREATE Item.c__description__contains__itempurpose
+	for (x : Item in Item.all().select(x|x.c__description__contains__itempurpose.isUndefined()) ) { x.c__description__contains__itempurpose = new CheckTextContains[1]; }
+	//
+	// CREATE Item.c__description__contains__functionality
+	for (x : Item in Item.all().select(x|x.c__description__contains__functionality.isUndefined()) ) { x.c__description__contains__functionality = new CheckTextContains[1]; }
+	//
+}
+context Item {
+	constraint n3m5_4_1_a_satisfies_0 {
+		check : self.c__description__contains__itempurpose.checked
+	}
+	constraint n3m5_4_1_a_satisfies_1 {
+		check : self.c__description__contains__functionality.checked
+	}
+}
+// satisfies of requirement 3-5.4.1.b
+context Item {
+	constraint n3m5_4_1_b_satisfies_0 {
+		check : self.c__requirements__where__type2__is__operational.checked
+	}
+	constraint n3m5_4_1_b_satisfies_1 {
+		check : self.c__requirements__where__type2__is__environmental.checked
+	}
+	constraint n3m5_4_1_b_satisfies_2 {
+		check : self.c__description__contains__constraints.checked
+	}
+}
+// satisfies of requirement 3-5.4.1.c
+pre Item_1 {
+	// CREATE Item.c__requirements__where__type__is__legal
+	for (x : Item in Item.all().select(x|x.c__requirements__where__type__is__legal.isUndefined()) ) { x.c__requirements__where__type__is__legal = new CheckComplete[1]; }
+	//
+}
+context Item {
+	constraint n3m5_4_1_c_satisfies_0 {
+		check : self.c__requirements__where__type__is__legal.checked
+		message : "Requirement not in JSON"
+	}
+}
+// satisfies of requirement 3-5.4.2.a
+pre Item_1 {
+	// CREATE Item.c__already_known_srs__wrt__behavior_similar_functions
+	for (x : Item in Item.all().select(x|x.c__already_known_srs__wrt__behavior_similar_functions.isUndefined()) ) { x.c__already_known_srs__wrt__behavior_similar_functions = new CheckComplete[1]; }
+	//
+	// CREATE Item.c__already_known_srs__wrt__behavior_similar_systems
+	for (x : Item in Item.all().select(x|x.c__already_known_srs__wrt__behavior_similar_systems.isUndefined()) ) { x.c__already_known_srs__wrt__behavior_similar_systems = new CheckComplete[1]; }
+	//
+	// CREATE Item.c__already_known_srs__wrt__behavior_similar_elements
+	for (x : Item in Item.all().select(x|x.c__already_known_srs__wrt__behavior_similar_elements.isUndefined()) ) { x.c__already_known_srs__wrt__behavior_similar_elements = new CheckComplete[1]; }
+	//
+}
+context Item {
+	constraint n3m5_4_2_a_satisfies_0 {
+		check : self.c__already_known_srs__wrt__behavior_similar_functions.checked
+	}
+	constraint n3m5_4_2_a_satisfies_1 {
+		check : self.c__already_known_srs__wrt__behavior_similar_systems.checked
+	}
+	constraint n3m5_4_2_a_satisfies_2 {
+		check : self.c__already_known_srs__wrt__behavior_similar_elements.checked
+	}
+}
+// satisfies of requirement 3-5.4.2.b
+pre Item_1 {
+	// CREATE Item.c__already_known_srs__wrt__assumptions_itembehavior
+	for (x : Item in Item.all().select(x|x.c__already_known_srs__wrt__assumptions_itembehavior.isUndefined()) ) { x.c__already_known_srs__wrt__assumptions_itembehavior = new CheckComplete[1]; }
+	//
+}
+context Item {
+	constraint n3m5_4_2_b_satisfies_0 {
+		check : self.c__already_known_srs__wrt__assumptions_itembehavior.checked
+		message : "Requirement not in JSON"
+	}
+}
+// satisfies of requirement 3-5.4.2.c
+pre Item_1 {
+	// CREATE Item.c__already_known_srs__wrt__behavior_shortfalls
+	for (x : Item in Item.all().select(x|x.c__already_known_srs__wrt__behavior_shortfalls.isUndefined()) ) { x.c__already_known_srs__wrt__behavior_shortfalls = new CheckComplete[1]; }
+	//
+	// CREATE Item.c__already_known_srs__wrt__failure_modes
+	for (x : Item in Item.all().select(x|x.c__already_known_srs__wrt__failure_modes.isUndefined()) ) { x.c__already_known_srs__wrt__failure_modes = new CheckComplete[1]; }
+	//
+	// CREATE Item.c__already_known_srs__wrt__hazards
+	for (x : Item in Item.all().select(x|x.c__already_known_srs__wrt__hazards.isUndefined()) ) { x.c__already_known_srs__wrt__hazards = new CheckComplete[1]; }
+	//
+}
+context Item {
+	constraint n3m5_4_2_c_satisfies_0 {
+		check : self.c__already_known_srs__wrt__behavior_shortfalls.checked
+	}
+	constraint n3m5_4_2_c_satisfies_1 {
+		check : self.c__already_known_srs__wrt__failure_modes.checked
+	}
+	constraint n3m5_4_2_c_satisfies_2 {
+		check : self.c__already_known_srs__wrt__hazards.checked
+	}
+}
+// satisfies of requirement 3-5.4.3
+context Item {
+	constraint n3m5_4_3_satisfies_0 {
+		check : self.check_boundry               .forAll(c|c.checked)
+	}
+	constraint n3m5_4_3_satisfies_1 {
+		check : self.check_interfaces            .forAll(c|c.checked)
+	}
+	constraint n3m5_4_3_satisfies_2 {
+		check : self.check_assumptions_on_other  .forAll(c|c.checked)
+	}
+}
+////////////////////////////////////////////////////////////////////////////////
+// ocl level warning ///////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// warning of requirement 3-5.4.1
+context Item {
+	constraint n3m5_4_1_warning_0 {
+		check : self.env_dependency.isEmpty
+		message : "Requirement not in JSON"
+	}
+}
+// warning of requirement 3-5.4.1.a
+context Item {
+	constraint n3m5_4_1_a_warning_0 {
+		check : self.description.length() == 0
+		message : "Requirement not in JSON"
+	}
+}
+// warning of requirement 3-5.4.2
+context Item {
+	constraint n3m5_4_2_warning_0 {
+		check : self.already_known_srs.length() == 0
+		message : "Requirement not in JSON"
+	}
+}

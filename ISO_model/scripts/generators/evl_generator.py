@@ -112,6 +112,7 @@ class InterpretationEVLGenerator(EvlGenerator):
         super(InterpretationEVLGenerator, self).__init__()
         self.ocl_per_level = {}
         self.ip = interpretation
+        self.out = open(self.ip.get_context('evl_output_file'), 'w+')
 
     def _interpret_ocl(self, req_id, ocl_level, ocl_root: dict, init_pre: list, init_post: list):
         # Each OCL entry defines a context
@@ -161,11 +162,7 @@ class InterpretationEVLGenerator(EvlGenerator):
                 found = True
         return eol
 
-    def generate(self, outfile=None):
-        if outfile:
-            self.out = open(outfile, 'w+')
-        else:
-            self.out = sys.stdout
+    def generate(self):
         for req_id, req_interpretation in self.ip.interpretation['requirements'].items():
             for ocl_level, ocl_roots in req_interpretation.get('ocl', {}).items():
                 for ocl_root in ocl_roots:
@@ -186,37 +183,29 @@ class InterpretationEVLGenerator(EvlGenerator):
 
 def main():
     from ISO_model.scripts.parsers.interpretation_parser import InterpretationParser
-    emf_model = EmfModelParser()
-    emf_model.load()
-    emf_model.parse()
 
     if len(sys.argv) > 1:
         interpretation_file = sys.argv[1]
-        interpretation = InterpretationParser()
-        interpretation.load(interpretation_file)
-        interpretation.parse()
-        interpretation.normalize(emf_model)
+        i = InterpretationParser()
+        i.load(interpretation_file)
+        i.parse()
+        i.normalize()
 
-        g = InterpretationEVLGenerator(interpretation)
+        g = InterpretationEVLGenerator(i)
+        g.generate()
 
-        file_base = os.path.splitext(os.path.basename(interpretation_file))[0]
-        outfile = 'data_models/model/acc/GEN_%s.evl' % file_base
-        g.generate(outfile)
-
-        print("Generated: %s" % outfile)
+        print("Generated: %s" % i.get_context('evl_output_file'))
         return
 
-    interpretation = InterpretationParser()
-    interpretation.load('ISO_model/interpretation_test.yaml')
-    interpretation.parse()
-    interpretation.normalize(emf_model)
+    i = InterpretationParser()
+    i.load('ISO_model/interpretation_test.yaml')
+    i.parse()
+    i.validate()
+    i.normalize()
+    i.validate_normalized()
 
-    g = InterpretationEVLGenerator(interpretation)
-    print()
-    print('------------------------------------')
-    print()
+    g = InterpretationEVLGenerator(i)
     g.generate()
-    g.generate(r'data_models/model/checks/TEST.evl')
 
 
 if __name__ == '__main__':
