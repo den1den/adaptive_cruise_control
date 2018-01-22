@@ -25,7 +25,7 @@ def pop(dic: dict, key: str, default=None):
         return default
 
 
-class RequirementParser:
+class ProjectRequirementParser:
 
     def __init__(self) -> None:
         self.output = {}
@@ -133,7 +133,7 @@ class RequirementParser:
 
 if __name__ == '__main__':
     # test
-    p = RequirementParser()
+    p = ProjectRequirementParser()
     # p.parse('../requirements/obstacle_detector_requirements.yaml')
     p.parse('../requirements/functional_requirements.yaml')
     print(p.to_json())

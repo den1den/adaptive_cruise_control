@@ -6,7 +6,9 @@ from jsonschema.validators import validate as json_scheme_validate
 
 from ISO_model.scripts.generators.evl_generator import InterpretationEVLGenerator
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
+from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser
 from ISO_model.scripts.parsers.parser import Parser
+from acc_project.scripts.requirement_parser import ProjectRequirementParser
 
 
 class InterpretationParser(Parser):
@@ -29,31 +31,39 @@ class InterpretationParser(Parser):
         from ISO_model.scripts.schemes.interpretation_scheme import InterpretationDocument
         json_scheme_validate(self.source, InterpretationDocument().get_schema())
 
-    def normalize(self, emf_model=None, normalize_out_file=None):
+    def normalize(self, emf_model=None, normalize_out_file=None, requirements_model=None):
         from ISO_model.scripts.schemes.interpretation_scheme import InterpretationDocument
         self.emf_model = emf_model or self.emf_model
         if self.emf_model is None:
             self.emf_model = EmfModelParser()
             self.emf_model.load()
             self.emf_model.parse()
+        if requirements_model is None:
+            requirements_model = IsoTextParser()
+            requirements_model.load(r'ISO_model/part3-text.2.txt')
+            requirements_model.parse()
 
         for req_id, req_obj in self.interpretation['requirements'].items():
             # Normalize ocl notation
             for ocl_level, ocl_roots in req_obj.setdefault('ocl', {}).items():
                 for ocl in ocl_roots:
                     ocl.setdefault('pre', [])
+                    ocl.setdefault('post', [])
                     if 't' in ocl:
                         # Replace t <- ts
-                        ocl['ts'] = [
-                            {'t': ocl['t']}
-                        ]
+                        ocl['ts'] = [{
+                            't': ocl['t'],
+                            'messages': '"%s"' % requirements_model.output[req_id]
+                        }]
                         del ocl['t']
-                    else:
+                    elif 'ts' in ocl:
                         # Replace ts strings by dicts
                         ocl['ts'] = [
                             {'t': t} if type(t) is str else
                             t for t in ocl['ts']
                         ]
+                    else:
+                        ocl['ts'] = []
                     self._parser_ocl(ocl)
 
             # Store all model references

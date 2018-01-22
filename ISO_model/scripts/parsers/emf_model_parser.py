@@ -144,6 +144,45 @@ class EmfModelParser(Parser):
                     check = False
         return check
 
+    _default_inst = None
+
+    @staticmethod
+    def default():
+        if EmfModelParser._default_inst is None:
+            i = EmfModelParser()
+            i.load()
+            i.parse()
+            EmfModelParser._default_inst = i
+        return EmfModelParser._default_inst
+
+    def get_all_attribute_notations(self):
+        all_attributes = []
+        # Add all: Class, Class.att, Class.att[*]
+        for class_name, class_attributes in self.atts.items():
+            all_attributes.append(class_name)
+            for attribute_name, attribute_class in class_attributes.items():
+                all_attributes.append(class_name + '.' + attribute_name)
+                if '[' in attribute_class:
+                    cardinality = '[' + attribute_class.split('[')[1]
+                    all_attributes.append(class_name + '.' + attribute_name + cardinality)
+                else:
+                    all_attributes.append(class_name + '.' + attribute_name + '[0..1]')
+        # Add all: Enum, Enum.VAL
+        for enum_name, enum_vals in self.enums.items():
+            all_attributes.append(enum_name)
+            for enum_val in enum_vals:
+                all_attributes.append(enum_name + '.' + enum_val)
+        return all_attributes
+
+    def get_all_classes(self):
+        all_classes = []
+        for class_name, class_attributes in self.atts.items():
+            if class_name not in self.abstract_classes:
+                all_classes.append(class_name)
+        for enum_name, enum_vals in self.enums.items():
+            all_classes.append(enum_name)
+        return all_classes
+
 
 def main():
     from ISO_model.scripts.parsers.interpretation_parser import InterpretationParser

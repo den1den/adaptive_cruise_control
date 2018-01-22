@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 import sys
@@ -8,6 +9,10 @@ from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 
 class EvlGenerator(EolGenerator):
 
+    def __init__(self) -> None:
+        super().__init__()
+        self.used_uniques = {}
+
     def p_inform(self, msg: str):
         self._print('inform("%s")' % msg)
 
@@ -17,21 +22,31 @@ class EvlGenerator(EolGenerator):
             name = 'n' + name
         return name
 
+    def get_unique(self, name_type, name):
+        d = self.used_uniques.setdefault(name_type, {})
+        prev = d.get(name)
+        if prev:
+            name = '%s_%s' % (name, prev)
+        else:
+            prev = 0
+        d[name] = prev + 1
+        return name
+
     def p_context(self, name, guards=None, constraints=None, pre=None, post=None):
         name = self.sanitize_name(name)
         if pre:
-            self.p_open_block('pre ' + name)
+            self.p_open_block('pre ' + self.get_unique('pre', name))
             self.p_statements(pre)
             self.p_close_block()
         self.p_open_block('context ' + name)
-        self.p_expression_or_block('guard', guards)
 
+        self.p_expression_or_block('guard', guards)
         for c in constraints:
             self.p_constraint(**c)
 
         self.p_close_block()
         if post:
-            self.p_open_block('post ' + name)
+            self.p_open_block('post ' + self.get_unique('post', name))
             self.p_statements(pre)
             self.p_close_block()
 
@@ -44,7 +59,7 @@ class EvlGenerator(EolGenerator):
         self.p_expression_or_block('message', messages)
         if fixes:
             for fix in fixes:
-                self.p_fix(fix['titles'], fix['statements'], fix.get('guards'))
+                self.p_fix(**fix)
         self.p_close_block()
 
     def p_fix(self, title, statements, guard=None):
@@ -160,10 +175,11 @@ class InterpretationEVLGenerator(EvlGenerator):
                     )
 
         # print main document structure
+        self.p_comment('Generated at %s' % datetime.datetime.now())
         for ocl_level, o_r in sorted(self.ocl_per_level.items()):
             self.p_comment_heading("ocl level " + ocl_level)
             for req_id, contexts in sorted(o_r.items()):
-                self.p_comment(ocl_level+" requirement " + req_id)
+                self.p_comment(ocl_level+" of requirement " + req_id)
                 for context in contexts:
                     self.p_context(**context)
 
@@ -184,7 +200,10 @@ def main():
         g = InterpretationEVLGenerator(interpretation)
 
         file_base = os.path.splitext(os.path.basename(interpretation_file))[0]
-        g.generate('data_models/model/acc/GEN_%s.evl' % file_base)
+        outfile = 'data_models/model/acc/GEN_%s.evl' % file_base
+        g.generate(outfile)
+
+        print("Generated: %s" % outfile)
         return
 
     interpretation = InterpretationParser()

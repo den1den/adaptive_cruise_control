@@ -1,4 +1,4 @@
-definitions:
+# definitions:
 #  - &fr
 #    pr_model: [Requirement.type]
 #    prs_pre: ensureExistsByName(RequirementType, "functional")
@@ -55,7 +55,7 @@ requirements_3:
     - Requirement.type
     - Requirement.type2
     ocl:
-      structure:
+      needs:
       - c: Requirement
         pre:
         - // Sets the default value for the Requirement.type
@@ -131,9 +131,6 @@ requirements_3:
         - CHECK c__already_known_srs__wrt__failure_modes
         - CHECK c__already_known_srs__wrt__hazards
     status: gen
-
-
-
   3-5.4.3:
     pr_model:
     - Item
@@ -152,6 +149,9 @@ requirements_3:
       ensureHasCheck(Item, check_boundry, a);
       ensureHasCheck(Item, check_interfaces, a);
       ensureHasCheck(Item, check_assumptions_on_other, a);
+    ocl:
+      needs:
+      - c: Item
   3-5.4.3.b:
     status: todo
     pre:
@@ -159,6 +159,9 @@ requirements_3:
       ensureHasCheck(Item, check_boundry, a);
       ensureHasCheck(Item, check_interfaces, a);
       ensureHasCheck(Item, check_assumptions_on_other, a);
+    ocl:
+      needs:
+      - c: Item
   3-5.4.3.c:
     status: todo
     pre:
@@ -166,6 +169,9 @@ requirements_3:
       ensureHasCheck(Item, check_boundry, a);
       ensureHasCheck(Item, check_interfaces, a);
       ensureHasCheck(Item, check_assumptions_on_other, a);
+    ocl:
+      needs:
+      - c: Item
   3-5.4.3.d:
     status: todo
     pre:
@@ -173,6 +179,9 @@ requirements_3:
       ensureHasCheck(Item, check_boundry, a);
       ensureHasCheck(Item, check_interfaces, a);
       ensureHasCheck(Item, check_assumptions_on_other, a);
+    ocl:
+      needs:
+      - c: Item
   3-5.4.3.e:
     status: todo
     pre:
@@ -180,6 +189,9 @@ requirements_3:
       ensureHasCheck(Item, check_boundry, a);
       ensureHasCheck(Item, check_interfaces, a);
       ensureHasCheck(Item, check_assumptions_on_other, a);
+    ocl:
+      needs:
+      - c: Item
   3-5.4.3.f:
     status: todo
     pre:
@@ -187,6 +199,9 @@ requirements_3:
       ensureHasCheck(Item, check_boundry, a);
       ensureHasCheck(Item, check_interfaces, a);
       ensureHasCheck(Item, check_assumptions_on_other, a);
+    ocl:
+      needs:
+      - c: Item
 requirements_86: # Clause 8-6 Specification and management of safety requirements
   8-6.1:
     status: todo
