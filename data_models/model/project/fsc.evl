@@ -1,0 +1,62 @@
+// Generated at 2018-01-23 21:44:24.258725
+////////////////////////////////////////////////////////////////////////////////
+// ocl level satisfies /////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// satisfies of requirement 3-8.4.2.1
+context FunctionalSafetyRequirement {
+	constraint n3m8_4_2_1_satisfies_0 {
+		check : self.derrived_from_sg.length() > 0 or self.derrived_from_ss.length() > 0
+		message : "3-8.4.2.1: ISO requirement: The functional safety requirements shall be derived from the safety goals and safe states, considering the preliminary architectural assumptions, functional concept, operating modes and system states."
+	}
+}
+// satisfies of requirement 3-8.4.2.2
+context SafetyGoal {
+	constraint n3m8_4_2_2_satisfies_0 {
+		check : FunctionalSafetyRequirement.all().exists(fsr | fsr.derrived_from_sg.includes(self))
+		message : "3-8.4.2.2: ISO requirement: At least one functional safety requirement shall be specified for each safety goal."
+	}
+}
+// satisfies of requirement 3-8.4.2.4
+context TechnicalStateTransition {
+	constraint n3m8_4_2_4_satisfies_0 {
+		check : self.do_condition.length() > 0 and self.rev_condition.length() > 0
+		message : "3-8.4.2.4: All state transitions for SafeState need to have a condition"
+	}
+}
+// satisfies of requirement 3-8.4.2.5
+context SafeState {
+	constraint n3m8_4_2_5_satisfies_0 {
+		check : (not self.transition_to.exists(t | t.isKindOf(SwitchOffTransition) and t.duration.isDefined() and t.duration.direct)) implies self.emergency_operation.length() > 0
+		message : "3-8.4.2.5: ISO requirement: If a safe state cannot be reached by immediately switching off, an emergency operation shall be specified."
+	}
+}
+// satisfies of requirement 3-8.4.2.6.b
+context Actor {
+	constraint n3m8_4_2_6_b_satisfies_0 {
+		check : Actor.means.length() > 0
+		message : "3-8.4.2.6.b: ISO requirement: If assumptions are made on the necessary actions of the driver, or other endangered persons, in order to comply with the safety goals:The adequate means and controls of the driver or other endangered persons shall be specified in the functional safety concept; "
+	}
+	constraint n3m8_4_2_6_b_satisfies_1 {
+		check : Actor.controls.length() > 0
+		message : "3-8.4.2.6.b: ISO requirement: If assumptions are made on the necessary actions of the driver, or other endangered persons, in order to comply with the safety goals:The adequate means and controls of the driver or other endangered persons shall be specified in the functional safety concept; "
+	}
+}
+////////////////////////////////////////////////////////////////////////////////
+// ocl level structure /////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// structure of requirement 3-8.4.2.6.a
+pre Actor {
+	if(not Actor.all().exists(x|x.name="driver")){var x = new Actor(); x.name="driver";}
+}
+context Actor {
+}
+////////////////////////////////////////////////////////////////////////////////
+// ocl level warning ///////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// warning of requirement 3-8.4.2.4
+context SafeState {
+	constraint n3m8_4_2_4_warning_0 {
+		check : SafeState.transition_to.length() > 0 and SafeState.transition_from.length() > 0
+		message : "3-8.4.2.4: ISO requirement: The warning and degradation concept shall be specified."
+	}
+}
