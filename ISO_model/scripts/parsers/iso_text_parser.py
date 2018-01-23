@@ -30,7 +30,6 @@ class IsoTextParser(Parser):
 
     def __init__(self, read_from_annotations_file=None):
         self.lines = []
-        self.id_prefix = ''
         self.output = {}
         self.annotations = json.load(open(read_from_annotations_file)) if read_from_annotations_file else {}
         self.work_products = {}  # Is not an input for this parser
@@ -40,12 +39,16 @@ class IsoTextParser(Parser):
         self.missed_lines = []
         self.curr_SUM = None
         self.curr_ordered_SUM = None
-        self.id_prefix = ''
         self.next_is_wp = False
 
     def load(self, text_file):
-        self.lines = [l for l in open(text_file, 'r')]
-        self.id_prefix = re.match('.*part-?(\d+).*', text_file).group(1) + '-'
+        id_prefix = re.match('.*part-?(\d+).*', text_file).group(1) + '-'
+        self.lines += [{
+            'text': line,
+            'line_no': line_no,
+            'prefix': id_prefix,
+            'file': text_file,
+        } for line_no, line in enumerate(open(text_file, 'r'))]
 
     def parse(self):
         self.curr_line = None
@@ -53,14 +56,9 @@ class IsoTextParser(Parser):
 
         self.missed_lines = []
 
-        no = 0
-        for line in self.lines:
-            no += 1
+        for l in self.lines:
             self.prev_line = self.curr_line
-            self.curr_line = {
-                'text': line,
-                'line_no': no,
-            }
+            self.curr_line = l
             self.parse_line()
         return len(self.missed_lines) == 0
 
@@ -78,7 +76,8 @@ class IsoTextParser(Parser):
                     self.missed_lines = []
 
             # prepare next
-            rid = self.id_prefix + m.group(1)
+            prefix = self.curr_line['prefix']
+            rid = prefix + m.group(1)
             title = m.group(2).strip()
             self.element = {
                 'id': rid,
@@ -184,6 +183,7 @@ class IsoTextParser(Parser):
     def parse_work_product(self):
         title = self.element['title']
         rid = self.element['id']
+        prefix = self.curr_line['prefix']
         ann_work_product = self.annotations[rid].get('work_product', False)
         m = IsoTextParser.re_work_product.match(title)
         if ann_work_product or m:
@@ -203,18 +203,18 @@ class IsoTextParser(Parser):
                 if rm:
                     base = rm.group(1)
                     WP['based_on__refs_to_id'] = 'IsoRequirement'
-                    WP['based_on'] = [self.id_prefix + '%s.%d' % (base, digit) for digit in
+                    WP['based_on'] = [prefix + '%s.%d' % (base, digit) for digit in
                                       range(int(rm.group(2)), int(rm.group(3)))]
                     break
                 rm = IsoTextParser.re_simple_req_summation_rev.match(str_rev(work_product_range))
                 if rm:
                     WP['based_on__refs_to_id'] = 'IsoRequirement'
-                    WP['based_on'] = [self.id_prefix + str_rev(r) for r in reversed(rm.groups())]
+                    WP['based_on'] = [prefix + str_rev(r) for r in reversed(rm.groups())]
                     break
                 rm = IsoTextParser.re_requirement_ref.match(work_product_range)
                 if rm:
                     WP['based_on__refs_to_id'] = 'IsoRequirement'
-                    WP['based_on'] = [self.id_prefix + rm.group(1)]
+                    WP['based_on'] = [prefix + rm.group(1)]
                     break
                 break
 
@@ -280,6 +280,14 @@ class IsoTextParser(Parser):
         }
         json_scheme_validate(work_ps, ModelInstanceIdList.get_schema())
         json.dump(work_ps, open(filename, 'w+'), indent=2, sort_keys=True)
+
+    def get_text(self, req_id, default):
+        r = self.output.get(req_id, {})
+        if 'text' in r:
+            return r['text']
+        if 'title' in r:
+            return r['title']
+        return default
 
 
 def update_only_add_dict(original: dict, addition: dict):

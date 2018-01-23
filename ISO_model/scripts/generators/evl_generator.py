@@ -129,9 +129,9 @@ class InterpretationEVLGenerator(EvlGenerator):
             # Add a constraint
             constraint = {
                 'name': t.get('name', default_name),
-                'guards': t.get('g'),
-                'checks': t['t'],
-                'messages': t.get('messages'),
+                'guards': t.get('g'),  # g -> guards
+                'checks': t['t'],  # t -> checks
+                'messages': t.get('message'),  # message -> messages
                 'fixes': t.get('fixes'),
             }
 
@@ -198,7 +198,8 @@ def main():
         return
 
     i = InterpretationParser()
-    i.load('ISO_model/interpretation_test.yaml')
+    # i.load('ISO_model/interpretation_test.yaml')
+    i.load('ISO_model/interpretation_fsc.yaml')
     i.parse()
     i.validate()
     i.normalize()

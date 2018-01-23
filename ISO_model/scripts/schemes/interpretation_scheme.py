@@ -9,37 +9,49 @@ from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.schemes.schemes import *
 
 RequirementClassifications = (
+    'from_arash',  # virtual requirement interpreted by the model of TNO
+    'structure_intro',  # (just) introduces elements of the project structure
     'structure',  # specifies structure of the project
-    'ocl',
-    'weak_ocl',  # ocl by cheating in a Checked class
-    'existence',  # specifies the existence of certain elements
-    'to high',  # To high level, skipped
-    'act',  # specifies an activity to perform
+    'ocl',  # specifies some kind of constraint
+    'act',  # specifies some sort of activity
+    'clause_input',
     'work_product',
 )
 
 RequirementInterpretationStatuses = (
     'gen',  # initially generated
-    'todo',  # still working on
+    'assumed',  # assumed to be true
     'skip'  # considered unimportant
-    'checked',  # verified
+    'verified',  # verified
+    'todo',  # still working on
 )
 
 OCLLevels = (
     '++', '+', 'o',  # from a table
-    'suggested', 'satisfies',  # from the iso text
+    'suggested',  # from the iso text
+    'satisfies',  # specified by the text (direct or indirect)
+    'trivial',  # very simple OCL
+    'structure',  # project instance structure (Ex: type(A.b)=B, or cardinal constraints)
     'warning',  # possible assumed pitfalls
-    'needs',  # assumptions on the project instance structure
 )
 
 
 class EOLSingleCheckWithName(DictField):
     def __init__(self):
         super().__init__(properties={
-            't': EolBool(description='the EOL check', required=True),
-            'name': jsl.StringField(description='Name of the constraint, default: ReqId_Context_Index'),
-            'g': EolBool(description='Filters the constraint'),
-            'messages': jsl.StringField(description='Message to display on failure'),
+            't': EolBool(
+                description='the EOL check',
+                required=True,
+            ),
+            'name': jsl.StringField(
+                description='Name of the constraint, default: ReqId_Context_Index',
+            ),
+            'guard': EolBool(
+                description='Filters the constraint',
+            ),
+            'message': jsl.StringField(
+                description='Message to display on failure',
+            ),
             # `pre` is not supported here
         })
 
@@ -48,19 +60,32 @@ class OCLConstraintBase(DictField):
     def __init__(self, properties: dict = None):
         super(OCLConstraintBase, self).__init__(properties=dict_update({
             # Common
-            'c': ModelClassName(description='The EVL context', required=True),
+            'c': ModelClassName(
+                description='The EVL context',
+                required=True,
+            ),
             'pre': EolStatements(
-                description='@pre actions for this context. ' +
-                            'These actions can possibly create parts of the project instance which are needed later on'),
-            'post': EolStatements(),
-            'g': EolBool(description='Filters the context'),
+                description='pre actions for this context. ' +
+                            'These actions can possibly create parts of the project instance which are needed later on',
+            ),
+            'post': EolStatements(
+                description='post actions for this context',
+            ),
+            'message': jsl.StringField(
+                description='Message to display on failure',
+            ),
+            'guard': EolBool(
+                description='Filters the context',
+            ),
         }, properties))
 
 
 class OCLPreForClass(OCLConstraintBase):
     def __init__(self):
         super(OCLPreForClass, self).__init__(properties={
-            'pre': EolStatements(required=True),
+            'pre': EolStatements(
+                required=True,
+            ),
         })
 
 
@@ -68,8 +93,13 @@ class OCLConstraintForClass(OCLConstraintBase):
     def __init__(self):
         super(OCLConstraintForClass, self).__init__(properties={
             # can be specified with test and name
-            't': EolBool(description='the EOL check', required=True),
-            'name': jsl.StringField(description='Name of the constraint, default: ReqId_Context_Index'),
+            't': EolBool(
+                description='the EOL check',
+                required=True,
+            ),
+            'name': jsl.StringField(
+                description='Name of the constraint, default: ReqId_Context_Index',
+            ),
             # the g is taken from the Context class only
         })
 
@@ -81,7 +111,8 @@ class OCLConstraintsForClass(OCLConstraintBase):
             'ts': ArrayField(
                 EolBool(description='the EOL check'),
                 EOLSingleCheckWithName,
-                description='Multiple EOL checks', required=True
+                description='Multiple EOL checks',
+                required=True,
             ),
         })
 
@@ -104,23 +135,39 @@ class InterpretationRequirementBase(DictField):
 
     def __init__(self, properties: dict):
         super(InterpretationRequirementBase, self).__init__(dict_update({
-            'status': Enum(RequirementInterpretationStatuses),
+            'status': Enum(RequirementInterpretationStatuses, required=True),
             'quality': jsl.StringField(
-                description='Documentation on the quality of the interpretation'),
+                description='Documentation on the quality of the interpretation',
+            ),
             'classification': ArrayField(
-                Enum(RequirementClassifications), unique_items=True),
+                Enum(RequirementClassifications),
+                unique_items=True,
+                min_items=0,
+                required=True,
+            ),
             'ignored': jsl.StringField(
-                description='Documentation on a part if the requirement which is ignored'),
+                description='Documentation on a part if the requirement which is ignored',
+            ),
             'assumed': jsl.StringField(
-                description='Documentation on certain assumptions which are made'),
+                description='Documentation on certain assumptions which are made',
+            ),
             'introduces': jsl.DictField(
-                description='Documentation on possible introduced concepts'),
+                description='Documentation on possible introduced concepts',
+            ),
+            'references': jsl.StringField(
+                description='Reference to another ISO clause or Requirement',
+            ),
             'context': jsl.IntField(  # Deprecated: overkill
+                description='The number of parent requirement which are needed to understand this requirement',
                 minimum=1,
-                description='The number of parent requirement which are needed to understand this requirement'),
+            ),
+            'activity': jsl.StringField(
+                description='TODO: defines an activity',
+            ),
             'pr_model': SingleOrArray(
                 ModelReference(),
-                description='References to parts of the model which are created when interpreting this requirement'),
+                description='References to parts of the model which are created when interpreting this requirement',
+            ),
         }, properties))
 
 

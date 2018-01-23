@@ -8,7 +8,7 @@ class ContextDocument(DictField):
         super().__init__(properties={
             'context': DictField(properties={
                 # input files
-                'model_files': ArrayField(FileField('.emf'), required=True),
+                'model_files': ArrayField(FileField('.emf'), required=True, min_items=1),
                 'requirement_files': ArrayField(FileField('.txt')),
                 # output files
                 'evl_output_file': FileField('.evl', must_exist=False, required=True),

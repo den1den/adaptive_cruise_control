@@ -6,6 +6,7 @@ import yaml
 from jsonschema.validators import validate as json_scheme_validate
 
 from ISO_model.scripts.generators.evl_generator import InterpretationEVLGenerator
+from ISO_model.scripts.lib.util import dict_poll
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser
 from ISO_model.scripts.parsers.parser import Parser
@@ -49,6 +50,7 @@ class InterpretationParser(Parser):
 
     def validate_normalized(self):
         # check if the normalized document is valid as well
+        EmfModelParser.emf_model_for_scheme = self.emf_model
         from ISO_model.scripts.schemes.interpretation_scheme import InterpretationScheme
         json_scheme_validate(self.interpretation, InterpretationScheme().get_schema())
 
@@ -57,24 +59,7 @@ class InterpretationParser(Parser):
             # Normalize ocl notation
             for ocl_level, ocl_roots in req_obj.setdefault('ocl', {}).items():
                 for ocl in ocl_roots:
-                    ocl.setdefault('pre', [])
-                    ocl.setdefault('post', [])
-                    if 't' in ocl:
-                        # Replace t <- ts
-                        ocl['ts'] = [{
-                            't': ocl['t'],
-                            'messages': '"%s"' % self.requirements_model.output.get(req_id, 'Requirement not in JSON')
-                        }]
-                        del ocl['t']
-                    elif 'ts' in ocl:
-                        # Replace ts strings by dicts
-                        ocl['ts'] = [
-                            {'t': t} if type(t) is str else
-                            t for t in ocl['ts']
-                        ]
-                    else:
-                        ocl['ts'] = []
-                    self._parser_ocl(ocl)
+                    self._parse_ocl(req_id, ocl)
 
             # Store all model references
             for model_ref in req_obj.get('pr_model', []):
@@ -102,7 +87,32 @@ class InterpretationParser(Parser):
                 assert len([dup for dup in vals.keys() if dup in self.interpretation['requirements']]) == 0
                 self.interpretation['requirements'].update(vals)
 
-    def _parser_ocl(self, ocl):
+    def _parse_ocl(self, req_id, ocl):
+        # normalize OCL entry
+        ocl.setdefault('pre', [])
+        ocl.setdefault('post', [])
+        default_msg = self.requirements_model.get_text(req_id, 'Requirement not in JSON')
+        default_msg = dict_poll(ocl, 'message', default_msg)
+        # normalize OCL['ts']
+        if 't' in ocl:
+            # Replace t <- ts
+            ocl['ts'] = [{
+                't': ocl['t'],
+            }]
+            del ocl['t']
+        elif 'ts' not in ocl:
+            ocl['ts'] = []
+        # normalize all elements in OCL['ts']
+        ts = []
+        for t in ocl['ts']:
+            if type(t) is str:
+                # Replace ts strings by dicts
+                t = {'t': t}
+            t['message'] = '"%s: %s"' % (req_id, t.get('message', default_msg))
+            ts.append(t)
+        ocl['ts'] = ts
+        # For testing: self.validate_normalized()
+
         # Look for keywords
         item_class = ocl['c']
         for ocl_test in ocl['ts']:
