@@ -105,8 +105,11 @@ class InterpretationEVLGenerator(EvlGenerator):
     eol_var_name = '[a-z_][a-zA-Z0-9_]*'
     eol_class_name = '[a-zA-Z0-9_]*'
     eol_value = '(?:{cls}\.)?{var}'.format(cls=eol_class_name, var=eol_var_name)
-    re_possible_att = re.compile(r'^CHECK\s+({var})$'.format(var=eol_var_name))
+    re_CHECK = re.compile(r'^CHECK\s+({var})$'.format(var=eol_var_name))
     re_DEFINE = re.compile(r'DEFINE\s+((?:{var}\.)?{var})\s+({value})'.format(var=eol_var_name, value=eol_value))
+    re_CREATE = re.compile(r'^CREATE\s+(%s)\s*{([^}]*)}' % eol_class_name)
+    re_ASSERT = re.compile(r'ASSERT\s+(.*)\s+MESSAGE\s+(.*)')
+    code_IF = 'if({cnd}){{{bdy}}}'
 
     def __init__(self, interpretation) -> None:
         super(InterpretationEVLGenerator, self).__init__()
@@ -156,10 +159,40 @@ class InterpretationEVLGenerator(EvlGenerator):
             for m in m:
                 var_name = m.group(1)
                 value_name = m.group(2)
-                l = 'if({var_name}.isUndefined()){{{var_name}={value_name};}}'.format(
-                    var_name=var_name, value_name=value_name)
-                eol = eol[:m.start()] + l + eol[m.end():]
+                code = InterpretationEVLGenerator.code_IF.format(
+                    cnd=var_name+'.isUndefined()',
+                    bdy=var_name+'='+value_name+';',
+                )
+                eol = eol[:m.start()] + code + eol[m.end():]
                 found = True
+            if found:
+                continue
+        m = InterpretationEVLGenerator.re_CREATE.match(eol)
+        if m:
+            class_name = m.group(1)
+            att_values = [att_val.split(':') for att_val in m.group(2).split(',')]
+            if len(att_values) == 0:
+                code = InterpretationEVLGenerator.code_IF.format(
+                    cnd=class_name+'.all().length()==0',
+                    bdy='var x = new '+class_name+'();',
+                )
+            else:
+                code = InterpretationEVLGenerator.code_IF.format(
+                    cnd='not '+class_name+'.all().exists(x|{t})'.format(
+                        t=' and '.join(['x.{att}={val}'.format(att=att, val=val) for att, val in att_values]),
+                    ),
+                    bdy='var x = new '+class_name+'(); {c};'.format(
+                        c='; '.join(['x.{att}={val}'.format(att=att, val=val) for att, val in att_values]),
+                    ),
+                )
+            eol = eol[:m.start()] + code + eol[m.end():]
+        m = InterpretationEVLGenerator.re_ASSERT.match(eol)
+        if m:
+            code = InterpretationEVLGenerator.code_IF.format(
+                cnd='not '+m.group(1),
+                bdy='throw "'+m.group(2)+'";',
+            )
+            eol = eol[:m.start()] + code + eol[m.end():]
         return eol
 
     def generate(self):
@@ -176,7 +209,7 @@ class InterpretationEVLGenerator(EvlGenerator):
         for ocl_level, o_r in sorted(self.ocl_per_level.items()):
             self.p_comment_heading("ocl level " + ocl_level)
             for req_id, contexts in sorted(o_r.items()):
-                self.p_comment(ocl_level+" of requirement " + req_id)
+                self.p_comment(ocl_level + " of requirement " + req_id)
                 for context in contexts:
                     self.p_context(**context)
 

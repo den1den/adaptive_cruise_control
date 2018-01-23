@@ -1,240 +1,168 @@
-# definitions:
-#  - &fr
-#    pr_model: [Requirement.type]
-#    prs_pre: ensureExistsByName(RequirementType, "functional")
-requirements_3:
-  3-5.1:
+context:
+  model_files: ['data_models/model/project/fsc_project_model.emf']
+  file_test_instances: ['data_models/model/acc/test.model']
+  evl_output_file: 'data_models/model/project/fsc.evl'
+  json_output_file: 'ISO_model/generated/interpretation_fsc.json'
+requirements:
+  3-7:
+    classification: [from_arash]
+    pr_model: [SafetyGoal, ASIL, FaultTolerantTimeInterval, OperatingMode, SafeState, System, Item, EmergencyOperationInterval, TimeInterval, SafetyRequirement, HazardousEvent,
+    SafetyGoal.asil, SafetyGoal.fttts, SafetyGoal.safe_states, PrelimElement.developed_into, Item.safety_goals, Item.operating_modes,
+    Item.asil]
+    status: assumed
+  3-8.1:
+    classification: [structure_intro]
     pr_model:
-    - Item
-    - Item.name
+    - FunctionalSafetyRequirement
+    - FunctionalSafetyRequirement.allocated_to_prelim
+    - FunctionalSafetyRequirement.mitigated
+    - PrelimElement
+    - ExternalRiskReduction
+    status: gen
+  3-8.2:
+    classification: [structure_intro]
+    ignored: functional safety requirements contain basic safety mechanisms and safety measures.
+    # TODO: fault tolerant mechanisms are ignored for now
+    pr_model:
+    - FunctionalSafetyRequirement.allocated_to_prelim
+    - FaultDetection
+    - FailureMitigation
+    - SafeState
+    - DriverWarning
+    - ArbritationLogic
+    # TODO: these elements could be part of the document only
+    - FunctionalSafetyConcept.fault_detections
+    - FunctionalSafetyConcept.failure_mitigations
+    - FunctionalSafetyConcept.safe_states
+    - FunctionalSafetyConcept.driver_warnings
+    - FunctionalSafetyConcept.arbritation_logics
+    - FunctionalSafetyRequirement.asil
+    status: todo
+  3-8.3:
+    classification: [clause_input]
+    pr_model: [Item, SafetyGoal, HazardousEvent,
+    PrelimArchitecturalAssumption, FunctionalConcept, OperatingMode, SystemState]
+    status: gen
+  3-8.4.1:
+    classification: []
+    references: 8-6
+    status: gen
+  3-8.4.2.1:
+    classification: [structure, activity]
+    pr_model:
+    - FunctionalSafetyRequirement.derrived_from_sg # Explicitly denoted that its a multiple
+    - FunctionalSafetyRequirement.derrived_from_ss
+    ocl:
+      satisfies:
+      - c: FunctionalSafetyRequirement
+        t: self.derrived_from_sg.length() > 0 or self.derrived_from_ss.length() > 0
+    activity: SPECIFY FunctionalSafetyRequirement FROM SafetyGoal and SafeState, CONSIDERING (PrelimArchitecturalAssumption, FunctionalConcept, OperatingMode, SystemState)
+    status: gen
+  3-8.4.2.2:
+    classification: []
+    ocl:
+      satisfies:
+      - c: SafetyGoal
+        t: FunctionalSafetyRequirement.all().exists(fsr | fsr.derrived_from_sg.includes(self))
+    status: gen
+  3-8.4.2.3:
+    classification: [act]
+    pr_model: [OperatingMode, FaultTolerantTimeInterval, SafeState, EmergencyOperationInterval, FunctionalRedundancies, SafetyAnalysis]
+    activity: SPECIFY FunctionalSafetyRequirement, CONSIDERING (OperatingMode, FaultTolerantTimeInterval, SafeState, EmergencyOperationInterval, FunctionalRedundancies, SafetyAnalysis) GENERATING SafetyAnalysis
+    ignored: "if transitioning to a safe state can comply with this requirement"
+    status: gen
+  3-8.4.2.4:
+    classification: [structure, act]
+    pr_model:
+    - WarningAndDegredationConcept
+    - TechnicalStateTransition
+    - TechnicalStateTransition.do_condition
+    - TechnicalStateTransition.rev_condition
+    - SafeState.transition_to
+    - SafeState.transition_from
+    - TechnicalCondition
+    activity: SPECIFY WarningAndDegredationConcept, CONSIDERING ALL ATTRIBUTES
+    ocl:
+      warning:
+      - c: SafeState
+        # SafeState transitions should be specified but it is not denoted that they should exists
+        t: SafeState.transition_to.length() > 0 and SafeState.transition_from.length() > 0
+      satisfies:
+      - c: TechnicalStateTransition
+        guard: SafeState.all().exists(s | s.transition_to.includes(self) or s.transition_from.includes(self))
+        message: "All state transitions for SafeState need to have a condition"
+        t: self.do_condition.length() > 0 and self.rev_condition.length() > 0
+    status: gen
+  3-8.4.2.5:
+    classification: [ocl]
+    pr_model:
+    - EmergencyOperation
+    - SafeState.emergency_operation
+    - SwitchOffTransition
+    - TechnicalStateTransition.duration
+    ocl:
+      satisfies:
+      - c: SafeState
+        t: '(not self.transition_to.exists(t | t.isKindOf(SwitchOffTransition) and t.duration.isDefined() and t.duration.direct))
+        implies self.emergency_operation.length() > 0'
+    status: gen
+  3-8.4.2.6:
+    classification: [structure, vague]  # A requirement needs to comply with a safety goal? Is cover meant here?
+    pr_model:
+    - ActorAction
+    - ActorAction.actor
+    - Actor
+    - Actor.name
+    - SafetyGoal.needs
+    #activity: CHECK IF assumptions ARE MADE ON ActorAction
+    status: gen
+  3-8.4.2.6.a:
+    classification: [structure, ocl]
+    pr_model:
+    - FunctionalSafetyConcept.assumed_actions
+    pre:
+    - 'CREATE Actor{name:"driver"}'
+    ocl:
+      structure:
+      - c: Actor
+    #QUESTION: How about documents. They can be modeled as a separate entity which should contain certain project instance specific elements
+    # However this might be a bit overkill as all elements will (i think almost all he time) all be included in the document
+    # Then a document could just as well be modeled separate from the project instance.
+    # otherwise we would have
+#      document_inclusion:
+#      - c: ActorAction
+#        guard: SafetyGoal.all().exists(sg | sg.needs.contains(self)) # All ActorActions related to some safety goal
+#        message: The 'functional safety concept' should contain all the assumed actions from the SafetyGoals
+#        pre:
+#          - 'ASSERT FunctionalSafetyConcept.all().size() == 1 MESSAGE There must be one functional safety concept'
+#        t: FunctionalSafetyConcept.all().random().assumed_actions.includes(self)
+    status: gen
+  3-8.4.2.6.b:
+    classification: [strucutre, ocl]
+    pr_model:
+    - ActorMean
+    - Actor.means
+    - ActorControl
+    - Actor.controls
+    ocl:
+      satisfies:
+      - c: Actor
+        ts:
+        - Actor.means.length() > 0
+        - Actor.controls.length() > 0
+    ignored: Note 1 and 2
+    status: gen
+  3-8.XXXXX:
     classification: [structure]
-  3-5.4.1:
-    classification: [existence, structure]
-    pr_model:
-    - RequirementSuperType.functional
-    - Item.requirements
-    - RequirementSuperType
-    - Item.c__requirements__where__type__is__functional
-    - EnvironmentalDependency
-    - Item.env_dependency
-    - Item.c__of__env_dependency
-    ocl:
-      warning:
-      - c: Item
-        t: self.env_dependency.isEmpty # Possible assumption
-      satisfies:
-      - c: Item
-        ts:
-        - CHECK c__requirements__where__type__is__functional
-        - self.requirements.select(r|r.type=RequirementSuperType.functional).length() > 0 # Assumption
-        - self.c__of__env_dependency.checked
-    status: gen
-  3-5.4.1.a:
-    classification: [weak_ocl]
-    pr_model:
-    - Item.description
-    - Item.c__description__contains__itempurpose
-    - Item.c__description__contains__functionality
-    ocl:
-      warning:
-      - c: Item
-        t: self.description.length() == 0
-      satisfies:
-      - c: Item
-        ts:
-        - CHECK c__description__contains__itempurpose
-        - CHECK c__description__contains__functionality
-    status: gen
-  3-5.4.1.b:
-    pr_model:
-    - RequirementSuperType.non_functional
-    - RequirementSubType.operational
-    - RequirementSubType.environmental
-    - Item.c__requirements__where__type2__is__operational
-    - Item.c__requirements__where__type2__is__environmental
-    - Requirement.type
-    - Requirement.type2
-    ocl:
-      needs:
-      - c: Requirement
-        pre:
-        - // Sets the default value for the Requirement.type
-        - 'for (r : Requirement in Requirement.allInstances) {'
-        - '  if(r.type2=RequirementSubType.operational or r.type2=RequirementSubType.environmental){'
-        - '    DEFINE r.type RequirementSuperType.non_functional'
-        - '}}'
-        ts:
-        - g: self.type2=RequirementSubType.operational
-          message: 'Operational requirements are a subset of Non functional'
-          t: r.type = RequirementSuperType.non_functional
-        - g: self.type2=RequirementSubType.environmental
-          message: 'Environmental requirements are a subset of Non functional'
-          t: r.type = RequirementSuperType.non_functional
-      satisfies:
-      - c: Item
-        ts:
-        - self.c__requirements__where__type2__is__operational.checked
-        - self.c__requirements__where__type2__is__environmental.checked
-        - self.c__description__contains__constraints.checked
-    assumed: "operational and environmental requirements are 'non functional'"
-    status: gen
-  3-5.4.1.c:
-    pr_model:
-    - RequirementSuperType.legal
-    - Item.c__requirements__where__type__is__legal
-    ocl:
-      satisfies:
-      - c: Item
-        t: CHECK c__requirements__where__type__is__legal
-    ignored: "national and international standards"
-    status: gen
-  3-5.4.2:
-    pr_model:
-    - ItemSafetyRequirement
-    - Item.already_known_srs
-    ocl:
-      warning:
-      - c: Item
-        t: self.already_known_srs.length() == 0
-    status: gen
-  3-5.4.2.a:
-    pr_model:
-    - Item.c__already_known_srs__wrt__behavior_similar_functions
-    - Item.c__already_known_srs__wrt__behavior_similar_systems
-    - Item.c__already_known_srs__wrt__behavior_similar_elements
-    ocl:
-      satisfies:
-      - c: Item
-        ts:
-        - CHECK c__already_known_srs__wrt__behavior_similar_functions
-        - CHECK c__already_known_srs__wrt__behavior_similar_systems
-        - CHECK c__already_known_srs__wrt__behavior_similar_elements
-    status: gen
-  3-5.4.2.b:
-    pr_model:
-    - Item.c__already_known_srs__wrt__assumptions_itembehavior
-    ocl:
-      satisfies:
-      - c: Item
-        t: CHECK c__already_known_srs__wrt__assumptions_itembehavior
-    status: gen
-  3-5.4.2.c:
-    pr_model:
-    - Item.c__already_known_srs__wrt__behavior_shortfalls
-    - Item.c__already_known_srs__wrt__failure_modes
-    - Item.c__already_known_srs__wrt__hazards
-    ocl:
-      satisfies:
-      - c: Item
-        ts:
-        - CHECK c__already_known_srs__wrt__behavior_shortfalls
-        - CHECK c__already_known_srs__wrt__failure_modes
-        - CHECK c__already_known_srs__wrt__hazards
-    status: gen
-  3-5.4.3:
-    pr_model:
-    - Item
-    #- [Aspect_3_5_4_3, Item.boundry, Item.check_boundry, Item.interfaces, Item.check_interfaces, Item.assumptions_on_other, Item.check_assumptions_on_other,]
-    ocl:
-      satisfies:
-      - c: Item
-        ts:
-        - self.check_boundry               .forAll(c|c.checked)
-        - self.check_interfaces            .forAll(c|c.checked)
-        - self.check_assumptions_on_other  .forAll(c|c.checked)
-  3-5.4.3.a:
     status: todo
-    pre:
-    - var a = ensureExistsByName(Aspect_3_5_4_3, "The elements of the item");
-      ensureHasCheck(Item, check_boundry, a);
-      ensureHasCheck(Item, check_interfaces, a);
-      ensureHasCheck(Item, check_assumptions_on_other, a);
-    ocl:
-      needs:
-      - c: Item
-  3-5.4.3.b:
-    status: todo
-    pre:
-    - var a = ensureExistsByName(Aspect_3_5_4_3, "The assumptions concerning the effects of the item's behaviour on other items or elements, that is the environment of the item, including interactions")
-      ensureHasCheck(Item, check_boundry, a);
-      ensureHasCheck(Item, check_interfaces, a);
-      ensureHasCheck(Item, check_assumptions_on_other, a);
-    ocl:
-      needs:
-      - c: Item
-  3-5.4.3.c:
-    status: todo
-    pre:
-    - var a = ensureExistsByName(Aspect_3_5_4_3, "Requirements received from other items, elements and the environment")
-      ensureHasCheck(Item, check_boundry, a);
-      ensureHasCheck(Item, check_interfaces, a);
-      ensureHasCheck(Item, check_assumptions_on_other, a);
-    ocl:
-      needs:
-      - c: Item
-  3-5.4.3.d:
-    status: todo
-    pre:
-    - var a = ensureExistsByName(Aspect_3_5_4_3, "Requirements on other items, elements and the environment")
-      ensureHasCheck(Item, check_boundry, a);
-      ensureHasCheck(Item, check_interfaces, a);
-      ensureHasCheck(Item, check_assumptions_on_other, a);
-    ocl:
-      needs:
-      - c: Item
-  3-5.4.3.e:
-    status: todo
-    pre:
-    - var a = ensureExistsByName(Aspect_3_5_4_3, "The allocation and distribution of functions among the systems and elements involved")
-      ensureHasCheck(Item, check_boundry, a);
-      ensureHasCheck(Item, check_interfaces, a);
-      ensureHasCheck(Item, check_assumptions_on_other, a);
-    ocl:
-      needs:
-      - c: Item
-  3-5.4.3.f:
-    status: todo
-    pre:
-    - var a = ensureExistsByName(Aspect_3_5_4_3, "Operating scenarios of the item if they impact the functionality of the item")
-      ensureHasCheck(Item, check_boundry, a);
-      ensureHasCheck(Item, check_interfaces, a);
-      ensureHasCheck(Item, check_assumptions_on_other, a);
-    ocl:
-      needs:
-      - c: Item
-requirements_86: # Clause 8-6 Specification and management of safety requirements
-  8-6.1:
-    status: todo
-  8-6.2:
-    status: todo
-    quality: low
-    pr_model:
-    - SafetyRequirement
-    - SafetyRequirement.asil
-    - SafetyRequirement.level
-    - SafetyRequirement.parent
-    - SafetyRequirementLevel
-    - IsoConcept.management_of_safety_requirements
-    - Project.type
-    - ProjectType.model_based_development
-#    ocl:
-#      suggestion:
-#      - {c: ToolUsage, t: }
-#      - ToolUsage.exists("suitable requirements management")
-  8-6.4.1.1:
-    status: todo
-    quality: "TODO: Skipped note for now, could be OCL"
-    classification: [work_product]
-    pr_model:
-    - 'SafetyRequirement.specification_natural_language[1]'
-    - 'SafetyRequirement.specification_manner[1]'
-#    ocl:
-#      ++:
-#        - 'SafetyRequirement.all().select(i|i.asil=ASIL.A or i.asil=ASIL.B).forAll(i|i.specification_manner=SafetyRequirementSpecificationManner.informal)'
-#        - 'SafetyRequirement.all().select(i|i.asil=ASIL.C or i.asil=ASIL.D).forAll(i|i.specification_manner=SafetyRequirementSpecificationManner.semi_formal)'
-#      +:
-#        - 'SafetyRequirement.all().select(i|i.asil=ASIL.C or i.asil=ASIL.D).forAll(i|i.specification_manner=SafetyRequirementSpecificationManner.informal)'
-#        - 'SafetyRequirement.all().select(i|i.asil=ASIL.A or i.asil=ASIL.B).forAll(i|i.specification_manner=SafetyRequirementSpecificationManner.semi_formal)'
-#        - 'SafetyRequirement.all().select(i|i.asil=ASIL.A or i.asil=ASIL.B or i.asil=ASIL.C or i.asil=ASIL.D).forAll(i|i.specification_manner=SafetyRequirementSpecificationManner.formal)'
 work_products:
-  3-5.5: {}
+  3-8.5.1:
+    contains_all:
+      safe_states: SafeState
+    status: todo
+
+#    - Har
+#    - SafetyGoal
+#    - SafetyGoal.asil
+#  3-8.1:
+#    pr_model:

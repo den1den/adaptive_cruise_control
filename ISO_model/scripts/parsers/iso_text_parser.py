@@ -6,7 +6,7 @@ import shutil
 
 from jsonschema import validate as json_scheme_validate
 
-from ISO_model.scripts.lib.util import dict_update
+from ISO_model.scripts.lib.util import dict_update, alpha_to_int
 from ISO_model.scripts.schemes.simple_model_inst_list_scheme import ModelInstanceIdList
 from ISO_model.scripts.parsers.parser import Parser
 
@@ -281,12 +281,24 @@ class IsoTextParser(Parser):
         json_scheme_validate(work_ps, ModelInstanceIdList.get_schema())
         json.dump(work_ps, open(filename, 'w+'), indent=2, sort_keys=True)
 
-    def get_text(self, req_id, default):
-        r = self.output.get(req_id, {})
+    def get_text(self, req_id: str, default):
+        r = self.output.get(req_id)
+        appendix = ''
+        if r is None:
+            # try parent
+            req_id = [s for s in req_id.split('.')]
+            req_parent = '.'.join(req_id[:-1])
+            tumor = req_id[-1]
+            r = self.output.get(req_parent)
+            if r is None:
+                return default
+            if 'sums' in r:
+                if len(r['sums']) == 1:
+                    appendix = r['sums'][0]['elements'][alpha_to_int(tumor)]['text']
         if 'text' in r:
-            return r['text']
+            return r['text'] + appendix
         if 'title' in r:
-            return r['title']
+            return r['title'] + appendix
         return default
 
 

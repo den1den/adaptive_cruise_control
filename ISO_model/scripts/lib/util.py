@@ -9,3 +9,9 @@ def dict_poll(d: dict, key, default):
         default = d[key]
         del d[key]
     return default
+
+
+def alpha_to_int(alpha: str):
+    assert len(alpha) == 1
+    i = 'abcdefghijklmnopqrstuvwxyz'.index(alpha)
+    return i

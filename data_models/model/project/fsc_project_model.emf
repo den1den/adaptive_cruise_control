@@ -1,11 +1,122 @@
 //{"context": {"interpretation_files": ["ISO_model/generated/interpretation_fsc.json"]}}
 @namespace(uri="project_model", prefix="pm")
-// This document contains the model for elements of the project
+// This document contains the model for Clause 8
 package project_model;
 
-class FunctionalSafetyRequirements{
+class FunctionalSafetyConcept {
+	// Work product
+	ref FaultDetection[*] fault_detections;
+	ref FailureMitigation[*] failure_mitigations;
+    ref SafeState[*] safe_states;
+    ref DriverWarning[*] driver_warnings;
+    ref ArbritationLogic[*] arbritation_logics;
+    // 8.4.2.6
+    ref ActorAction[*] assumed_actions;
 }
 
-class Dummy{
+class FunctionalSafetyRequirement extends SafetyRequirement {
+	ref PrelimElement[*] allocated_to_prelim;
+	ref ExternalRiskReduction[*] mitigated;
+	attr ASIL asil;
 	
+	// 8.4.2.1
+	ref SafetyGoal[*] derrived_from_sg;
+	ref SafeState[*] derrived_from_ss; // Does not also apply to the corresponding SG
+}
+
+class PrelimElement{
+	// Element from preliminary architectural assumptions (external source)
+	//TODO: maby add attribute: ref Element[*] developed_into;
+	//QUESTION: These are different from Elements right?
+}
+
+class SystemState {
+	// From external source
+}
+
+// to be filled in
+class ExternalRiskReduction {}
+class FaultDetection {}
+class FailureMitigation {}
+class DriverWarning {}
+class ArbritationLogic {}
+class PrelimArchitecturalAssumption {}
+class FunctionalRedundancies {}
+
+// Documents
+class SafetyAnalysis {}
+
+// From other package... ////////////////////////////////////////////////////////
+class SafetyRequirement{
+	// Needs application of clause 
+}
+class FunctionalConcept{
+	// 8.3.2 Futher supporting information for Functional safety concept
+	// From external source
+}
+class WarningAndDegredationConcept {
+	// 8.4.2.4
+	// QUESTION: No idea what this is? What has this, every Item? Is there only one?
+}
+class SwitchOffTransition extends TechnicalStateTransition {
+}
+class TechnicalStateTransition {
+	val TimeInterval duration;
+	// A transition to or from a state, described in terms of technical functions
+	val TechnicalCondition[*] do_condition; // To do the transition
+	val TechnicalCondition[*] rev_condition; // To reverse the condition
+}
+class TechnicalCondition{} 
+class EmergencyOperation{} 
+
+class Actor {
+	attr String[1] name;
+	ref ActorMean[*] means;
+	ref ActorControl[*] controls; 
+}
+class ActorMean{}
+class ActorControl{}
+class ActorAction {
+	ref Actor[1] actor;
+}
+
+// From TNO ////////////////////////////////////////////////////////////////////
+class SafetyGoal {
+	attr ASIL[1] asil;
+	val FaultTolerantTimeInterval[*] fttts;
+	ref SafeState[*] safe_states;
+	// 8.4.2.6
+	ref ActorAction[*] needs;
+}
+enum ASIL {
+	QM; A; B; C; D;
+	QM_A; QM_B; QM_C; QM_D;
+	A_A; A_B; A_C; A_D;
+	B_B; B_C; B_D;
+	C_C; C_D;
+	D_D; 
+}
+class TimeInterval{
+	attr boolean direct=false;
+}
+class EmergencyOperationInterval extends TimeInterval {}
+class FaultTolerantTimeInterval extends TimeInterval {}
+class HazardousEvent {}
+class OperatingMode{
+	
+}
+class SafeState{
+	// 8.4.2.4
+	val TechnicalStateTransition[*] transition_to;
+	val TechnicalStateTransition[*] transition_from;
+	// 8.4.2.5
+	val EmergencyOperation[*] emergency_operation;
+}
+class System{
+	
+}
+class Item {
+	attr ASIL[1] asil; // QUESTION: Does an item really have a ASIL? Arash definition 'Safety Specification Entity'
+	ref OperatingMode[*] operating_modes;
+	ref SafetyGoal[*] safety_goals;
 }

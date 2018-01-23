@@ -14,6 +14,7 @@ RequirementClassifications = (
     'structure',  # specifies structure of the project
     'ocl',  # specifies some kind of constraint
     'act',  # specifies some sort of activity
+    'vague',  # requirement needs some more explanation
     'clause_input',
     'work_product',
 )
@@ -202,6 +203,11 @@ class InterpretationWorkProduct(DictField):
     """
     Some information about the interpretation of a work product
     """
+
+    def __init__(self):
+        super(InterpretationWorkProduct, self).__init__(
+            additional_properties=True,  # Can be anything for now
+        )
 
 
 class InterpretationScheme(DictField):

@@ -6,6 +6,7 @@ context:
   model_files:
   - data_models/model/project/project_model.emf
   evl_output_file: data_models/model/project/interpretation.evl
+  json_output_file: ISO_model/generated/interpretation.json
 requirements:
   3-5.1:
     pr_model:
@@ -68,11 +69,11 @@ requirements:
         - '    DEFINE r.type RequirementSuperType.non_functional'
         - '}}'
         ts:
-        - g: self.type2=RequirementSubType.operational
-          messages: 'Operational requirements are a subset of Non functional'
+        - guard: self.type2=RequirementSubType.operational
+          message: 'Operational requirements are a subset of Non functional'
           t: r.type = RequirementSuperType.non_functional
-        - g: self.type2=RequirementSubType.environmental
-          messages: 'Environmental requirements are a subset of Non functional'
+        - guard: self.type2=RequirementSubType.environmental
+          message: 'Environmental requirements are a subset of Non functional'
           t: r.type = RequirementSuperType.non_functional
       satisfies:
       - c: Item

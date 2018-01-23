@@ -23,7 +23,7 @@ DEFAULT_INTERPRETATION_JSON_FILE = r'/home/dennis/Dropbox/0cn/ISO_model/generate
 class InterpretationParser(Parser):
     def __init__(self) -> None:
         self.emf_model = EmfModelParser()
-        self.requirements_model = IsoTextParser()
+        self.iso_req_model = IsoTextParser()
         self.source = {}
         self.interpretation = {'requirements': {}}
         self.model_refs = {}
@@ -41,7 +41,7 @@ class InterpretationParser(Parser):
         for model_file in self.get_context('model_files'):
             self.emf_model.load(model_file)
         for req_file in self.get_context('requirement_files', DEFAULT_REQUIREMENT_FILES):
-            self.requirements_model.load(req_file)
+            self.iso_req_model.load(req_file)
 
     def validate(self):
         EmfModelParser.emf_model_for_scheme = self.emf_model
@@ -59,7 +59,7 @@ class InterpretationParser(Parser):
             # Normalize ocl notation
             for ocl_level, ocl_roots in req_obj.setdefault('ocl', {}).items():
                 for ocl in ocl_roots:
-                    self._parse_ocl(req_id, ocl)
+                    self._parse_ocl(req_id, req_obj, ocl)
 
             # Store all model references
             for model_ref in req_obj.get('pr_model', []):
@@ -79,7 +79,7 @@ class InterpretationParser(Parser):
 
     def parse(self):
         self.emf_model.parse()
-        self.requirements_model.parse()
+        self.iso_req_model.parse()
         # Fill all requirements
         for key, vals in self.source.items():
             if key.startswith('requirement'):
@@ -87,11 +87,11 @@ class InterpretationParser(Parser):
                 assert len([dup for dup in vals.keys() if dup in self.interpretation['requirements']]) == 0
                 self.interpretation['requirements'].update(vals)
 
-    def _parse_ocl(self, req_id, ocl):
+    def _parse_ocl(self, req_id, req_obj, ocl):
         # normalize OCL entry
         ocl.setdefault('pre', [])
         ocl.setdefault('post', [])
-        default_msg = self.requirements_model.get_text(req_id, 'Requirement not in JSON')
+        default_msg = 'ISO requirement: '+self.iso_req_model.get_text(req_id, 'Missing from context.requirement_files')
         default_msg = dict_poll(ocl, 'message', default_msg)
         # normalize OCL['ts']
         if 't' in ocl:
@@ -117,7 +117,7 @@ class InterpretationParser(Parser):
         item_class = ocl['c']
         for ocl_test in ocl['ts']:
             txt = ocl_test['t']
-            m = InterpretationEVLGenerator.re_possible_att.match(txt)
+            m = InterpretationEVLGenerator.re_CHECK.match(txt)
             if m:
                 item_attribute = m.group(1)
                 # Check against model
@@ -145,6 +145,8 @@ class InterpretationParser(Parser):
                 ocl_test['t'] = (
                     'self.{item_attribute}.checked'
                 ).format(item_attribute=item_attribute)
+
+
 
     def write_json(self):
         filename = self.get_context('json_output_file')
