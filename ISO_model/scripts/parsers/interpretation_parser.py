@@ -268,6 +268,12 @@ class InterpretationParser(Parser):
                 # Replace ts strings by dicts
                 t = {'t': t}
             t['message'] = '"%s: %s"' % (req_id, t.get('message', default_msg))
+            if 'fix' in t:
+                t['fix'] = dict_val_to_array(t, 'fix')
+                for f in t['fix']:
+                    if type(f['action']) is not list:
+                        f['action'] = [f['action'] + ';', ]
+                    f['title'] = '"%s"' % f['title']
             ts.append(t)
         self._ocl['ts'] = ts
 

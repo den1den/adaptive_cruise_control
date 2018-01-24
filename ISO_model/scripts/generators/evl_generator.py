@@ -63,10 +63,10 @@ class EvlGenerator(EolGenerator):
                 self.p_fix(**fix)
         self.p_close_block()
 
-    def p_fix(self, title, statements, guard=None):
+    def p_fix(self, title, statements, guards=None):
         self.p_open_block('fix')
 
-        self.p_expression_or_block('guard', guard)
+        self.p_expression_or_block('guard', guards)
         self.p_expression_or_block('title', title)
 
         self.p_open_block('do')
@@ -128,7 +128,11 @@ class InterpretationEVLGenerator(EvlGenerator):
                 'guards': t.get('guard'),  # g -> guards
                 'checks': t['t'],  # t -> checks
                 'messages': t.get('message'),  # message -> messages
-                'fixes': t.get('fix'),
+                'fixes': [{
+                    'title': f['title'],
+                    'statements': f['action'],
+                    'guards': f.get('guard')
+                } for f in t.get('fix', [])],
             }
 
             context['constraints'].append(constraint)
@@ -176,7 +180,7 @@ def main():
 
     i = InterpretationParser()
     # i.load('ISO_model/interpretation_test.yaml')
-    i.load('ISO_model/interpretation_fsc.yaml')
+    i.load('ISO_model/interpretation_sr.yaml')
     i.parse()
     i.validate()
     i.normalize()

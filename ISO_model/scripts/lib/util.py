@@ -17,9 +17,11 @@ def alpha_to_int(alpha: str):
     return i
 
 
-def dict_val_to_array(d: dict, key):
+def dict_val_to_array(d: dict, key, assert_present=False):
+    if assert_present:
+        assert key in d
     v = d.setdefault(key, [])
-    if type(v) is str:
+    if type(v) is not list:
         v = [v]
         d[key] = v
     return v

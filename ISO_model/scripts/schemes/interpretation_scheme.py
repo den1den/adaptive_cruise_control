@@ -18,6 +18,7 @@ RequirementClassifications = (
     'vague',  # requirement needs some more explanation
     'clause_input',
     'work_product',
+    'non_model',  # requirement should be verified manually, not using the model
 )
 
 RequirementInterpretationStatuses = (
@@ -66,7 +67,7 @@ class Fix(DictField):
             'title': EolValueOrStatements(
                 required=True,
             ),
-            'action': EolStatements(
+            'action': EolStatementOrStatements(
                 required=True,
             )
         })
