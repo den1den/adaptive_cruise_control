@@ -8,7 +8,7 @@ from jsonschema.validators import validate as json_scheme_validate
 from nltk.chunk import regexp
 
 from ISO_model.scripts.generators.evl_generator import InterpretationEVLGenerator
-from ISO_model.scripts.lib.util import dict_poll, dict_val_to_array, dict_poll_all_if_present, dict_remove_empty_list
+from ISO_model.scripts.lib.util import dict_poll, dict_val_to_array, dict_poll_all_if_present, dict_remove_if_empty_list
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser
 from ISO_model.scripts.parsers.parser import Parser
@@ -30,6 +30,7 @@ class InterpretationParser(Parser):
     re_CREATE = re.compile(r'^CREATE\s+(%s)\s*{([^}]*)}' % eol_class_name)
     re_ASSERT = re.compile(r'ASSERT\s+(.*)\s+MESSAGE\s+(.*)')
     re_CHECK = re.compile(r'^CHECK\s+({var})$'.format(var=eol_var_name))
+    re_ASIL = re.compile(r'({val})\s+IS_ASIL_((?:(?:QM)|A|B|C|D|(?:_OR_))+)'.format(val=eol_value))
     code_IF = 'if({cnd}){{{bdy}}}'
 
     def __init__(self) -> None:
@@ -106,8 +107,8 @@ class InterpretationParser(Parser):
         self._req['pre'] += self._extra_pre
 
         # cleanup
-        dict_remove_empty_list(self._req, 'pre')
-        dict_remove_empty_list(self._req, 'post')
+        dict_remove_if_empty_list(self._req, 'pre')
+        dict_remove_if_empty_list(self._req, 'post')
         self._extra_pre = None
 
     def dump_normalized(self):
@@ -139,6 +140,20 @@ class InterpretationParser(Parser):
             cnd=var_name + '.isUndefined()',
             bdy=var_name + '=' + value_name + ';',
         )
+
+    def _replace_ASIL(self, m):
+        value = m.group(1)
+        asils = m.group(2).split('_OR_')
+
+        ASILS = {
+            'D': ('D', 'D_D'),
+            'C': ('C', 'C_C', 'C_D'),
+            'B': ('B', 'B_B', 'B_C', 'B_D'),
+            'A': ('A', 'A_A', 'A_B', 'A_C', 'A_D'),
+            'QM': ('QM', 'QM_A', 'QM_B', 'QM_C', 'QM_D'),
+        }
+        asils = set((x for asil in asils for x in ASILS[asil]))
+        return '/* '+m.group(0)+' */('+' or '.join((value+'='+'ASIL.'+asil for asil in asils))+')'
 
     def _replace_CREATE(self, m):
         class_name = m.group(1)
@@ -196,6 +211,7 @@ class InterpretationParser(Parser):
             bdy='throw "' + m.group(2) + '";',
         ))
         eol = self._match_replace(eol, InterpretationParser.re_CHECK, self._replace_CHECK)
+        eol = self._match_replace(eol, InterpretationParser.re_ASIL, self._replace_ASIL)
         return eol
 
     def _parse_eol_exp(self, eol):
@@ -224,6 +240,10 @@ class InterpretationParser(Parser):
         # Look for context aware keywords
         for ocl_t in self._ocl['ts']:
             ocl_t['t'] = self._parse_exp_or_stmt(ocl_t['t'])
+            ocl_t['guard'] = self._parse_exp_or_stmt(ocl_t.get('guard', []))
+            dict_remove_if_empty_list(ocl_t, 'guard')
+
+        dict_remove_if_empty_list(self._ocl, 'guard')
 
     def _normalize_expand_ocl(self, req_id):
         # expand it

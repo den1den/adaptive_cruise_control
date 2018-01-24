@@ -34,13 +34,13 @@ def dict_poll_all_if_present(d: dict, *keys):
     return r
 
 
-def dict_remove_empty_list(d: dict, key):
+def dict_remove_if_empty_list(d: dict, key):
     if key in d:
         v = d[key]
-        assert type(v) is list
-        if len(v) == 0:
-            del d[key]
-            return True
+        if type(v) is list:
+            if len(v) == 0:
+                del d[key]
+                return True
     return False
 
 
