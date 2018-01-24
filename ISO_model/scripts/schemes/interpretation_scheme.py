@@ -9,6 +9,7 @@ from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.schemes.schemes import *
 
 RequirementClassifications = (
+    'from_dennis',  # virtual requirement for the creation of checking and auxiliary instantiations
     'from_arash',  # virtual requirement interpreted by the model of TNO
     'structure_intro',  # (just) introduces elements of the project structure
     'structure',  # specifies structure of the project
@@ -37,81 +38,86 @@ OCLLevels = (
 )
 
 
-class EOLSingleCheckWithName(DictField):
+class EOLConstraint(DictField):
     def __init__(self):
         super().__init__(properties={
-            't': EolBool(
-                description='the EOL check',
+            't': EolValueOrStatements(
+                description='the EOL check (block or single statement)',
                 required=True,
             ),
             'name': jsl.StringField(
                 description='Name of the constraint, default: ReqId_Context_Index',
             ),
-            'guard': EolBool(
+            'guard': EolValueOrStatements(
                 description='Filters the constraint',
             ),
-            'message': jsl.StringField(
+            'message': EolValueOrStatements(
                 description='Message to display on failure',
             ),
             # `pre` is not supported here
+            'fix': SingleOrArray(Fix())
         })
 
 
-class OCLConstraintBase(DictField):
+class Fix(DictField):
+    def __init__(self):
+        super().__init__(properties={
+            'guard': EolValueOrStatements(),
+            'title': EolValueOrStatements(
+                required=True,
+            ),
+            'action': EolStatements(
+                required=True,
+            )
+        })
+
+
+class OCLContextBase(DictField):
     def __init__(self, properties: dict = None):
-        super(OCLConstraintBase, self).__init__(properties=dict_update({
+        super(OCLContextBase, self).__init__(properties=dict_update({
             # Common
             'c': ModelClassName(
                 description='The EVL context',
                 required=True,
             ),
-            'pre': EolStatements(
+            'guard': EolValueOrStatements(
+                description='Filters the context',
+            ),
+            'pre': EolStatementOrStatements(
                 description='pre actions for this context. ' +
                             'These actions can possibly create parts of the project instance which are needed later on',
             ),
-            'post': EolStatements(
+            'post': EolStatementOrStatements(
                 description='post actions for this context',
-            ),
-            'message': jsl.StringField(
-                description='Message to display on failure',
-            ),
-            'guard': EolBool(
-                description='Filters the context',
             ),
         }, properties))
 
 
-class OCLPreForClass(OCLConstraintBase):
+class OCLContextSingleConstraint(OCLContextBase):
     def __init__(self):
-        super(OCLPreForClass, self).__init__(properties={
-            'pre': EolStatements(
-                required=True,
-            ),
-        })
-
-
-class OCLConstraintForClass(OCLConstraintBase):
-    def __init__(self):
-        super(OCLConstraintForClass, self).__init__(properties={
-            # can be specified with test and name
-            't': EolBool(
-                description='the EOL check',
-                required=True,
-            ),
+        super(OCLContextSingleConstraint, self).__init__(properties={
             'name': jsl.StringField(
                 description='Name of the constraint, default: ReqId_Context_Index',
             ),
-            # the g is taken from the Context class only
+            # guard is not possible for single constraint
+            't': EolBool(  # Only simple value allowed, to use a statement block use the 'ts'
+                description='the EOL check ()',
+                required=True,
+            ),
+            'message': EolValueOrStatements(
+                description='Message to display on failure',
+            ),
+            'fix': SingleOrArray(Fix()),
         })
 
 
-class OCLConstraintsForClass(OCLConstraintBase):
+class OCLContextMultipleConstraints(OCLContextBase):
     def __init__(self):
         super().__init__(properties={
             # or can be specified as list of tests (possible with names)
             'ts': ArrayField(
-                EolBool(description='the EOL check'),
-                EOLSingleCheckWithName,
+                EolBool(description='the EOL check (only single statement allowed)'),
+                EOLConstraint,
                 description='Multiple EOL checks',
                 required=True,
             ),
@@ -176,9 +182,8 @@ class InterpretationRequirement(InterpretationRequirementBase):
     def __init__(self):
         super().__init__(properties={
             'ocl': OclLevelDict(
-                OCLConstraintForClass,
-                OCLConstraintsForClass,
-                OCLPreForClass,
+                OCLContextSingleConstraint,
+                OCLContextMultipleConstraints,
                 required=False,
             ),
         })
@@ -188,14 +193,14 @@ class InterpretationRequirementWithPre(InterpretationRequirementBase):
     def __init__(self):
         super().__init__(properties={
             'ocl': OclLevelDict(
-                OCLConstraintForClass,
-                OCLConstraintsForClass,
-                OCLPreForClass,
-                OCLConstraintBase,  # Also a single class is allowed as pre will be automatically filled
+                OCLContextSingleConstraint,
+                OCLContextMultipleConstraints,
+                OCLContextBase,  # Also a single class is allowed as pre will be automatically filled
                 required=True,
-                min_properties=1,
-            ),  # When pre is specified at least one OCL (or EVL 'context') must be present to execute it
-            'pre': EolStatements(required=True),
+                min_properties=1,  # When pre/post is specified at least one context must be present to generate it
+            ),
+            'pre': EolStatementOrStatements(),
+            'post': EolStatementOrStatements(),
         })
 
 

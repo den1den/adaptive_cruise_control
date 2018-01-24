@@ -66,7 +66,6 @@ class FileField(jsl.StringField):
         super(FileField, self).__init__(**kwargs)
 
 
-
 class ModelReference(jsl.StringField):
     strict = True
 
@@ -91,13 +90,6 @@ class ModelClassName(jsl.StringField):
         super(ModelClassName, self).__init__(**kwargs)
 
 
-class EolBool(jsl.StringField):
-    def __init__(self, **kwargs):
-        kwargs.setdefault('title', 'Eol boolean value')
-        kwargs.setdefault('min_length', 1)
-        super(EolBool, self).__init__(**kwargs)
-
-
 class AnyOf(jsl.AnyOfField):
     def __init__(self, *any_of, **kwargs):
         instances = [
@@ -118,12 +110,49 @@ class ArrayField(jsl.ArrayField):
             **kwargs)
 
 
+class EolStatement(jsl.StringField):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('title', 'Eol statement')
+        super(EolStatement, self).__init__(**kwargs)
+
+
+class EolValue(jsl.StringField):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('title', 'Eol value')
+        kwargs.setdefault('min_length', 1)
+        super(EolValue, self).__init__(**kwargs)
+
+
+class EolBool(EolValue):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('title', 'Eol boolean value')
+        super(EolBool, self).__init__(**kwargs)
+
+
+class EolStatementOrStatements(AnyOf):
+    def __init__(self, **kwargs):
+        super().__init__(
+            EolStatement,
+            EolStatements,
+            **kwargs,
+        )
+
+
+class EolValueOrStatements(AnyOf):
+    def __init__(self, **kwargs):
+        super(EolValueOrStatements, self).__init__(
+            EolStatements(),
+            EolValue(),
+            **kwargs,
+        )
+
+
 class EolStatements(ArrayField):
     def __init__(self, **kwargs):
-        kwargs.setdefault('Eol statements or comments, referencing utils.eol file')
+        kwargs.setdefault('description', 'Eol statements or comments, referencing utils.eol file')
         kwargs.setdefault('min_length', 0)
         kwargs.setdefault('unique_items', False)
-        super(EolStatements, self).__init__(jsl.StringField(), **kwargs)
+        super(EolStatements, self).__init__(EolStatement, **kwargs)
 
 
 class SingleOrArray(AnyOf):

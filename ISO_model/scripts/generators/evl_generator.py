@@ -4,6 +4,7 @@ import re
 import sys
 
 from ISO_model.scripts.generators.eol_generator import EolGenerator
+from ISO_model.scripts.lib.util import iter_list_or_single
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 
 
@@ -58,7 +59,7 @@ class EvlGenerator(EolGenerator):
         self.p_expression_or_block('check', checks)
         self.p_expression_or_block('message', messages)
         if fixes:
-            for fix in fixes:
+            for fix in iter_list_or_single(fixes):
                 self.p_fix(**fix)
         self.p_close_block()
 
@@ -102,14 +103,6 @@ def get_single_or_array(d: dict, key):
 
 
 class InterpretationEVLGenerator(EvlGenerator):
-    eol_var_name = '[a-z_][a-zA-Z0-9_]*'
-    eol_class_name = '[a-zA-Z0-9_]*'
-    eol_value = '(?:{cls}\.)?{var}'.format(cls=eol_class_name, var=eol_var_name)
-    re_CHECK = re.compile(r'^CHECK\s+({var})$'.format(var=eol_var_name))
-    re_DEFINE = re.compile(r'DEFINE\s+((?:{var}\.)?{var})\s+({value})'.format(var=eol_var_name, value=eol_value))
-    re_CREATE = re.compile(r'^CREATE\s+(%s)\s*{([^}]*)}' % eol_class_name)
-    re_ASSERT = re.compile(r'ASSERT\s+(.*)\s+MESSAGE\s+(.*)')
-    code_IF = 'if({cnd}){{{bdy}}}'
 
     def __init__(self, interpretation) -> None:
         super(InterpretationEVLGenerator, self).__init__()
@@ -123,7 +116,7 @@ class InterpretationEVLGenerator(EvlGenerator):
             'pre': init_pre + ocl_root.get('pre', []),
             'post': init_post + ocl_root.get('post', []),
             'name': ocl_root['c'],
-            'guards': ocl_root.get('g'),  # None, str or list
+            'guards': ocl_root.get('guard'),  # None, str or list
             'constraints': []
         }
         i = 0
@@ -132,68 +125,19 @@ class InterpretationEVLGenerator(EvlGenerator):
             # Add a constraint
             constraint = {
                 'name': t.get('name', default_name),
-                'guards': t.get('g'),  # g -> guards
+                'guards': t.get('guard'),  # g -> guards
                 'checks': t['t'],  # t -> checks
                 'messages': t.get('message'),  # message -> messages
-                'fixes': t.get('fixes'),
+                'fixes': t.get('fix'),
             }
 
             context['constraints'].append(constraint)
             i += 1
             default_name = '%s_%s_%s' % (req_id, ocl_level, i)
 
-        self._process_context(context)
         self.ocl_per_level.setdefault(ocl_level, {})
         self.ocl_per_level[ocl_level].setdefault(req_id, [])
         self.ocl_per_level[ocl_level][req_id].append(context)
-
-    def _process_context(self, context):
-        context['pre'] = [self._process_eol(p) for p in context['pre']]
-        context['post'] = [self._process_eol(p) for p in context['post']]
-
-    def _process_eol(self, eol):
-        found = True
-        while found:
-            m = InterpretationEVLGenerator.re_DEFINE.finditer(eol)
-            found = False
-            for m in m:
-                var_name = m.group(1)
-                value_name = m.group(2)
-                code = InterpretationEVLGenerator.code_IF.format(
-                    cnd=var_name+'.isUndefined()',
-                    bdy=var_name+'='+value_name+';',
-                )
-                eol = eol[:m.start()] + code + eol[m.end():]
-                found = True
-            if found:
-                continue
-        m = InterpretationEVLGenerator.re_CREATE.match(eol)
-        if m:
-            class_name = m.group(1)
-            att_values = [att_val.split(':') for att_val in m.group(2).split(',')]
-            if len(att_values) == 0:
-                code = InterpretationEVLGenerator.code_IF.format(
-                    cnd=class_name+'.all().length()==0',
-                    bdy='var x = new '+class_name+'();',
-                )
-            else:
-                code = InterpretationEVLGenerator.code_IF.format(
-                    cnd='not '+class_name+'.all().exists(x|{t})'.format(
-                        t=' and '.join(['x.{att}={val}'.format(att=att, val=val) for att, val in att_values]),
-                    ),
-                    bdy='var x = new '+class_name+'(); {c};'.format(
-                        c='; '.join(['x.{att}={val}'.format(att=att, val=val) for att, val in att_values]),
-                    ),
-                )
-            eol = eol[:m.start()] + code + eol[m.end():]
-        m = InterpretationEVLGenerator.re_ASSERT.match(eol)
-        if m:
-            code = InterpretationEVLGenerator.code_IF.format(
-                cnd='not '+m.group(1),
-                bdy='throw "'+m.group(2)+'";',
-            )
-            eol = eol[:m.start()] + code + eol[m.end():]
-        return eol
 
     def generate(self):
         for req_id, req_interpretation in self.ip.interpretation['requirements'].items():

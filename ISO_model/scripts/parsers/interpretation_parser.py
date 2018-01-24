@@ -1,12 +1,14 @@
 import json
+import re
 import sys
 
 import os
 import yaml
 from jsonschema.validators import validate as json_scheme_validate
+from nltk.chunk import regexp
 
 from ISO_model.scripts.generators.evl_generator import InterpretationEVLGenerator
-from ISO_model.scripts.lib.util import dict_poll
+from ISO_model.scripts.lib.util import dict_poll, dict_val_to_array, dict_poll_all_if_present, dict_remove_empty_list
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser
 from ISO_model.scripts.parsers.parser import Parser
@@ -21,6 +23,15 @@ DEFAULT_INTERPRETATION_JSON_FILE = r'/home/dennis/Dropbox/0cn/ISO_model/generate
 
 
 class InterpretationParser(Parser):
+    eol_var_name = '[a-z_][a-zA-Z0-9_]*'
+    eol_class_name = '[a-zA-Z0-9_]*'
+    eol_value = '(?:{cls}\.)?{var}'.format(cls=eol_class_name, var=eol_var_name)
+    re_DEFINE = re.compile(r'DEFINE\s+((?:{var}\.)?{var})\s+({value})'.format(var=eol_var_name, value=eol_value))
+    re_CREATE = re.compile(r'^CREATE\s+(%s)\s*{([^}]*)}' % eol_class_name)
+    re_ASSERT = re.compile(r'ASSERT\s+(.*)\s+MESSAGE\s+(.*)')
+    re_CHECK = re.compile(r'^CHECK\s+({var})$'.format(var=eol_var_name))
+    code_IF = 'if({cnd}){{{bdy}}}'
+
     def __init__(self) -> None:
         self.emf_model = EmfModelParser()
         self.iso_req_model = IsoTextParser()
@@ -28,6 +39,9 @@ class InterpretationParser(Parser):
         self.interpretation = {'requirements': {}}
         self.model_refs = {}
         self.exit_code = 0
+        self._ocl = None
+        self._req = None
+        self._extra_pre = None
 
     def load(self, file_name=None):
         if file_name is None:
@@ -56,14 +70,45 @@ class InterpretationParser(Parser):
 
     def normalize(self):
         for req_id, req_obj in self.interpretation['requirements'].items():
-            # Normalize ocl notation
-            for ocl_level, ocl_roots in req_obj.setdefault('ocl', {}).items():
-                for ocl in ocl_roots:
-                    self._parse_ocl(req_id, req_obj, ocl)
+            self._req = req_obj
+
+            self._normalize_req(req_id)
 
             # Store all model references
             for model_ref in req_obj.get('pr_model', []):
                 self.model_refs.setdefault(model_ref, []).append(req_id)
+
+            # For testing:
+            # try:
+            #     self.validate_normalized()
+            # except Exception as e:
+            #     self._normalize_req(req_id)
+
+        self._req = None
+        self._extra_pre = None
+
+    def _normalize_req(self, req_id):
+        self._extra_pre = []
+        # normalize the requirement object
+        dict_val_to_array(self._req, 'pre')
+        dict_val_to_array(self._req, 'post')
+
+        self._req['pre'] = self._parse_eol_stmts(self._req['pre'])
+        self._req['post'] = self._parse_eol_stmts(self._req['post'])
+
+        # Normalize ocl notation
+        for ocl_level, ocl_roots in self._req.get('ocl', {}).items():
+            for ocl in ocl_roots:
+                self._ocl = ocl
+                self._normalize_ocl(req_id)
+                self._ocl = None
+
+        self._req['pre'] += self._extra_pre
+
+        # cleanup
+        dict_remove_empty_list(self._req, 'pre')
+        dict_remove_empty_list(self._req, 'post')
+        self._extra_pre = None
 
     def dump_normalized(self):
         json.dump(self.interpretation, open(self.get_context('normalized_output_file'), 'w+'))
@@ -87,66 +132,124 @@ class InterpretationParser(Parser):
                 assert len([dup for dup in vals.keys() if dup in self.interpretation['requirements']]) == 0
                 self.interpretation['requirements'].update(vals)
 
-    def _parse_ocl(self, req_id, req_obj, ocl):
+    def _replace_DEFINE(self, m):
+        var_name = m.group(1)
+        value_name = m.group(2)
+        return InterpretationParser.code_IF.format(
+            cnd=var_name + '.isUndefined()',
+            bdy=var_name + '=' + value_name + ';',
+        )
+
+    def _replace_CREATE(self, m):
+        class_name = m.group(1)
+        att_values = [att_val.split(':') for att_val in m.group(2).split(',')]
+        if len(att_values) == 0:
+            return InterpretationParser.code_IF.format(
+                cnd=class_name + '.all().length()==0',
+                bdy='var x = new ' + class_name + '();',
+            )
+        else:
+            return InterpretationParser.code_IF.format(
+                cnd='not ' + class_name + '.all().exists(x|{t})'.format(
+                    t=' and '.join(['x.{att}={val}'.format(att=att, val=val) for att, val in att_values]),
+                ),
+                bdy='var x = new ' + class_name + '(); {c};'.format(
+                    c='; '.join(['x.{att}={val}'.format(att=att, val=val) for att, val in att_values]),
+                ),
+            )
+
+    def _replace_CHECK(self, m):
+        item_class = self._ocl['c']
+        item_attribute = m.group(1)
+        # Check against model
+        ac = self.emf_model.has_att(item_class, item_attribute)
+        if not ac:
+            raise AssertionError(
+                "Attribute %s not found in %s, off %s" % (item_attribute, item_class, m))
+        if not self.emf_model.class_is_subclass_of(ac, 'Check'):
+            raise AssertionError(
+                "Expected sub-class of Check, but got %s in %s" % (ac, m))
+        # Interpret check attribute keyword
+        check_class = ac
+        # Generate pre
+        create_missing_evl = (
+                'for (x : {item_class} in {item_class}.all().select(x|x.{item_attribute}.isUndefined()) ) {{' +
+                ' x.{item_attribute} = new {check_class}; ' +
+                '}}'
+        ).format(item_class=item_class, item_attribute=item_attribute, check_class=check_class)
+        self._extra_pre += [
+            '// CREATE ' + item_class + '.' + item_attribute,
+            create_missing_evl,
+            '//'
+        ]
+        # Overwrite check
+        return 'self.{item_attribute}.checked'.format(item_attribute=item_attribute)
+
+    def _parse_eol_stmts(self, stmts):
+        return [self._parse_eol_stmt(s) for s in stmts]
+
+    def _parse_eol_stmt(self, eol):
+        eol = self._match_replace(eol, InterpretationParser.re_DEFINE, self._replace_DEFINE)
+        eol = self._match_replace(eol, InterpretationParser.re_CREATE, self._replace_CREATE)
+        eol = self._match_replace(eol, InterpretationParser.re_ASSERT, lambda m: InterpretationParser.code_IF.format(
+            cnd='not ' + m.group(1),
+            bdy='throw "' + m.group(2) + '";',
+        ))
+        eol = self._match_replace(eol, InterpretationParser.re_CHECK, self._replace_CHECK)
+        return eol
+
+    def _parse_eol_exp(self, eol):
+        return self._parse_eol_stmt(eol)
+
+    def _parse_exp_or_stmt(self, str_or_arr):
+        if type(str_or_arr) is str:
+            return self._parse_eol_exp(str_or_arr)
+        else:
+            return self._parse_eol_stmts(str_or_arr)
+
+
+    def _normalize_ocl(self, req_id):
+        dict_val_to_array(self._ocl, 'pre')
+        dict_val_to_array(self._ocl, 'post')
+        self._ocl.setdefault('guard', [])
+
+        self._normalize_expand_ocl(req_id)
+
+        # Look for SPECIAL keywords in values and statements
+        self._ocl['pre'] = self._parse_eol_stmts(self._ocl['pre'])
+        self._ocl['post'] = self._parse_eol_stmts(self._ocl['post'])
+        self._ocl['guard'] = self._parse_exp_or_stmt(self._ocl['guard'])
+
         # normalize OCL entry
-        ocl.setdefault('pre', [])
-        ocl.setdefault('post', [])
-        default_msg = 'ISO requirement: '+self.iso_req_model.get_text(req_id, 'Missing from context.requirement_files')
-        default_msg = dict_poll(ocl, 'message', default_msg)
+        # Look for context aware keywords
+        for ocl_t in self._ocl['ts']:
+            ocl_t['t'] = self._parse_exp_or_stmt(ocl_t['t'])
+
+    def _normalize_expand_ocl(self, req_id):
+        # expand it
+        default_msg = 'ISO requirement: ' + self.iso_req_model.get_text(req_id,
+                                                                        'Missing from context.requirement_files')
+        default_msg = dict_poll(self._ocl, 'message', default_msg)
         # normalize OCL['ts']
-        if 't' in ocl:
+        if 't' in self._ocl:
             # Replace t <- ts
-            ocl['ts'] = [{
-                't': ocl['t'],
-            }]
-            del ocl['t']
-        elif 'ts' not in ocl:
-            ocl['ts'] = []
+            t = {
+                't': self._ocl['t'],
+            }
+            t.update(dict_poll_all_if_present(self._ocl, 'name', 'message', 'fix'))
+            self._ocl['ts'] = [t]
+            del self._ocl['t']
+        elif 'ts' not in self._ocl:
+            self._ocl['ts'] = []
         # normalize all elements in OCL['ts']
         ts = []
-        for t in ocl['ts']:
+        for t in self._ocl['ts']:
             if type(t) is str:
                 # Replace ts strings by dicts
                 t = {'t': t}
             t['message'] = '"%s: %s"' % (req_id, t.get('message', default_msg))
             ts.append(t)
-        ocl['ts'] = ts
-        # For testing: self.validate_normalized()
-
-        # Look for keywords
-        item_class = ocl['c']
-        for ocl_test in ocl['ts']:
-            txt = ocl_test['t']
-            m = InterpretationEVLGenerator.re_CHECK.match(txt)
-            if m:
-                item_attribute = m.group(1)
-                # Check against model
-                ac = self.emf_model.has_att(item_class, item_attribute)
-                if not ac:
-                    raise AssertionError(
-                        "Attribute %s not found in %s, off %s" % (item_attribute, item_class, txt))
-                if not self.emf_model.class_is_subclass_of(ac, 'Check'):
-                    raise AssertionError(
-                        "Expected sub-class of Check, but got %s in %s" % (ac, txt))
-                # Interpret check attribute keyword
-                check_class = ac
-                # Generate pre
-                create_missing_evl = (
-                        'for (x : {item_class} in {item_class}.all().select(x|x.{item_attribute}.isUndefined()) ) {{' +
-                        ' x.{item_attribute} = new {check_class}; ' +
-                        '}}'
-                ).format(item_class=item_class, item_attribute=item_attribute, check_class=check_class)
-                ocl['pre'] += [
-                    '// CREATE ' + item_class + '.' + item_attribute,
-                    create_missing_evl,
-                    '//'
-                ]
-                # Overwrite check
-                ocl_test['t'] = (
-                    'self.{item_attribute}.checked'
-                ).format(item_attribute=item_attribute)
-
-
+        self._ocl['ts'] = ts
 
     def write_json(self):
         filename = self.get_context('json_output_file')
