@@ -42,7 +42,7 @@ class IsoTextParser(Parser):
         self.next_is_wp = False
 
     def load(self, text_file):
-        id_prefix = re.match('.*part-?(\d+).*', text_file).group(1) + '-'
+        id_prefix = re.match('.*ISO-?(\d+).*', text_file).group(1) + '-'
         self.lines += [{
             'text': line,
             'line_no': line_no,
@@ -59,6 +59,7 @@ class IsoTextParser(Parser):
         for l in self.lines:
             self.prev_line = self.curr_line
             self.curr_line = l
+            print('parsing: ' + l['text'])
             self.parse_line()
         return len(self.missed_lines) == 0
 
@@ -332,16 +333,19 @@ def json_load_and_backup(filename, default=None):
 
 
 def main():
+    filename = 'ISO-8-text'
+
     parser = IsoTextParser('ISO_model/annotations.json')
-    parser.load(r'ISO_model/part3-text.2.txt')
+    parser.load(r'ISO_model/text/%s.txt' % filename)
     if not parser.parse():
         print("Could not parse, some lines were not identified")
         print(parser.missed_lines)
-    else:
-        # parser.print()
-        parser.write_iso_json(r'ISO_model/generated/part3-text.2.json')
-        parser.var_dump_annotations('ISO_model/generated/annotations.json')
-        parser.write_work_products('ISO_model/generated/work_products.json')
+        return
+
+    parser.print()
+    parser.write_iso_json(r'ISO_model/generated/%s.json' % filename)
+    parser.var_dump_annotations('ISO_model/generated/annotations.json')
+    parser.write_work_products('ISO_model/generated/work_products.json')
 
 
 if __name__ == '__main__':

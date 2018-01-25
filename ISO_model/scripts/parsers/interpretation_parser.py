@@ -15,9 +15,10 @@ from ISO_model.scripts.parsers.parser import Parser
 
 
 DEFAULT_REQUIREMENT_FILES = [
-    '/home/dennis/Dropbox/0cn/ISO_model/part1-text.2.txt',
-    '/home/dennis/Dropbox/0cn/ISO_model/part3-text.2.txt',
-    '/home/dennis/Dropbox/0cn/ISO_model/part4-text.2.txt',
+    '/home/dennis/Dropbox/0cn/ISO_model/text/ISO-1-text.txt',
+    '/home/dennis/Dropbox/0cn/ISO_model/text/ISO-3-text.txt',
+    '/home/dennis/Dropbox/0cn/ISO_model/text/ISO-4-text.txt',
+    '/home/dennis/Dropbox/0cn/ISO_model/text/ISO-8-text.txt',
 ]
 DEFAULT_INTERPRETATION_JSON_FILE = r'/home/dennis/Dropbox/0cn/ISO_model/generated/interpretation.json'
 
@@ -195,7 +196,6 @@ class InterpretationParser(Parser):
         self._extra_pre += [
             '// CREATE ' + item_class + '.' + item_attribute,
             create_missing_evl,
-            '//'
         ]
         # Overwrite check
         return 'self.{item_attribute}.checked'.format(item_attribute=item_attribute)

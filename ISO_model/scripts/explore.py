@@ -143,7 +143,7 @@ def main():
 
     fix_clauses()
 
-    s = DefSearcher('../part1-text.2.txt')
+    s = DefSearcher('../text/ISO-1-text.txt')
     r = s.search()
     for l in r:
         # print(l)

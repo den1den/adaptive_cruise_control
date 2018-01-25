@@ -31,9 +31,11 @@ class DocxParser(Parser):
     re_table = re.compile(r'table\s+\d+', re.IGNORECASE)
     re_requirement = re.compile(r'\d+(?:\.\d+)+\s+', re.IGNORECASE)
 
-    def __init__(self, start_regex='$^', stop_regex='$^'):
+    def __init__(self, start_regex='$^', start_match_count=1, stop_regex='$^', stop_match_count=1):
         self.start = re.compile(start_regex) if type(start_regex) is str else start_regex
+        self.start_match_count = start_match_count
         self.stop = re.compile(stop_regex) if type(stop_regex) is str else stop_regex
+        self.stop_match_count = stop_match_count
         self.output = []
         self.p = None
         self.table = False
@@ -51,7 +53,8 @@ class DocxParser(Parser):
         self.listing_id = None
 
         # find start
-        first = get_by_text_regex(document, 'w:t', self.start, throw_exception=True)
+        first = get_by_text_regex(document, 'w:t', self.start, match_count=self.start_match_count, throw_exception=True)
+        stop_matches = 0
 
         self.p = get_parent('w:p', first)
         while self.p:
@@ -62,7 +65,9 @@ class DocxParser(Parser):
 
             # See if its good or not
             if self.stop.match(txt):
-                break
+                stop_matches += 1
+                if stop_matches == self.stop_match_count:
+                    break
             if self.ignore_regex.match(txt):
                 pass
             else:
@@ -145,16 +150,19 @@ def extract_zip(file):
         zfile.extract(name, dirname)
 
 
-def get_by_text_regex(element, tag, regex, throw_exception=False):
+def get_by_text_regex(element, tag, regex, match_count=1, throw_exception=False):
+    matches = 0
     for t in element.getElementsByTagName(tag):
         text = t.firstChild.data
         if regex.match(text):
-            return t
+            matches += 1
+            if matches == match_count:
+                return t
     if throw_exception:
         for t in element.getElementsByTagName(tag):
             text = t.firstChild.data
             print(text)
-        raise AssertionError("`%s` was not found in `%s`" % (regex, element))
+        raise AssertionError("`%s` was found %d/%d times in `%s`" % (regex, matches, match_count, element))
 
 
 def get_next_tag(tag, element, depth=0):
@@ -245,20 +253,25 @@ def get_parent(tag, element):
 def main():
     # parser = DocxParser(start_regex=re.compile('1\.\d'), stop_regex='2 Abbreviated terms')
     # parser.parse(r'/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-1_DIS_20090813 (Vocabulary).docx')
-    # parser.write(r'ISO_model/part1-text.2.txt')
+    # parser.write(r'ISO_model/generated/ISO-1-gen.txt')
 
-    start = '7.4 Requirements and recommendations'
-    start = '8.3 Inputs to this clause'
-    start = '6 Initiation of the safety lifecycle'
-    start = 'Item definition\s*$'
-    parser = DocxParser(start, stop_regex='Annex')
-    parser.load(r'/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-3_DIS_20090813 (Concept phase).docx')
-    parser.parse()
-    parser.write(r'ISO_model/part3-text.3.txt')
+    # start = '7.4 Requirements and recommendations'
+    # start = '8.3 Inputs to this clause'
+    # start = '6 Initiation of the safety lifecycle'
+    # start = 'Item definition\s*$'
+    # parser = DocxParser(start, stop_regex='Annex')
+    # parser.load(r'/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-3_DIS_20090813 (Concept phase).docx')
+    # parser.parse()
+    # parser.write(r'ISO_model/generated/ISO-3-gen.txt')
 
     # parser = DocxParser()
     # parser.parse(r'/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-4_DIS_20090813 (Product development - system level).docx')
-    # parser.write('ISO_model/part4-text.2.txt')
+    # parser.write('ISO_model/generated/ISO-4-gen.txt')
+
+    parser = DocxParser(start_regex='^5', start_match_count=7, stop_regex='^Annex')
+    parser.load('/home/dennis/Dropbox/0cn/Link to ISO 26262-Draft/ISO_26262-8_DIS_20090813 (Supporting processes).docx')
+    parser.parse()
+    parser.write('ISO_model/generated/ISO-8-gen.txt')
 
 
 if __name__ == '__main__':
