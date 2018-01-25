@@ -172,6 +172,9 @@ class InterpretationRequirementBase(DictField):
             'activity': jsl.StringField(
                 description='TODO: defines an activity',
             ),
+            'extra_operations': EolStatements(
+                description='These lines will be appended to the EVL file',
+            ),
             'pr_model': SingleOrArray(
                 ModelReference(),
                 description='References to parts of the model which are created when interpreting this requirement',

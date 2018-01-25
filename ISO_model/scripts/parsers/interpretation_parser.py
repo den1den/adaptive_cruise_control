@@ -13,7 +13,6 @@ from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser
 from ISO_model.scripts.parsers.parser import Parser
 
-
 DEFAULT_REQUIREMENT_FILES = [
     '/home/dennis/Dropbox/0cn/ISO_model/text/ISO-1-text.txt',
     '/home/dennis/Dropbox/0cn/ISO_model/text/ISO-3-text.txt',
@@ -24,14 +23,17 @@ DEFAULT_INTERPRETATION_JSON_FILE = r'/home/dennis/Dropbox/0cn/ISO_model/generate
 
 
 class InterpretationParser(Parser):
-    eol_var_name = '[a-z_][a-zA-Z0-9_]*'
+    eol_att_name = '[a-z_][a-zA-Z0-9_]*'
     eol_class_name = '[a-zA-Z0-9_]*'
-    eol_value = '(?:{cls}\.)?{var}'.format(cls=eol_class_name, var=eol_var_name)
-    re_DEFINE = re.compile(r'DEFINE\s+((?:{var}\.)?{var})\s+({value})'.format(var=eol_var_name, value=eol_value))
+    eol_value = '(?:{cls}\.)?{att}'.format(cls=eol_class_name, att=eol_att_name)
+    re_DEFINE = re.compile(r'DEFINE\s+((?:{att}\.)?{att})\s+({value})'.format(att=eol_att_name, value=eol_value))
     re_CREATE = re.compile(r'^CREATE\s+(%s)\s*{([^}]*)}' % eol_class_name)
     re_ASSERT = re.compile(r'ASSERT\s+(.*)\s+MESSAGE\s+(.*)')
-    re_CHECK = re.compile(r'^CHECK\s+({var})$'.format(var=eol_var_name))
+    re_CHECK = re.compile(r'^CHECK\s+({att})$'.format(att=eol_att_name))
     re_ASIL = re.compile(r'({val})\s+IS_ASIL_((?:(?:QM)|A|B|C|D|(?:_OR_))+)'.format(val=eol_value))
+    re_ENUM_VAL = re.compile(r'ENUM_VAL\s+({cls})\s+(\w+)(?:[\s.()]|$)'.format(cls=eol_class_name))
+    re_ENUM_DEF = re.compile(r'^ENUM_DEF\s+({cls})\s+(.*)'.format(cls=eol_class_name))
+    re_ENUM_DEF_VALUES = re.compile('\s*({name})\s+(\d+)'.format(name=eol_class_name))
     code_IF = 'if({cnd}){{{bdy}}}'
 
     def __init__(self) -> None:
@@ -102,7 +104,7 @@ class InterpretationParser(Parser):
         for ocl_level, ocl_roots in self._req.get('ocl', {}).items():
             for ocl in ocl_roots:
                 self._ocl = ocl
-                self._normalize_ocl(req_id)
+                self._normalize_ocl(req_id, ocl_level)
                 self._ocl = None
 
         self._req['pre'] += self._extra_pre
@@ -134,6 +136,40 @@ class InterpretationParser(Parser):
                 assert len([dup for dup in vals.keys() if dup in self.interpretation['requirements']]) == 0
                 self.interpretation['requirements'].update(vals)
 
+    def _replace_DEF_ENUM(self, m):
+        enum_name = m.group(1)
+        if enum_name not in self.emf_model.get_classes():
+            raise AssertionError("%s should be defined as an class in the emf model, %s" % (enum_name, m))
+        if not self.emf_model.class_is_subclass_of(enum_name, 'Enum'):
+            raise AssertionError("%s should extend the Enum class, %s" % (enum_name, m))
+        enum_values = []
+        value = 0
+        for val_dev in m.group(2).split(','):
+            mv = InterpretationParser.re_ENUM_DEF_VALUES.match(val_dev)
+            name = mv.group(1)
+            value = value if mv.group(2) is None else int(mv.group(2))
+            enum_values += [(name, value)]
+            value += 1
+
+        result = '// Assure the ' + enum_name + ' enum values of ' + m.group(0) + '\n'
+        max_l = max((len(name) for name, _ in enum_values))
+        for name, value in enum_values:
+            result += (
+                # Create if not exists with this name
+                    'if(not {E}.all().exists(e|e.name="{N}"{N_})){{var x = new {E}();x.name="{N}";{N_}}}' +
+                    # Assert only one
+                    'if(not {E}.all().one(e|e.name="{N}"{N_})){{throw "There should only be one {E} with name {N}";{N_}}}' +
+                    # Set value
+                    '{E}.all().select(e|e.name="{N}"{N_}).random().value={V};\n'
+            ).format(E=enum_name, N=name, N_=" " * (max_l - len(name)), V=value)
+        return result
+
+    def _replace_ENUM_VAL(self, m):
+        enum_name = m.group(1)
+        name = m.group(2)
+        assert enum_name and name
+        return '{E}.all().select(e|e.name="{N}").random()'.format(E=enum_name, N=name)
+
     def _replace_DEFINE(self, m):
         var_name = m.group(1)
         value_name = m.group(2)
@@ -154,7 +190,7 @@ class InterpretationParser(Parser):
             'QM': ('QM', 'QM_A', 'QM_B', 'QM_C', 'QM_D'),
         }
         asils = set((x for asil in asils for x in ASILS[asil]))
-        return '/* '+m.group(0)+' */('+' or '.join((value+'='+'ASIL.'+asil for asil in asils))+')'
+        return '/* ' + m.group(0) + ' */(' + ' or '.join((value + '=' + 'ASIL#' + asil for asil in asils)) + ')'
 
     def _replace_CREATE(self, m):
         class_name = m.group(1)
@@ -180,28 +216,33 @@ class InterpretationParser(Parser):
         # Check against model
         ac = self.emf_model.has_att(item_class, item_attribute)
         if not ac:
-            raise AssertionError(
-                "Attribute %s not found in %s, off %s" % (item_attribute, item_class, m))
-        if not self.emf_model.class_is_subclass_of(ac, 'Check'):
-            raise AssertionError(
-                "Expected sub-class of Check, but got %s in %s" % (ac, m))
+            raise AssertionError("Attribute %s not found in %s, off %s" % (item_attribute, item_class, m))
+        check_class = ac.split('[')[0]
+        if not self.emf_model.class_is_subclass_of(check_class, 'Check'):
+            raise AssertionError("Expected sub-class of Check, but got %s in %s" % (check_class, m))
         # Interpret check attribute keyword
-        check_class = ac
         # Generate pre
         create_missing_evl = (
-                'for (x : {item_class} in {item_class}.all().select(x|x.{item_attribute}.isUndefined()) ) {{' +
-                ' x.{item_attribute} = new {check_class}; ' +
+                'for (x : {IC} in {IC}.all().select(x|x.{A}.isUndefined()) ) {{' +
+                ' x.{A} = new {CC}(); ' +
                 '}}'
-        ).format(item_class=item_class, item_attribute=item_attribute, check_class=check_class)
+        ).format(IC=item_class, A=item_attribute, CC=check_class)
         self._extra_pre += [
             '// CREATE ' + item_class + '.' + item_attribute,
             create_missing_evl,
         ]
         # Overwrite check
-        return 'self.{item_attribute}.checked'.format(item_attribute=item_attribute)
+        check_attr = 'validated'
+        if not self.emf_model.has_att(check_class, check_attr):
+            raise AssertionError("`%s` must have attribute `%s` in EMF model, %s" % (check_class, check_attr, m))
+        return 'self.{A}.{CA}'.format(A=item_attribute, CA=check_attr)
 
     def _parse_eol_stmts(self, stmts):
-        return [self._parse_eol_stmt(s) for s in stmts]
+        parsed_stmts = []
+        for s in stmts:
+            s = self._parse_eol_stmt(s)
+            parsed_stmts += s.split('\n')
+        return parsed_stmts
 
     def _parse_eol_stmt(self, eol):
         eol = self._match_replace(eol, InterpretationParser.re_DEFINE, self._replace_DEFINE)
@@ -212,6 +253,8 @@ class InterpretationParser(Parser):
         ))
         eol = self._match_replace(eol, InterpretationParser.re_CHECK, self._replace_CHECK)
         eol = self._match_replace(eol, InterpretationParser.re_ASIL, self._replace_ASIL)
+        eol = self._match_replace(eol, InterpretationParser.re_ENUM_DEF, self._replace_DEF_ENUM)
+        eol = self._match_replace(eol, InterpretationParser.re_ENUM_VAL, self._replace_ENUM_VAL)
         return eol
 
     def _parse_eol_exp(self, eol):
@@ -223,13 +266,12 @@ class InterpretationParser(Parser):
         else:
             return self._parse_eol_stmts(str_or_arr)
 
-
-    def _normalize_ocl(self, req_id):
+    def _normalize_ocl(self, req_id, level):
         dict_val_to_array(self._ocl, 'pre')
         dict_val_to_array(self._ocl, 'post')
         self._ocl.setdefault('guard', [])
 
-        self._normalize_expand_ocl(req_id)
+        self._normalize_expand_ocl(req_id, level)
 
         # Look for SPECIAL keywords in values and statements
         self._ocl['pre'] = self._parse_eol_stmts(self._ocl['pre'])
@@ -245,7 +287,7 @@ class InterpretationParser(Parser):
 
         dict_remove_if_empty_list(self._ocl, 'guard')
 
-    def _normalize_expand_ocl(self, req_id):
+    def _normalize_expand_ocl(self, req_id, level):
         # expand it
         default_msg = 'ISO requirement: ' + self.iso_req_model.get_text(req_id,
                                                                         'Missing from context.requirement_files')
@@ -263,11 +305,18 @@ class InterpretationParser(Parser):
             self._ocl['ts'] = []
         # normalize all elements in OCL['ts']
         ts = []
+        i = 0
         for t in self._ocl['ts']:
             if type(t) is str:
                 # Replace ts strings by dicts
                 t = {'t': t}
-            t['message'] = '"%s: %s"' % (req_id, t.get('message', default_msg))
+            if 'name' in t:
+                msg_prefix = '%s %s' % (req_id, t['name'])
+            else:
+                msg_prefix = '%s %s %s' % (req_id, level, i)
+                t['name'] = '%s_%s_%s' % (req_id, level, i)
+            t['message'] = '"%s: %s"' % (msg_prefix, t.get('message', default_msg))
+
             if 'fix' in t:
                 t['fix'] = dict_val_to_array(t, 'fix')
                 for f in t['fix']:
@@ -275,6 +324,7 @@ class InterpretationParser(Parser):
                         f['action'] = [f['action'] + ';', ]
                     f['title'] = '"%s"' % f['title']
             ts.append(t)
+            i += 1
         self._ocl['ts'] = ts
 
     def write_json(self):
@@ -298,7 +348,7 @@ def main():
     inter = InterpretationParser()
     # inter.load('ISO_model/interpretation_test.yaml')
     # inter.load('ISO_model/interpretation.yaml')
-    inter.load('/home/dennis/Dropbox/0cn/ISO_model/interpretation_fsc.yaml')
+    inter.load('/home/dennis/Dropbox/0cn/ISO_model/interpretation_sr.yaml')
     inter.validate()
     inter.parse()
     inter.normalize()

@@ -12,7 +12,7 @@ class EmfModelParser(Parser):
     re_comment = re.compile(r'//.*$', re.MULTILINE)
     re_package = re.compile(r'package \w+;')
     re_class = re.compile(r'(abstract )?class (\w+)\s*(?:extends (\w+)\s*)?{([^}]*)}')
-    re_statement = re.compile(r'(\w+) (\w+(?:\[(?:\*|(?:\d(?:..[\d*])?))?\])?) (\w+);')
+    re_statement = re.compile(r'\s*([^;]*)\s*;')
     re_enum = re.compile(r'enum (\w+)\s*{\s*([^}]*)}')
     re_enum_statements = re.compile(r'(\w+);\s*')
 
@@ -94,16 +94,19 @@ class EmfModelParser(Parser):
             self.extensions[class_name] = class_super
         if class_abstract:
             self.abstract_classes.add(class_name)
+
         self._match_class_contents(class_name, class_body)
+
         self._doc_str = self._doc_str[m.end():]
         return True
 
     def _match_class_contents(self, class_name, txt):
         self.atts.setdefault(class_name, {})
         for m in EmfModelParser.re_statement.finditer(txt):
-            a_rel = m.group(1)
-            a_type = m.group(2)
-            a_name = m.group(3)
+            statement = m.group(1).split(' ')
+            ignored = statement[:-2]
+            a_type = statement[-2]
+            a_name = statement[-1].split('=')[0]
             self.atts[class_name][a_name] = a_type
 
     def _match_enum(self):
@@ -119,6 +122,9 @@ class EmfModelParser(Parser):
         self._doc_str = self._doc_str[m.end():]
         return True
 
+    def get_superclasses(self, class_name):
+        return self.extensions.get(class_name)
+
     def get_all_subclasses(self, super_class: str):
         super_classes = {super_class}
         while True:
@@ -130,11 +136,20 @@ class EmfModelParser(Parser):
             if n0 == n1:
                 return super_classes
 
-    def has_att(self, class_name, attribute_name):
+    def has_att_direct(self, class_name, attribute_name):
         return self.atts.get(class_name, {}).get(attribute_name, False)
 
-    def class_is_subclass_of(self, class_name, super_class):
-        class_name = class_name.split('[')[0]
+    def has_att(self, class_name, attribute_name):
+        attr_class = self.has_att_direct(class_name, attribute_name)
+        if attr_class:
+            return attr_class
+        super_class_name = self.get_superclasses(class_name)
+        if not super_class_name:
+            return False
+        return self.has_att(super_class_name, attribute_name)
+
+    def class_is_subclass_of(self, class_name: str, super_class):
+        assert '[' not in class_name
         while True:
             if class_name == super_class:
                 return True
@@ -194,11 +209,15 @@ class EmfModelParser(Parser):
                 all_attributes.append(enum_name + '.' + enum_val)
         return all_attributes
 
-    def get_all_classes(self):
-        all_classes = []
+    def get_classes(self):
+        classes = []
         for class_name, class_attributes in self.atts.items():
             if class_name not in self.abstract_classes:
-                all_classes.append(class_name)
+                classes.append(class_name)
+        return classes
+
+    def get_all_classes(self):
+        all_classes = self.get_classes()
         for enum_name, enum_vals in self.enums.items():
             all_classes.append(enum_name)
         return all_classes

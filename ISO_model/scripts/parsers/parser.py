@@ -13,7 +13,7 @@ class Parser:
     def _match_replace(s: str, regex, replace: callable):
         pos = 0
         while True:
-            m = regex.match(s, pos)
+            m = regex.search(s, pos)
             if m:
                 code = replace(m)
                 s = s[:m.start()] + code + s[m.end():]

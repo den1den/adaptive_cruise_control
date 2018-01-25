@@ -119,12 +119,10 @@ class InterpretationEVLGenerator(EvlGenerator):
             'guards': ocl_root.get('guard'),  # None, str or list
             'constraints': []
         }
-        i = 0
-        default_name = '%s_%s_%s' % (req_id, ocl_level, i)
         for t in ocl_root['ts']:
             # Add a constraint
             constraint = {
-                'name': t.get('name', default_name),
+                'name': t['name'],
                 'guards': t.get('guard'),  # g -> guards
                 'checks': t['t'],  # t -> checks
                 'messages': t.get('message'),  # message -> messages
@@ -136,8 +134,6 @@ class InterpretationEVLGenerator(EvlGenerator):
             }
 
             context['constraints'].append(constraint)
-            i += 1
-            default_name = '%s_%s_%s' % (req_id, ocl_level, i)
 
         self.ocl_per_level.setdefault(ocl_level, {})
         self.ocl_per_level[ocl_level].setdefault(req_id, [])
@@ -160,6 +156,17 @@ class InterpretationEVLGenerator(EvlGenerator):
                 self.p_comment(ocl_level + " of requirement " + req_id)
                 for context in contexts:
                     self.p_context(**context)
+
+        for req_id, r in self.ip.interpretation['requirements'].items():
+            printed_extra_operations_header = False
+            if 'extra_operations' in r:
+                for extra_line in r['extra_operations']:
+                    if not printed_extra_operations_header:
+                        self.p_comment_heading('Extra operations '+req_id)
+                        printed_extra_operations_header = True
+                    self._print(extra_line)
+
+        self.p_block('post', lambda: self._print('"completed".println();'))
 
 
 def main():
