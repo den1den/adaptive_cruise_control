@@ -162,7 +162,7 @@ class IsoTextParser(Parser):
                 self.element['sums'] += [self.curr_SUM]
 
                 if not IsoTextParser.re_title.match(self.prev_line['text']):
-                    self.missed_lines.pop()
+                    self._unmis_line(self.prev_line['line_no'])
 
             self.curr_SUM['elements'] += [{
                 'text': m.group(1),
@@ -267,8 +267,8 @@ class IsoTextParser(Parser):
         json.dump(non_zero_annotations, open(output, 'w+'), indent=2, sort_keys=True)
 
     def print(self):
-        for r in self.output.values():
-            print("%s\t%d\t%s" % (str(r['id']).ljust(10), int(r['line_no']), r['title']))
+        for req_id, r in sorted(self.output.items()):
+            print("%s\t%d\t%s" % (str(req_id).ljust(10), int(r['line_no']), r['title']))
 
     def var_dump_work_products(self, filename):
         """Not in correct format, just a var dump"""
