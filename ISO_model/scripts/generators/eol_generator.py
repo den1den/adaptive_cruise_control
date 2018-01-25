@@ -3,9 +3,12 @@ class EolGenerator:
         self.indent = 0
         self.out = None  # is overwritten in subclass
 
-    def _print(self, line=None, indent_inc=0):
+    def _print(self, line=None, indent_inc=0, abs_indent=None):
         if line:
-            print('\t' * self.indent + line, file=self.out)
+            if abs_indent is not None:
+                print('\t' * abs_indent + line, file=self.out)
+            else:
+                print('\t' * self.indent + line, file=self.out)
         else:
             print(file=self.out)
         self.indent += indent_inc

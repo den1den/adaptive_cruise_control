@@ -50,7 +50,7 @@ class IsoTextParser(Parser):
             'file': text_file,
         } for line_no, line in enumerate(open(text_file, 'r'))]
 
-    def parse(self):
+    def parse(self, print_all_lines=False):
         self.curr_line = None
         self.element = None
 
@@ -59,7 +59,8 @@ class IsoTextParser(Parser):
         for l in self.lines:
             self.prev_line = self.curr_line
             self.curr_line = l
-            print('parsing: ' + l['text'])
+            if print_all_lines:
+                print('parsing: ' + l['text'])
             self.parse_line()
         return len(self.missed_lines) == 0
 

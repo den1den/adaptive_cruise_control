@@ -162,11 +162,16 @@ class InterpretationEVLGenerator(EvlGenerator):
             if 'extra_operations' in r:
                 for extra_line in r['extra_operations']:
                     if not printed_extra_operations_header:
-                        self.p_comment_heading('Extra operations '+req_id)
+                        self.p_comment_heading('Extra operations from ' + req_id)
                         printed_extra_operations_header = True
                     self._print(extra_line)
 
         self.p_block('post', lambda: self._print('"completed".println();'))
+
+        for extra_file in self.ip.get_context('extra_eol_files'):
+            self.p_comment_heading('included file '+extra_file)
+            for l in open(extra_file):
+                self._print(l.rstrip(), abs_indent=1)
 
 
 def main():

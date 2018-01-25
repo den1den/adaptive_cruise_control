@@ -10,6 +10,7 @@ class ContextDocument(DictField):
                 # input files
                 'model_files': ArrayField(FileField('.emf'), required=True, min_items=1),
                 'requirement_files': ArrayField(FileField('.txt')),
+                'extra_eol_files': ArrayField(FileField('.eol')),
                 # output files
                 'evl_output_file': FileField('.evl', must_exist=False, required=True),
                 'normalized_output_file': FileField('.json', must_exist=False),

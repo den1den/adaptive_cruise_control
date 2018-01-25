@@ -31,8 +31,9 @@ def dict_poll_all_if_present(d: dict, *keys):
     r = {}
     for k in keys:
         if k in d:
-            r[d] = k
-            del r[d]
+            v = d[k]
+            r[k] = v
+            del d[k]
     return r
 
 

@@ -101,8 +101,8 @@ class OCLContextSingleConstraint(OCLContextBase):
                 description='Name of the constraint, default: ReqId_Context_Index',
             ),
             # guard is not possible for single constraint
-            't': EolBool(  # Only simple value allowed, to use a statement block use the 'ts'
-                description='the EOL check ()',
+            't': EolValueOrStatements(
+                description='the EOL check',
                 required=True,
             ),
             'message': EolValueOrStatements(

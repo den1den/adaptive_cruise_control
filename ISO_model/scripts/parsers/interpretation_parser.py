@@ -19,6 +19,9 @@ DEFAULT_REQUIREMENT_FILES = [
     '/home/dennis/Dropbox/0cn/ISO_model/text/ISO-4-text.txt',
     '/home/dennis/Dropbox/0cn/ISO_model/text/ISO-8-text.txt',
 ]
+DEFAULT_EXTRA_EOL_FILES = [
+    '/home/dennis/Dropbox/0cn/data_models/model/project/util.eol'
+]
 DEFAULT_INTERPRETATION_JSON_FILE = r'/home/dennis/Dropbox/0cn/ISO_model/generated/interpretation.json'
 
 
@@ -29,9 +32,10 @@ class InterpretationParser(Parser):
     re_DEFINE = re.compile(r'DEFINE\s+((?:{att}\.)?{att})\s+({value})'.format(att=eol_att_name, value=eol_value))
     re_CREATE = re.compile(r'^CREATE\s+(%s)\s*{([^}]*)}' % eol_class_name)
     re_ASSERT = re.compile(r'ASSERT\s+(.*)\s+MESSAGE\s+(.*)')
-    re_CHECK = re.compile(r'^CHECK\s+({att})$'.format(att=eol_att_name))
+    re_CHECK = re.compile(r'^CHECK\s+({att})(?:\s+(.*))?$'.format(att=eol_att_name))
     re_ASIL = re.compile(r'({val})\s+IS_ASIL_((?:(?:QM)|A|B|C|D|(?:_OR_))+)'.format(val=eol_value))
     re_ENUM_VAL = re.compile(r'ENUM_VAL\s+({cls})\s+(\w+)(?:[\s.()]|$)'.format(cls=eol_class_name))
+    re_ENUM_EL = re.compile(r'ENUM_EL\s+({cls})\s+(\w+)'.format(cls=eol_class_name))
     re_ENUM_DEF = re.compile(r'^ENUM_DEF\s+({cls})\s+(.*)'.format(cls=eol_class_name))
     re_ENUM_DEF_VALUES = re.compile('\s*({name})\s+(\d+)'.format(name=eol_class_name))
     code_IF = 'if({cnd}){{{bdy}}}'
@@ -58,7 +62,7 @@ class InterpretationParser(Parser):
         # load context
         for model_file in self.get_context('model_files'):
             self.emf_model.load(model_file)
-        for req_file in self.get_context('requirement_files', DEFAULT_REQUIREMENT_FILES):
+        for req_file in self.get_context('requirement_files'):
             self.iso_req_model.load(req_file)
 
     def validate(self):
@@ -117,13 +121,14 @@ class InterpretationParser(Parser):
     def dump_normalized(self):
         json.dump(self.interpretation, open(self.get_context('normalized_output_file'), 'w+'))
 
-    def get_context(self, context_param, default=None):
+    def get_context(self, context_param):
         v = self.source['context'].get(context_param)
         if v is None:
-            if default is None:
-                raise Exception("context.%s not set" % context_param)
-            else:
-                return default
+            if context_param == 'requirement_files':
+                return DEFAULT_REQUIREMENT_FILES
+            if context_param == 'extra_eol_files':
+                return DEFAULT_EXTRA_EOL_FILES
+            raise Exception("context.%s not set" % context_param)
         return v
 
     def parse(self):
@@ -165,6 +170,9 @@ class InterpretationParser(Parser):
         return result
 
     def _replace_ENUM_VAL(self, m):
+        return self._replace_ENUM_EL(m) + '.value'
+
+    def _replace_ENUM_EL(self, m):
         enum_name = m.group(1)
         name = m.group(2)
         assert enum_name and name
@@ -220,22 +228,25 @@ class InterpretationParser(Parser):
         check_class = ac.split('[')[0]
         if not self.emf_model.class_is_subclass_of(check_class, 'Check'):
             raise AssertionError("Expected sub-class of Check, but got %s in %s" % (check_class, m))
+        assert self.emf_model.has_att(check_class, 'description') and self.emf_model.has_att(check_class, 'validated')
         # Interpret check attribute keyword
         # Generate pre
-        create_missing_evl = (
-                'for (x : {IC} in {IC}.all().select(x|x.{A}.isUndefined()) ) {{' +
-                ' x.{A} = new {CC}(); ' +
-                '}}'
-        ).format(IC=item_class, A=item_attribute, CC=check_class)
         self._extra_pre += [
-            '// CREATE ' + item_class + '.' + item_attribute,
-            create_missing_evl,
-        ]
+            '// CREATE ' + m.group(0),
+            # Create missing attributes
+            ('for (x : {IC} in {IC}.all().select(x|x.{A}.isUndefined()) ) {{' +
+             ' x.{A} = new {CC}(); ' +
+             '}}' +
+             # Fill descriptions
+             ('for (x : {IC} in {IC}.all()) {{ x.{A}.description = "{D}"; }}' if m.group(2) else '')
+             ).format(IC=item_class, A=item_attribute, CC=check_class, D=m.group(2)), ]
         # Overwrite check
-        check_attr = 'validated'
-        if not self.emf_model.has_att(check_class, check_attr):
-            raise AssertionError("`%s` must have attribute `%s` in EMF model, %s" % (check_class, check_attr, m))
-        return 'self.{A}.{CA}'.format(A=item_attribute, CA=check_attr)
+        project_model_ref = '%s.%s' % (item_class, item_attribute)
+        if project_model_ref in self._req.get('pr_model', []):
+            print("Double specification of CHECK: " + project_model_ref)
+        else:
+            self._req.setdefault('pr_model', []).append(project_model_ref)
+        return 'self.{A}.validated'.format(A=item_attribute)
 
     def _parse_eol_stmts(self, stmts):
         parsed_stmts = []
@@ -255,6 +266,7 @@ class InterpretationParser(Parser):
         eol = self._match_replace(eol, InterpretationParser.re_ASIL, self._replace_ASIL)
         eol = self._match_replace(eol, InterpretationParser.re_ENUM_DEF, self._replace_DEF_ENUM)
         eol = self._match_replace(eol, InterpretationParser.re_ENUM_VAL, self._replace_ENUM_VAL)
+        eol = self._match_replace(eol, InterpretationParser.re_ENUM_EL, self._replace_ENUM_EL)
         return eol
 
     def _parse_eol_exp(self, eol):
@@ -296,7 +308,7 @@ class InterpretationParser(Parser):
         if 't' in self._ocl:
             # Replace t <- ts
             t = {
-                't': self._ocl['t'],
+                't': self._ocl['t'],  # list or str
             }
             t.update(dict_poll_all_if_present(self._ocl, 'name', 'message', 'fix'))
             self._ocl['ts'] = [t]
