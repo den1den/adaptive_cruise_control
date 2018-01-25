@@ -50,6 +50,8 @@ class InterpretationParser(Parser):
         self._ocl = None
         self._req = None
         self._extra_pre = None
+        self.req_id = None
+        self.ocl_level = None
 
     def load(self, file_name=None):
         if file_name is None:
@@ -79,6 +81,7 @@ class InterpretationParser(Parser):
     def normalize(self):
         for req_id, req_obj in self.interpretation['requirements'].items():
             self._req = req_obj
+            self.req_id = req_id
 
             self._normalize_req(req_id)
 
@@ -93,6 +96,7 @@ class InterpretationParser(Parser):
             #     self._normalize_req(req_id)
 
         self._req = None
+        self.req_id = None
         self._extra_pre = None
 
     def _normalize_req(self, req_id):
@@ -106,10 +110,12 @@ class InterpretationParser(Parser):
 
         # Normalize ocl notation
         for ocl_level, ocl_roots in self._req.get('ocl', {}).items():
+            self.ocl_level = ocl_level
             for ocl in ocl_roots:
                 self._ocl = ocl
-                self._normalize_ocl(req_id, ocl_level)
+                self._normalize_ocl()
                 self._ocl = None
+            self.ocl_level = None
 
         self._req['pre'] += self._extra_pre
 
@@ -221,6 +227,7 @@ class InterpretationParser(Parser):
     def _replace_CHECK(self, m):
         item_class = self._ocl['c']
         item_attribute = m.group(1)
+        check_description = m.group(2) or self.iso_req_model.get_text(self.req_id, self.req_id)
         # Check against model
         ac = self.emf_model.has_att(item_class, item_attribute)
         if not ac:
@@ -229,7 +236,7 @@ class InterpretationParser(Parser):
         if not self.emf_model.class_is_subclass_of(check_class, 'Check'):
             raise AssertionError("Expected sub-class of Check, but got %s in %s" % (check_class, m))
         assert self.emf_model.has_att(check_class, 'description') and self.emf_model.has_att(check_class, 'validated')
-        # Interpret check attribute keyword
+
         # Generate pre
         self._extra_pre += [
             '// CREATE ' + m.group(0),
@@ -238,8 +245,9 @@ class InterpretationParser(Parser):
              ' x.{A} = new {CC}(); ' +
              '}}' +
              # Fill descriptions
-             ('for (x : {IC} in {IC}.all()) {{ x.{A}.description = "{D}"; }}' if m.group(2) else '')
-             ).format(IC=item_class, A=item_attribute, CC=check_class, D=m.group(2)), ]
+             'for (x : {IC} in {IC}.all()) {{ x.{A}.description = "{D}"; }}'
+             ).format(IC=item_class, A=item_attribute, CC=check_class, D=check_description),
+        ]
         # Overwrite check
         project_model_ref = '%s.%s' % (item_class, item_attribute)
         if project_model_ref in self._req.get('pr_model', []):
@@ -278,12 +286,12 @@ class InterpretationParser(Parser):
         else:
             return self._parse_eol_stmts(str_or_arr)
 
-    def _normalize_ocl(self, req_id, level):
+    def _normalize_ocl(self):
         dict_val_to_array(self._ocl, 'pre')
         dict_val_to_array(self._ocl, 'post')
         self._ocl.setdefault('guard', [])
 
-        self._normalize_expand_ocl(req_id, level)
+        self._normalize_expand_ocl()
 
         # Look for SPECIAL keywords in values and statements
         self._ocl['pre'] = self._parse_eol_stmts(self._ocl['pre'])
@@ -299,10 +307,10 @@ class InterpretationParser(Parser):
 
         dict_remove_if_empty_list(self._ocl, 'guard')
 
-    def _normalize_expand_ocl(self, req_id, level):
+    def _normalize_expand_ocl(self):
         # expand it
-        default_msg = 'ISO requirement: ' + self.iso_req_model.get_text(req_id,
-                                                                        'Missing from context.requirement_files')
+        requirment_text = self.iso_req_model.get_text(self.req_id, 'Missing from context.requirement_files')
+        default_msg = 'ISO requirement: ' + requirment_text
         default_msg = dict_poll(self._ocl, 'message', default_msg)
         # normalize OCL['ts']
         if 't' in self._ocl:
@@ -323,10 +331,10 @@ class InterpretationParser(Parser):
                 # Replace ts strings by dicts
                 t = {'t': t}
             if 'name' in t:
-                msg_prefix = '%s %s' % (req_id, t['name'])
+                msg_prefix = '%s %s' % (self.req_id, t['name'])
             else:
-                msg_prefix = '%s %s %s' % (req_id, level, i)
-                t['name'] = '%s_%s_%s' % (req_id, level, i)
+                msg_prefix = '%s %s %s' % (self.req_id, self.ocl_level, i)
+                t['name'] = '%s_%s_%s' % (self.req_id, self.ocl_level, i)
             t['message'] = '"%s: %s"' % (msg_prefix, t.get('message', default_msg))
 
             if 'fix' in t:

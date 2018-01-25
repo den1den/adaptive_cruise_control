@@ -125,24 +125,43 @@ class IsoTextParser(Parser):
             self.element['notes'] += [m.group(1)]
             return
 
+        # search example
+        m = IsoTextParser.re_example.match(text)
+        if m:
+            self.element.setdefault('examples', [])
+            self.element['examples'] += [m.group(1)]
+            return
+
         # search summation
         m = IsoTextParser.re_ordered_summation.match(text)
         if m:
-            if self.curr_ordered_SUM is None:
+            index = m.group(1)
+            while self.curr_ordered_SUM is None:
+                self.element.setdefault('sums', [])
+                if len(self.element['sums']) > 0:
+                    # Check if it fits in last ordered sum first
+                    old_ordered = next(filter(lambda s: s['ordered'], self.element['sums']))
+                    old_element = old_ordered['elements'][-1]
+                    old_index = old_element['index']
+                    if chr(ord(index)-1) == old_index:
+                        self.curr_ordered_SUM = old_ordered
+                        break
+                    print("__ Adding second summation in iso req")
+
                 # start new summation
                 self.curr_ordered_SUM = {
                     'title': self.prev_line,
                     'elements': [],
                     'ordered': True,
                 }
-                self.element.setdefault('sums', [])
                 self.element['sums'] += [self.curr_ordered_SUM]
 
                 # If the prev_line is not missed because its the title of this sum
                 self._unmis_line(self.prev_line['line_no'])
+                break
 
             self.curr_ordered_SUM['elements'] += [{
-                'index': m.group(1),
+                'index': index,
                 'text': m.group(2),
                 'line_no': line_number,
             }]
@@ -172,13 +191,6 @@ class IsoTextParser(Parser):
             return
         else:
             self.curr_SUM = None
-
-        # search example
-        m = IsoTextParser.re_example.match(text)
-        if m:
-            self.element.setdefault('examples', [])
-            self.element['examples'] += [m.group(1)]
-            return
 
         self.missed_lines.append(self.curr_line)
 
@@ -297,6 +309,9 @@ class IsoTextParser(Parser):
             if 'sums' in r:
                 if len(r['sums']) == 1:
                     appendix = r['sums'][0]['elements'][alpha_to_int(tumor)]['text']
+                elif len(r['sums']) > 1:
+                    raise AssertionError("ISO requirement has multiple summations: find by id=%s\nr=%s" %
+                                         (req_id, json.dumps(r, indent=2)))
         if 'text' in r:
             return r['text'] + appendix
         if 'title' in r:
@@ -338,7 +353,7 @@ def main():
 
     parser = IsoTextParser('ISO_model/annotations.json')
     parser.load(r'ISO_model/text/%s.txt' % filename)
-    if not parser.parse():
+    if not parser.parse(print_all_lines=True):
         print("Could not parse, some lines were not identified")
         print(parser.missed_lines)
         return
