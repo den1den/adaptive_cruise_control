@@ -152,7 +152,7 @@ class DownloadImageTracker(FileExtEventHandler):
         name = os.path.basename(filename)
         basename, extension = os.path.splitext(name)
         destination = os.path.join(
-            '/home/dennis/Dropbox/0cn/project/diagrams', name
+            '/home/dennis/Dropbox/0cn/acc_project/diagrams', name
         )
         if not is_image_equal(filename, destination):
             move(filename, destination)
@@ -187,11 +187,11 @@ class TmpImageTracker(FileExtEventHandler):
 if __name__ == "__main__":
     observer = Observer()
     # observer.schedule(DotToPng(), 'ISO_model', recursive=True)
-    observer.schedule(Yaml2Json(), 'project', recursive=True)
+    observer.schedule(Yaml2Json(), 'acc_project', recursive=True)
     observer.schedule(Yaml2Json(), 'ISO_model', recursive=True)
     observer.schedule(DownloadImageTracker(), '/home/dennis/Downloads', recursive=True)
-    observer.schedule(SrsHandler(), 'project', recursive=True)
-    observer.schedule(TmpImageTracker(), 'project', recursive=True)
+    observer.schedule(SrsHandler(), 'acc_project', recursive=True)
+    observer.schedule(TmpImageTracker(), 'acc_project', recursive=True)
     observer.start()
 
     try:
