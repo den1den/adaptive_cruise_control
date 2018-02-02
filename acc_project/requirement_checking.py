@@ -211,12 +211,12 @@ def flatten_2d_req_map(var):
 
 
 def process_srs():
-    srs_json = 'project/safety_requirements/srs.json'
+    srs_json = 'acc_project/safety_requirements/srs.json'
     if os.path.exists(srs_json):
         os.remove(srs_json)
 
     checker = Checker()
-    for directory in ('project/safety_requirements', 'project/requirements'):
+    for directory in ('acc_project/safety_requirements', 'acc_project/requirements'):
         for f in os.listdir(directory):
             if f.endswith('.yaml'):
                 checker.load_yaml(os.path.join(directory, f))
@@ -226,11 +226,11 @@ def process_srs():
 
     # checker.print_req('ACC_FR_2')
 
-    json.dump(flatten_2d_req_map(checker.references_used), open('project/aux_definitions/out_references_used.json', 'w+'), indent=2)
-    json.dump(flatten_2d_req_map(checker.values_used), open('project/aux_definitions/out_values_used.json', 'w+'), indent=2)
+    json.dump(flatten_2d_req_map(checker.references_used), open('acc_project/aux_definitions/out_references_used.json', 'w+'), indent=2)
+    json.dump(flatten_2d_req_map(checker.values_used), open('acc_project/aux_definitions/out_values_used.json', 'w+'), indent=2)
     json.dump(checker.get_req_dicts(), open(srs_json, 'w+'), indent=2, cls=Asil.JsonEncoder)
 
-    template_to_png('project/safety_requirements/srs-dependency-graph.template.dot', {'requirements': checker.reqs})
+    template_to_png('acc_project/safety_requirements/srs-dependency-graph.template.dot', {'requirements': checker.reqs})
 
     print("Requirements checked\n")
 

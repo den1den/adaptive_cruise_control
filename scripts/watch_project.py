@@ -134,7 +134,7 @@ def is_image_equal(filepath1, filepath2):
 class DownloadImageTracker(FileExtEventHandler):
     """
     Finds all .html files in /home/dennis/Dropbox/Apps/drawio
-    Moves all .png and .jpg of those files to /home/dennis/Dropbox/0cn/project/diagrams
+    Moves all .png and .jpg of those files to /home/dennis/Dropbox/0cn/acc_project/diagrams
     """
 
     def __init__(self):
@@ -186,12 +186,12 @@ class TmpImageTracker(FileExtEventHandler):
 
 if __name__ == "__main__":
     observer = Observer()
-    # observer.schedule(DotToPng(), 'ISO_model', recursive=True)
-    observer.schedule(Yaml2Json(), 'acc_project', recursive=True)
-    observer.schedule(Yaml2Json(), 'ISO_model', recursive=True)
     observer.schedule(DownloadImageTracker(), '/home/dennis/Downloads', recursive=True)
-    observer.schedule(SrsHandler(), 'acc_project', recursive=True)
-    observer.schedule(TmpImageTracker(), 'acc_project', recursive=True)
+    # observer.schedule(DotToPng(), 'ISO_model', recursive=True)
+    # observer.schedule(Yaml2Json(), 'acc_project', recursive=True)
+    # observer.schedule(Yaml2Json(), 'ISO_model', recursive=True)
+    # observer.schedule(SrsHandler(), 'acc_project', recursive=True)
+    # observer.schedule(TmpImageTracker(), 'acc_project', recursive=True)
     observer.start()
 
     try:

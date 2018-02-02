@@ -2,20 +2,56 @@
 /*
 This document describes the model for elements of the ISO which the project might reference to
 */
+@gmf
 package iso_model;
 
-class Clause {
-	attr String[1] ~id;
-	attr String[1] name;
+@gmf.diagram
+class Iso26262 {
+	val Part[*] parts;
+	val Clause[*] clauses;
+	val WorkProductType[*] work_products;
+	val Input[*] other_inputs;
+	val IsoRequirement[*] requirements;
 }
 
+@gmf.node(label="id")
+class Part {
+	attr String[1] ~id;
+    @gmf.link()
+	ref Clause[*] clauses;
+}
+
+@gmf.node(label="name")
+class Clause {
+    @gmf.link()
+	ref IsoRequirement[*] requirements;
+	
+	attr String[1] ~id;
+	attr String[1] name;
+	
+    @gmf.link()
+	ref WorkProductType[*] work_product_input;
+    @gmf.link()
+	ref Input[*] other_input;
+}
+
+@gmf.node(label="name")
 class IsoRequirement {
 	attr String[1] ~id;
 	attr String[1] name;
 }
 
+@gmf.node(label="name")
 class WorkProductType {
 	attr String[1] ~id;
 	attr String[1] name;
+	
+    @gmf.link()
 	ref IsoRequirement[*] based_on;
+}
+
+@gmf.node(label="name")
+class Input {
+	attr String[1] ~id;
+	attr String[1] name;
 }

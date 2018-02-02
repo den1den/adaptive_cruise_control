@@ -3,12 +3,14 @@ import os
 import sys
 
 import yaml
-from ruamel.yaml import YAML
-from ruamel.yaml.constructor import SafeConstructor
-from yaml.parser import ParserError
+from jsonschema import validate
 
+from ISO_model.scripts.generators.md_generator import MdGenerator
+from ISO_model.scripts.lib.util import dict_poll_update, dict_update, dict_set_default
+from ISO_model.scripts.parsers.parser import Parser
+from ISO_model.scripts.schemes.project_model.safety_requirement_scheme import RequirementsSpecFile, \
+    NormalRequirementSpec, RequirementsListFile, NormalRequirementStrict
 from acc_project.scripts.asil import Asil
-from acc_project.scripts.requirement import Requirement
 
 requirement_types = yaml.safe_load(open(
     os.path.join(os.path.dirname(__file__), '../aux_definitions/requirement_types.yaml')
@@ -25,118 +27,103 @@ def pop(dic: dict, key: str, default=None):
         return default
 
 
-class ProjectRequirementParser:
+class ProjectRequirementParser(Parser):
 
     def __init__(self) -> None:
-        self.output = {}
+        self.input = []
+        self.requirements = {}
         self.errors = []
-        self.required_keys = (
-            'id',
-            'requirement_type',
-            'text',
-            'assigned_to',
-            'level',
-        )
-        self.filename = None
 
-    def parse(self, yaml_filename: str):
-        with open(yaml_filename) as f:
-            try:
-                yaml_parser = YAML(typ='safe')
-                obj = yaml_parser.load(f)
-            except Exception as e:
-                self.errors.append("%s\nCould not parse %s" % (e, yaml_filename, ))
-                return
-        self.filename = yaml_filename
-        for req_type, reqs in obj.items():
-            if reqs is None:
-                self.errors.append("Empty requirements key `%s` in `%s`" % (req_type, yaml_filename))
-                continue
-            defaults = {'requirement_type': req_type}
-            self._parse_reqs(reqs, defaults)
+    def load(self, file_name):
+        self.input.append((file_name, yaml.safe_load(open(file_name))))
 
-    def _parse_reqs(self, reqs: dict, defaults: dict):
-        defaults = self.set_default(
-            pop(reqs, 'default', {}),
-            defaults
-        )
-        for req_id, req in reqs.items():
-            if req is None:
-                continue
-            req['id'] = req_id
-            self._parse_req(req, defaults)
+    def validate(self):
+        s = RequirementsSpecFile(NormalRequirementSpec).get_schema()
+        for file_name, d in self.input:
+            validate(d, s)
 
-    def _parse_req(self, req_dict: dict, defaults: dict):
-        # id
-        rid = req_dict['id']
-        if rid in self.output:
-            self.log_error('Duplicate id `%s`', req_dict,
-                           rid)
-            return
-        #
-        # Check parsing of a single ID
-        #
-        if rid == 'SR3.2.1':
-            k = 0
+    def validate_output(self):
+        s = RequirementsListFile(NormalRequirementStrict).get_schema()
+        validate({'requirements': self.requirements}, s)
 
-        req_dict = self.set_default(req_dict, defaults)
+    def parse(self):
+        for file_name, d in self.input:
+            self._parse_reqs(d['requirements'], {
+                'allocated_to': [],
+                'notation': 'informal',
+                'requirement_type': d['requirements_type'],
+                'requirement_file': file_name,
+            })
+            self.validate_output()
 
-        # check missing keys
-        for key in self.required_keys:
-            if key not in req_dict:
-                self.log_error('Missing key `%s`', req_dict,
-                               key)
-                return
+    def _parse_reqs(self, d: dict, defaults=None, parent=None):
+        if defaults is None:
+            defaults = {}
+        defaults = dict_poll_update(d, 'default', defaults)
+        for req_id, req in d.items():
+            dict_set_default(req, defaults)
 
-        # requirement_type
-        r_type = req_dict['requirement_type']
-        if r_type.startswith('dummy_'):
-            return
-        valid_r_type = None
-        for t in requirement_types:
-            if r_type.startswith(t):
-                valid_r_type = t
-        if valid_r_type is None:
-            self.log_error('Could not deduce requirement type `%s` out of %s', req_dict,
-                           r_type, requirement_types)
-            return
-        req_dict['requirement_type'] = valid_r_type
-        req_dict['original_requirement_type'] = r_type
+            req['req_id'] = req_id
+            if type(req['allocated_to']) is not list:
+                req['allocated_to'] = [req['allocated_to'], ]
 
-        req = Requirement(req_dict, self.filename)
-        self.output[rid] = req
+            if parent:
+                req.setdefault('parent', parent['req_id'])
 
-        # children
-        children = pop(req_dict, 'children_requirements', {})
-        self._parse_reqs(children, self.set_default(
-            {'requirement_parent': rid},
-            defaults
-        ))
+            if req_id in self.requirements:
+                raise AssertionError("requirement id %s is duplicate" % req_id)
+            self.requirements[req_id] = req
 
-    def set_default(self, original, defaults):
-        for key, default_value in defaults.items():
-            is_addition = ('+' + key) in original
-            if is_addition:
-                original_value = original.pop('+' + key)
-                original[key] = default_value + original_value
-            else:
-                original.setdefault(key, default_value)
-        return original
+            if 'children' in req:
+                children = req.pop('children')
+                if type(children) is dict:
+                    children = [children]
+                for child_group in children:
+                    children_defaults = defaults.copy()
+                    children_defaults['allocated_to'] = req['allocated_to']
+                    self._parse_reqs(child_group, children_defaults, req)
 
-    def to_json(self):
-        out = [r.requirement for r in self.output.values()]
-        return json.dumps(out, cls=Asil.JsonEncoder, indent=2)
+    def to_json(self, file_name):
+        return json.dump({
+            'requirements': self.requirements
+        }, open(file_name, 'w+'), indent=2)
+
+    def to_md(self, filename):
+        md = MdGenerator(open(filename, 'w+'))
+        TABLE_HEADING = ('requirement_type', 'notation', 'req_class', 'allocated_to')
+
+        rs = self.requirements.copy()
+        while len(rs) > 0:
+            nxt = sorted(rs)[0]
+            r = rs[nxt]
+            md.h(r['req_id'])
+            md.p(r['description'])
+            md.single_table(r, TABLE_HEADING)
+            md.open_quote()
+            for ps in sorted(rs)[1:]:
+                child_req = rs[ps]
+                if child_req.get('parent') == r['req_id']:
+                    md.h(child_req['req_id'], 2)
+                    md.p(child_req['description'])
+                    md.single_table(child_req, TABLE_HEADING)
+                    del rs[ps]
+            del rs[nxt]
+            md.close_quote()
+
+
+        md.close()
+
 
     def log_error(self, msg, req_dict, *params):
         self.errors.append("%s\n\tat %s" % (msg % params, req_dict,))
 
 
 if __name__ == '__main__':
-    # test
     p = ProjectRequirementParser()
-    # p.parse('../requirements/obstacle_detector_requirements.yaml')
-    p.parse('../requirements/functional_requirements.yaml')
-    print(p.to_json())
+    p.load('/home/dennis/Dropbox/0cn/acc_project/requirements/functional_requirements.yaml')
+    p.parse()
+    p.to_json('/home/dennis/Dropbox/0cn/generated/requirements.json')
+    p.to_md('/home/dennis/Dropbox/0cn/generated/requirements.md')
 
 
 def print_errors(errors):

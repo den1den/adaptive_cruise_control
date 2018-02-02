@@ -35,7 +35,7 @@ OCLLevels = (
     'satisfies',  # specified by the text (direct or indirect)
     'trivial',  # very simple OCL
     'structure',  # project instance structure (Ex: type(A.b)=B, or cardinal constraints)
-    'warning',  # possible assumed pitfalls
+    'warning',  # possible assumed pitfalls, (Warning should be given when OCL evaluates to true)
 )
 
 
@@ -253,9 +253,7 @@ def main():
 
     s = InterpretationScheme().get_schema()
     json.dump(s, open(output, 'w+'), indent=1)
-
-    # Save scheme
-    print("Interpretation scheme created in %s" % output)
+    print("InterpretationScheme written to %s" % output)
 
 
 if __name__ == '__main__':

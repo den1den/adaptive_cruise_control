@@ -11,6 +11,19 @@ def dict_poll(d: dict, key, default):
     return default
 
 
+def dict_poll_update(d: dict, key, default: dict):
+    if key in d:
+        default.update(d[key])
+        del d[key]
+    return default
+
+
+def dict_set_default(d: dict, default: dict):
+    for k, v in default.items():
+        d.setdefault(k, v)
+    return d
+
+
 def alpha_to_int(alpha: str):
     assert len(alpha) == 1
     i = 'abcdefghijklmnopqrstuvwxyz'.index(alpha)
@@ -53,3 +66,14 @@ def iter_list_or_single(v):
             yield x
     else:
         yield v
+
+
+def re_match_nonoverlap(re_object, line):
+    pos = 0
+    while True:
+        m = re_object.match(line, pos=pos)
+        if m:
+            pos = m.endpos
+            yield m
+        else:
+            return m

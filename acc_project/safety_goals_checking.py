@@ -6,7 +6,7 @@ import re
 from acc_project.scripts.asil import Asil
 
 
-def get_safety_goals(in_md_file='project/3-7.5.2 Safety goals.md'):
+def get_safety_goals(in_md_file='acc_project/3-7.5.2 Safety goals.md'):
     SGS = {}
     SG = {}
     SG_name_regex = re.compile(r'###\s+(.+):\s+(.+)')

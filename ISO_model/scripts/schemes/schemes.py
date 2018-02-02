@@ -12,6 +12,13 @@ re_FULL_REQUIREMENT_ID = r'\d-\d(\.\d)*'
 """Ex: 3-4.1"""
 
 
+class String(jsl.StringField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('required', True)
+        kwargs.setdefault('min_length', 1)
+        super().__init__(*args, **kwargs)
+
+
 class Enum(jsl.StringField):
     def __init__(self, values_list, **kwargs):
         super().__init__(enuum=values_list, **kwargs)
@@ -60,7 +67,7 @@ class FileField(jsl.StringField):
                     for filename in filenames
                     if filename.endswith(extension)
                 ]
-                print("Identified %s files" % len(FileField.all_files_per_ext[extension]))
+                # print("Identified %s files" % len(FileField.all_files_per_ext[extension]))
             kwargs['enum'] = FileField.all_files_per_ext[extension]
         kwargs.setdefault('min_length', 1)
         super(FileField, self).__init__(**kwargs)
@@ -100,13 +107,18 @@ class AnyOf(jsl.AnyOfField):
         super(AnyOf, self).__init__(instances, **kwargs)
 
 
+class Nullable(AnyOf):
+    def __init__(self, cls, **kwargs):
+        super().__init__(jsl.NullField(), cls, **kwargs)
+
+
 class ArrayField(jsl.ArrayField):
     """Array of any of the `items`"""
 
-    def __init__(self, *any_of, **kwargs):
+    def __init__(self, field, *any_of, **kwargs):
         kwargs.setdefault('unique_items', True)
         super().__init__(
-            AnyOf(*any_of),
+            AnyOf(field, *any_of),
             **kwargs)
 
 
@@ -161,6 +173,17 @@ class SingleOrArray(AnyOf):
             *any_of,
             ArrayField(*any_of, min_items=1),
             **kwargs)
+
+
+class ChildrenInDocumentField(SingleOrArray):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('required', False)
+        super().__init__(DictField(properties={
+            'default': jsl.DocumentField(jsl.RECURSIVE_REFERENCE_CONSTANT, as_ref=True)
+        }, pattern_properties={
+            '_|.': jsl.DocumentField(jsl.RECURSIVE_REFERENCE_CONSTANT, as_ref=True,
+                                     required=True)
+        }), **kwargs)
 
 
 def doc_field(document_class, **kwargs):

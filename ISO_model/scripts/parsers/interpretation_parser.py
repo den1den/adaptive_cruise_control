@@ -8,6 +8,7 @@ from jsonschema.validators import validate as json_scheme_validate
 from nltk.chunk import regexp
 
 from ISO_model.scripts.generators.evl_generator import InterpretationEVLGenerator
+from ISO_model.scripts.generators.md_generator import MdGenerator
 from ISO_model.scripts.lib.util import dict_poll, dict_val_to_array, dict_poll_all_if_present, dict_remove_if_empty_list
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser
@@ -235,7 +236,8 @@ class InterpretationParser(Parser):
         check_class = ac.split('[')[0]
         if not self.emf_model.class_is_subclass_of(check_class, 'Check'):
             raise AssertionError("Expected sub-class of Check, but got %s in %s" % (check_class, m))
-        assert self.emf_model.has_att(check_class, 'description') and self.emf_model.has_att(check_class, 'validated')
+        if not self.emf_model.has_att(check_class, 'description') and self.emf_model.has_att(check_class, 'validated'):
+            raise AssertionError("Expected `%s` class to have `description` and `validated` atts")
 
         # Generate pre
         self._extra_pre += [
@@ -308,10 +310,6 @@ class InterpretationParser(Parser):
         dict_remove_if_empty_list(self._ocl, 'guard')
 
     def _normalize_expand_ocl(self):
-        # expand it
-        requirment_text = self.iso_req_model.get_text(self.req_id, 'Missing from context.requirement_files')
-        default_msg = 'ISO requirement: ' + requirment_text
-        default_msg = dict_poll(self._ocl, 'message', default_msg)
         # normalize OCL['ts']
         if 't' in self._ocl:
             # Replace t <- ts
@@ -323,18 +321,33 @@ class InterpretationParser(Parser):
             del self._ocl['t']
         elif 'ts' not in self._ocl:
             self._ocl['ts'] = []
+        self._normalize_expand_ts()
+
+    def _normalize_expand_ts(self):
         # normalize all elements in OCL['ts']
+        requirment_text = self.iso_req_model.get_text(self.req_id, 'Missing from context.requirement_files')
+        default_msg = 'ISO requirement: ' + requirment_text
+        default_msg = dict_poll(self._ocl, 'message', default_msg)
         ts = []
         i = 0
         for t in self._ocl['ts']:
             if type(t) is str:
                 # Replace ts strings by dicts
                 t = {'t': t}
+            assert 't' in t
+            if self.ocl_level == 'warning':
+                if type(t['t']) is str:
+                    # Add not to all single line warnings
+                    t['t'] = 'not '+t['t']
+                else:
+                    print("Skipped negation of output of ocl warning: %s" % t)
             if 'name' in t:
                 msg_prefix = '%s %s' % (self.req_id, t['name'])
             else:
                 msg_prefix = '%s %s %s' % (self.req_id, self.ocl_level, i)
-                t['name'] = '%s_%s_%s' % (self.req_id, self.ocl_level, i)
+                t['name'] = '%s_c%s' % (self.ocl_level, self.req_id.replace('-', '_r'))
+                if len(self._ocl['ts']) > 1:
+                    t['name'] += '_n%s' % i
             t['message'] = '"%s: %s"' % (msg_prefix, t.get('message', default_msg))
 
             if 'fix' in t:
@@ -352,6 +365,7 @@ class InterpretationParser(Parser):
         # original = json.load(open(filename))
         json.dump({
             'model_refs': self.model_refs,
+            'requirements': self.interpretation['requirements'],
         }, open(filename, 'w+'))
 
 
@@ -368,7 +382,9 @@ def main():
     inter = InterpretationParser()
     # inter.load('ISO_model/interpretation_test.yaml')
     # inter.load('ISO_model/interpretation.yaml')
-    inter.load('/home/dennis/Dropbox/0cn/ISO_model/interpretation_sr.yaml')
+    # inter.load('ISO_model/interpretation_item_def.yaml')
+    inter.load('ISO_model/interpretation_fsc.yaml')
+    #inter.load('ISO_model/interpretation_sr.yaml')
     inter.validate()
     inter.parse()
     inter.normalize()

@@ -187,12 +187,13 @@ def main():
         g = InterpretationEVLGenerator(i)
         g.generate()
 
-        print("Generated: %s" % i.get_context('evl_output_file'))
+        print("Generated %s" % i.get_context('evl_output_file'))
         return
 
     i = InterpretationParser()
     # i.load('ISO_model/interpretation_test.yaml')
-    i.load('ISO_model/interpretation_sr.yaml')
+    # i.load('ISO_model/interpretation_sr.yaml')
+    i.load('ISO_model/interpretation_fsc.yaml')
     i.parse()
     i.validate()
     i.normalize()

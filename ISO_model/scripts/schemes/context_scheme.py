@@ -1,7 +1,10 @@
+import json
+import sys
+
 from ISO_model.scripts.schemes.schemes import *
 
 
-class ContextDocument(DictField):
+class ContextScheme(DictField):
     """The root of the interpretation document contains these keys"""
 
     def __init__(self):
@@ -23,10 +26,9 @@ class ContextDocument(DictField):
 
 
 if __name__ == '__main__':
-    import json
-
-    s = ContextDocument().get_schema()
+    s = ContextScheme().get_schema()
 
     # Save scheme
-    json.dump(s, open('/home/dennis/Dropbox/0cn/ISO_model/generated/context_scheme.json', 'w+'), indent=0)
-    print("Context scheme created")
+    output = sys.argv[1] if len(sys.argv) > 1 else '/home/dennis/Dropbox/0cn/ISO_model/generated/context_scheme.json'
+    json.dump(s, open(output, 'w+'), indent=0)
+    print("ContextScheme written to %s" % output)

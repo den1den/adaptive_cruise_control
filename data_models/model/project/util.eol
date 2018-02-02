@@ -29,3 +29,17 @@ operation ensureHasCheckTemplate(Class, aspect) {
 	}
 }
 // END
+
+operation assDef(x){if(x.isUndefined()){throw "Defined assertion failed";}}
+
+operation enumEqual         (x1 : Enum, x2 : Enum) : Boolean {assDef(x1); assDef(x2); return x1.value =  x2.value;}
+operation enumGreater       (x1 : Enum, x2 : Enum) : Boolean {assDef(x1); assDef(x2); return x1.value >  x2.value;}
+operation enumLess          (x1 : Enum, x2 : Enum) : Boolean {assDef(x1); assDef(x2); return x1.value <  x2.value;}
+operation enumGreaterOrEqual(x1 : Enum, x2 : Enum) : Boolean {assDef(x1); assDef(x2); return x1.value >= x2.value;}
+operation enumLessOrEqual   (x1 : Enum, x2 : Enum) : Boolean {assDef(x1); assDef(x2); return x1.value <= x2.value;}
+
+operation enumEq  (x1 : Enum, x2 : Enum) : Boolean {return enumEqual(x1, x2);}
+operation enumGe  (x1 : Enum, x2 : Enum) : Boolean {return enumGreater(x1, x2);}
+operation enumLe  (x1 : Enum, x2 : Enum) : Boolean {return enumLess(x1, x2);}
+operation enumGeq (x1 : Enum, x2 : Enum) : Boolean {return enumGreaterOrEqual(x1, x2);}
+operation enumLeq (x1 : Enum, x2 : Enum) : Boolean {return enumLessOrEqual(x1, x2);}

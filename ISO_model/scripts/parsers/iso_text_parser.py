@@ -62,7 +62,10 @@ class IsoTextParser(Parser):
             if print_all_lines:
                 print('parsing: ' + l['text'])
             self.parse_line()
-        return len(self.missed_lines) == 0
+        if self.element is None:
+            raise AssertionError("File contained not requirements")
+        self.element['text'] = self.missed_lines
+        self.missed_lines = []
 
     def parse_line(self):
         line_number = self.curr_line['line_no']
@@ -313,7 +316,8 @@ class IsoTextParser(Parser):
                     raise AssertionError("ISO requirement has multiple summations: find by id=%s\nr=%s" %
                                          (req_id, json.dumps(r, indent=2)))
         if 'text' in r:
-            return r['text'] + appendix
+            txt = ''.join((line['text'] for line in r['text']))
+            return txt + appendix
         if 'title' in r:
             return r['title'] + appendix
         return default
@@ -348,15 +352,10 @@ def json_load_and_backup(filename, default=None):
     return default
 
 
-def main():
-    filename = 'ISO-8-text'
-
+def main(filename):
     parser = IsoTextParser('ISO_model/annotations.json')
     parser.load(r'ISO_model/text/%s.txt' % filename)
-    if not parser.parse(print_all_lines=True):
-        print("Could not parse, some lines were not identified")
-        print(parser.missed_lines)
-        return
+    parser.parse(print_all_lines=True)
 
     parser.print()
     parser.write_iso_json(r'ISO_model/generated/%s.json' % filename)
@@ -365,4 +364,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main('ISO-1-text')
+    main('ISO-8-text')
+    main('ISO-3-text')
+    # main('ISO-4-text') Empty

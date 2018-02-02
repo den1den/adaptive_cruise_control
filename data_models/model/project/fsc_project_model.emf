@@ -26,9 +26,10 @@ class FunctionalSafetyRequirement extends SafetyRequirement {
 
 class PrelimElement{
 	// Element from preliminary architectural assumptions (external source)
-	//TODO: maby add attribute: ref Element[*] developed_into;
-	//QUESTION: These are different from Elements right?
+	//TODO: maby add attribute:
+	ref Element[*] developed_into;
 }
+class Element {}
 
 class SystemState {
 	// From external source
@@ -81,6 +82,7 @@ class ActorAction {
 }
 
 // From TNO ////////////////////////////////////////////////////////////////////
+@tno
 class SafetyGoal {
 	attr ASIL[1] asil;
 	val FaultTolerantTimeInterval[*] fttts;
@@ -99,12 +101,15 @@ enum ASIL {
 class TimeInterval{
 	attr boolean direct=false;
 }
+@tno
 class EmergencyOperationInterval extends TimeInterval {}
+@tno
 class FaultTolerantTimeInterval extends TimeInterval {}
+@tno
 class HazardousEvent {}
-class OperatingMode{
-	
-}
+@tno
+class OperatingMode{}
+@tno
 class SafeState{
 	// 8.4.2.4
 	val TechnicalStateTransition[*] transition_to;
@@ -112,9 +117,9 @@ class SafeState{
 	// 8.4.2.5
 	val EmergencyOperation[*] emergency_operation;
 }
-class System{
-	
-}
+@tno
+class System{}
+@tno
 class Item {
 	attr ASIL[1] asil; // QUESTION: Does an item really have a ASIL? Arash definition 'Safety Specification Entity'
 	ref OperatingMode[*] operating_modes;

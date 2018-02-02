@@ -4,6 +4,7 @@
 
 digraph G
 {
+  overlap = false;
   /*
    * Clauses
    */
@@ -18,22 +19,23 @@ digraph G
   9.5[label="9-5\nRequirements decomposition with respect to ASIL tailoring"];
   9.7[label="9-7\nAnalysis of dependent failures"];
   // Usefull
-  edge[style=dotted, label="Usefull"]
+  edge[style=solid, label="\"Usefull\""]
   9.7 -> 3.8;
   // Needed
-  edge[style=solid,label="Needed"]
+  edge[style=solid,label="\"Needed\""]
   9.5 -> 3.8;
   8.9 -> 3.8;
   // Input
-  edge[style=solid,color=blue,label="Input"];
+  edge[style=solid,label="\"Input\""];
   8.6 -> 3.8;
-  edge[color=normal];
+
+  edge[color=normal]; // Reset
 
   /*
    * Work products
    */
   node[shape=rect];
-  edge[style=solid, label=""];
+  edge[style=dotted, label=""];
 
   //2-
   safety_plan[label="Safety plan (2-6.5.1)"];

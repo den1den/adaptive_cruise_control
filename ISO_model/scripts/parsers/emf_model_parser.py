@@ -3,16 +3,19 @@ import re
 
 import sys
 
+from ISO_model.scripts.lib.util import re_match_nonoverlap
 from ISO_model.scripts.parsers.parser import Parser
 
 
 class EmfModelParser(Parser):
+    re_annotation = re.compile('@(\w+)\s*')
     re_namespace = re.compile(r'@namespace\(.*\)')
     re_comment_block = re.compile(r'/\*(?:(?:[^*])|(?:\*[^/]))*\*/')
     re_comment = re.compile(r'//.*$', re.MULTILINE)
     re_package = re.compile(r'package \w+;')
     re_class = re.compile(r'(abstract )?class (\w+)\s*(?:extends (\w+)\s*)?{([^}]*)}')
     re_statement = re.compile(r'\s*([^;]*)\s*;')
+    re_attribute = re.compile(r'\s*((?:\w+\s+)*)(?:attr|val|ref)\s+(.*)')
     re_enum = re.compile(r'enum (\w+)\s*{\s*([^}]*)}')
     re_enum_statements = re.compile(r'(\w+);\s*')
 
@@ -83,6 +86,10 @@ class EmfModelParser(Parser):
         self._doc_str = self._doc_str[m.end():]
 
     def _match_class(self):
+        m = EmfModelParser.re_annotation.match(self._doc_str)
+        if m:
+            # ignore annotations
+            self._doc_str = self._doc_str[m.end():]
         m = EmfModelParser.re_class.match(self._doc_str)
         if not m:
             return None
@@ -102,12 +109,23 @@ class EmfModelParser(Parser):
 
     def _match_class_contents(self, class_name, txt):
         self.atts.setdefault(class_name, {})
-        for m in EmfModelParser.re_statement.finditer(txt):
-            statement = m.group(1).split(' ')
-            ignored = statement[:-2]
-            a_type = statement[-2]
-            a_name = statement[-1].split('=')[0]
-            self.atts[class_name][a_name] = a_type
+        for line in txt.split('\n'):
+            for m in re_match_nonoverlap(EmfModelParser.re_statement, line):
+                statement = m.group(1)
+                m = EmfModelParser.re_attribute.match(statement)
+                if m is None:
+                    raise AssertionError("Wrongly formatted class attribute def: `%s`" % statement)
+                modifiers = m.group(1)
+                att_def = m.group(2).split(' ')
+                if len(att_def) == 1:
+                    att_def = att_def[0].split(']')
+                    att_def[0] += ']'
+                if len(att_def) < 2:
+                    raise AssertionError("Wrongly formatted class attribute def: `%s` -> `%s`" % (statement, att_def))
+                ignored = att_def[:-2]
+                a_type = att_def[0]
+                a_name = att_def[1].split('=')[0]
+                self.atts[class_name][a_name] = a_type
 
     def _match_enum(self):
         m = EmfModelParser.re_enum.match(self._doc_str)
@@ -163,7 +181,7 @@ class EmfModelParser(Parser):
             for key, val in json.load(open(i_file)).items():
                 interpretation_json.setdefault(key, {}).update(val)
 
-        check = True
+        conform = True
         for class_name, atts in self.atts.items():
 
             if self.class_is_subclass_of(class_name, 'Artifact'):
@@ -171,14 +189,15 @@ class EmfModelParser(Parser):
 
             if len(atts) == 0:
                 if class_name not in interpretation_json['model_refs']:
-                    print('Emfatic file has an class which is never referenced: %s' % class_name)
-                    check = False
+                    if not self.class_is_subclass_of(class_name, 'Check'):
+                        print('Emfatic file has an class which is never referenced: %s' % class_name)
+                        conform = False
             for att_name, att_class in atts.items():
                 att_ref = class_name + '.' + att_name
                 if att_ref not in interpretation_json['model_refs']:
                     print('Emfatic file has un interpreted attribute: %s' % att_ref)
-                    check = False
-        return check
+                    conform = False
+        return conform
 
     emf_model_for_scheme = None
 
@@ -234,7 +253,7 @@ def main():
         return
 
     emf_model = EmfModelParser()
-    #emf_model.load(r'/home/dennis/Dropbox/0cn/data_models/model/project/project_model.emf')
+    # emf_model.load(r'/home/dennis/Dropbox/0cn/data_models/model/project/project_model.emf')
     emf_model.load(r'/home/dennis/Dropbox/0cn/data_models/model/project/fsc_project_model.emf')
     emf_model.parse()
     if not emf_model.check_conforms():

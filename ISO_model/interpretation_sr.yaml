@@ -1,0 +1,196 @@
+context:
+  model_files: ['data_models/model/project/sr.emf']
+  file_test_instances: ['data_models/model/acc/test.model']
+  evl_output_file: 'data_models/model/project/sr.evl'
+  json_output_file: 'ISO_model/generated/interpretation_sr.json'
+requirements:
+  0-1:
+    classification: [from_dennis]
+    pr_model: [Check, Enum, Enum.name, Enum.value]
+    status: assumed
+  3-7:
+    classification: [from_arash]
+    pr_model: [SafetyGoal, ASIL, FaultTolerantTimeInterval, OperatingMode, SafeState, System, Item, EmergencyOperationInterval, TimeInterval, SafetyRequirement, HazardousEvent,
+    SafetyGoal.asil, SafetyGoal.fttts, SafetyGoal.safe_states, Item.safety_goals, Item.operating_modes,
+    Item.asil]
+    status: assumed
+  8-6.1:
+    classification: [structure_intro]
+    pr_model:
+    - SafetyRequirement
+    status: gen
+  8-6.2:
+    classification: [structure_intro]
+    pr_model:
+    - RequirementLevel
+    - SafetyRequirement.derrived_from
+    - SafetyRequirement.level
+    ignored: "the use of suitable requirements management tools is recommended"
+    status: gen
+  8-6.3:
+    classification: [clause_input]
+    ignored: "Safety plan"
+    status: gen
+  8-6.4.1.1:
+    classification: [structure, ocl]
+    pr_model:
+    - RequirementNotationStyle
+    - SafetyRequirement.description
+    - SafetyRequirement.notation
+    ocl:
+      ++:
+      - c: SafetyRequirement
+        ts:
+        - guard: self.asil IS_ASIL_A_OR_B
+          t: self.notation=RequirementNotationStyle.informal
+        - guard: self.asil IS_ASIL_C_OR_D
+          t: self.notation=RequirementNotationStyle.semi_formal
+      +:
+      - c: SafetyRequirement
+        ts:
+        - guard: self.asil IS_ASIL_C_OR_D
+          t: self.notation=RequirementNotationStyle.informal
+        - guard: self.asil IS_ASIL_A_OR_B
+          t: self.notation=RequirementNotationStyle.semi_formal
+        - guard: self.asil IS_ASIL_A_OR_B_OR_C_OR_D
+          t: self.notation=RequirementNotationStyle.formal
+    status: gen
+  8-6.4.2.1:
+    classification: [structure, non_model]
+    pr_model:
+    - SafetyRequirement.req_id
+    status: gen
+  8-6.4.2.2:
+    # duplicate found: ASIL of safety goals should define the safety requirement ASILs, so the note is redundant
+    classification: [ocl]
+    pr_model:
+    - SafetyRequirement.asil
+    - SafetyRequirement.derrived_from
+    ocl:
+      satisfies:
+        - c: SafetyRequirement
+          ts:
+          - t: self.derrived_from.forAll(p|p.asil = self.asil)
+          # Unsatisfyable, because an safety requirment can be inherited from two different Safety Goals with different
+          # ASIL levels, So if 'inherit' means copy it cannot be true. However if inherit means maximal, then it could be valid
+            fix:
+              title: "Set the asil to the same as a random parent"
+              action: self.asil=self.parent.random().asil
+    status: todo # todo: add fix
+  8-6.4.2.3:
+    classification: [structure]
+    pr_model:
+    - SafetyRequirement.allocated_to_element
+    - SafetyRequirement.allocated_to_item
+    ocl:
+      satisfies:
+        - c: SafetyRequirement
+          t: self.allocated_to_element.isDefined() or self.allocated_to_item.isDefined()
+    status: gen
+  8-6.4.2.4.a: {status: gen,classification:[ocl],
+    ocl: {satisfies:[{c: SafetyRequirement, ts: [CHECK unambiguous, CHECK comprehensible]}]}}
+  8-6.4.2.4.b: {status: gen,classification:[ocl],
+    ocl: {satisfies:[{c: SafetyRequirement, t: CHECK atomic}]}}
+  8-6.4.2.4.c: {status: gen,classification:[ocl],
+    ocl: {satisfies:[{c: SafetyRequirement, t: CHECK internally_consistent}]}}
+  8-6.4.2.4.d: {status: gen,classification:[ocl],
+    ocl: {satisfies:[{c: SafetyRequirement, t: CHECK feasible}]}}
+  8-6.4.2.4.e: {status: gen,classification:[ocl],
+    ocl: {satisfies:[{c: SafetyRequirement, t: CHECK verifiable}]}}
+  8-6.4.2.5.a:
+    classification: [structure]
+    pr_model:
+    - SafetyRequirement
+    ocl:
+      structure:
+      - c: SafetyRequirement
+        t: /* implied by unique attribute */ SafetyRequirement.all().forAll(sr|sr.req_id=self.req_id implies self=sr)
+    status: gen
+  8-6.4.2.5.b:
+    classification: [structure]
+    pr_model:
+    - SafetyRequirement.status
+    status: gen
+  8-6.4.2.5.c:
+    classification: [structure]
+    pr_model:
+    - SafetyRequirement.asil
+    status: gen
+
+  # 6.4.3 Management of safety requirements
+  8-6.4.3.1.a:
+    classification: [structure, ocl]
+    pr_model:
+    - RequirementLevel
+    - SafetyRequirement.level
+    - SafetyRequirement.derrived_from
+    pre:
+    - ENUM_DEF RequirementLevel SG 3, FSR 2, TSR 1, SSR 0, HSR 0
+    - ASSERT enumGeq( ENUM_EL RequirementLevel SG  , ENUM_EL RequirementLevel FSR ) MESSAGE Order relation is not well defined on enums
+    - ASSERT enumEq ( ENUM_EL RequirementLevel SSR , ENUM_EL RequirementLevel HSR ) MESSAGE Order relation is not well defined on enums
+    - ASSERT enumGeq( ENUM_EL RequirementLevel SG  , ENUM_EL RequirementLevel TSR ) MESSAGE Order relation is not well defined on enums
+    ocl:
+      satisfies:
+      - name: SR_level_respects_hierachy
+        c: SafetyRequirement
+        t: self.derrived_from.forAll(parent | parent.level >= self.level)
+        message: Derrive relation should respect the structural hierarchy
+    status: gen
+  8-6.4.3.1.b:
+    classification: [structure, ocl]
+    pr_model:
+    - SafetyRequirement.group
+    - RequirementGroup
+    ocl:
+     satisfies:
+     - c: RequirementGroup
+       t:
+       - var rqs = SafetyRequirement.all().select(sr|sr.group=self);
+       - if(rqs.isEmpty()){return true;}
+       - var group_level = rqs.random().level;
+       - return rqs.forAll(sr|sr.level=group_level);
+    status: gen
+  8-6.4.3.1.c:
+    classification: [ocl]
+    pr_model:
+    - SafetyRequirement.level
+    - SafetyRequirement.derrived_from
+    ocl:
+      satisfies:
+      - c: RequirementLevel  # check each Level
+        guard: self.value < ENUM_VAL RequirementLevel SG
+        ts:
+        - t: CHECK all_reqs_cover_parent
+    status: gen
+  8-6.4.3.1.d:
+    classification: [ocl]
+    assumed: Constradiction of requirements will only happen on the same level
+    ocl:
+      satisfies:
+      - c: SafetyRequirement
+        t: CHECK contradicts_another
+    status: gen
+  8-6.4.3.1.e:
+    classification: []
+    status: ignored
+  8-6.4.3.1.f:
+    classification: []
+    status: ignored
+  8-6.4.3.2:
+    classification: [ocl]
+    pr_model:
+    - SafetyRequirement.derrived_from
+    ocl:
+      satisfies:
+      - c: SafetyRequirement
+        ts:
+        - name: SR_in_hierachy
+          guard: enumLess(self.level, ENUM_EL RequirementLevel SG)
+          t: not self.derrived_from.isEmpty()
+        - name: SR_covers_elements
+          guard: not SafetyRequirement.all().exists(sr|sr.derrived_from.contains(self)) // Only lowest requirements
+          t: self.allocated_to_element.isDefined()
+    status: gen
+#  8-6.TEMPLATE:
+#    classification: [structure]
+#    status: todo

@@ -86,7 +86,7 @@ requirements:
       warning:
       - c: SafeState
         # SafeState transitions should be specified but it is not denoted that they should exists
-        t: SafeState.transition_to.length() > 0 and SafeState.transition_from.length() > 0
+        t: self.transition_to.length() > 0 and self.transition_from.length() > 0
       satisfies:
       - c: TechnicalStateTransition
         guard: SafeState.all().exists(s | s.transition_to.includes(self) or s.transition_from.includes(self))
@@ -100,6 +100,7 @@ requirements:
     - SafeState.emergency_operation
     - SwitchOffTransition
     - TechnicalStateTransition.duration
+    - TimeInterval.direct
     ocl:
       satisfies:
       - c: SafeState

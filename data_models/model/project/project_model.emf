@@ -3,17 +3,6 @@
 // This document contains the model for elements of the project
 package project_model;
 
-class Project{
-	attr ProjectType[1] type;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Dummy and tests 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class TestItem {
-	val CheckTextContains[1] c__my_check;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Techincal elements (Iso defined)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +44,7 @@ class Item {
 }
 class Requirement {
 	attr String[1] rId;
-	attr RequirementSuperType[1] type;
+	attr RequirementType[1] type;
 	attr RequirementSubType[0..1] type2;
 	attr RequirementSource[0..1] related_to;
 }
@@ -96,7 +85,8 @@ class Unidentified extends Artifact {
 // With the descriptions of notation used
 // Note that the exact meaning should be in the requirements, only an plausible distinction shoule be made with the naming of the attribute
 abstract class Check{
-	attr Boolean[1] checked = false;
+	attr String[1] description;
+	attr Boolean[1] validated = false;
 }
 class CheckComplete extends Check {
 	// Checks if all elements in an attribute are complete.
@@ -108,15 +98,11 @@ class CheckTextContains extends Check {
 	// Check if some text contains a required specification
 	// <String attribute[1]>__contains__<<Aspect>>
 }
-/*class CheckFilled extends Check {
-	attr String[1] attribute_name;
-	ref Object[1] attribute_eq_value;
-}*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Project structure elements
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-enum RequirementSuperType {
+enum RequirementType {
 	functional; non_functional; legal;
 }
 enum RequirementSubType {
@@ -148,5 +134,10 @@ enum IsoConcept {
 	management_of_safety_requirements;
 }
 enum ASIL {
-	QM;A;B;C;D;
+	QM; A; B; C; D;
+	QM_A; QM_B; QM_C; QM_D;
+	A_A; A_B; A_C; A_D;
+	B_B; B_C; B_D;
+	C_C; C_D;
+	D_D; 
 }
