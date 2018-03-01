@@ -1,20 +1,15 @@
+# Parses requirements form the use case
 import json
-import os
 import sys
 
 import yaml
 from jsonschema import validate
 
 from ISO_model.scripts.generators.md_generator import MdGenerator
-from ISO_model.scripts.lib.util import dict_poll_update, dict_update, dict_set_default
+from ISO_model.scripts.lib.util import dict_poll_update, dict_set_default
 from ISO_model.scripts.parsers.parser import Parser
-from ISO_model.scripts.schemes.project_model.safety_requirement_scheme import RequirementsSpecFile, \
+from scripts.schemes.uc_safety_requirement import RequirementsSpecFile, \
     NormalRequirementSpec, RequirementsListFile, NormalRequirementStrict
-from acc_project.scripts.asil import Asil
-
-requirement_types = yaml.safe_load(open(
-    os.path.join(os.path.dirname(__file__), '../aux_definitions/requirement_types.yaml')
-))
 
 
 def pop(dic: dict, key: str, default=None):
@@ -48,6 +43,8 @@ class ProjectRequirementParser(Parser):
 
     def parse(self):
         for file_name, d in self.input:
+            if 'requirements' not in d:
+                raise AssertionError("'requirements' key missing in "+file_name)
             self._parse_reqs(d['requirements'], {
                 'allocated_to': [],
                 'notation': 'informal',
@@ -66,6 +63,9 @@ class ProjectRequirementParser(Parser):
             req['req_id'] = req_id
             if type(req['allocated_to']) is not list:
                 req['allocated_to'] = [req['allocated_to'], ]
+            if 'note' in req:
+                req['description'] += '\n\n'+req['note']
+                del req['note']
 
             if parent:
                 req.setdefault('parent', parent['req_id'])
@@ -110,20 +110,36 @@ class ProjectRequirementParser(Parser):
             del rs[nxt]
             md.close_quote()
 
-
         md.close()
-
 
     def log_error(self, msg, req_dict, *params):
         self.errors.append("%s\n\tat %s" % (msg % params, req_dict,))
 
 
-if __name__ == '__main__':
+def main():
     p = ProjectRequirementParser()
-    p.load('/home/dennis/Dropbox/0cn/acc_project/requirements/functional_requirements.yaml')
+    if len(sys.argv) > 1:
+        for f in sys.argv[1:]:
+            if f.endswith('.yaml'):
+                p.load(f)
+        p.parse()
+        for f in sys.argv[1:]:
+            if f.endswith('.json'):
+                p.to_json(f)
+            elif f.endswith('.md'):
+                p.to_md(f)
+        return
+
+    p.load('acc_project/requirements/functional_requirements.yaml')
+    p.validate()
     p.parse()
-    p.to_json('/home/dennis/Dropbox/0cn/generated/requirements.json')
-    p.to_md('/home/dennis/Dropbox/0cn/generated/requirements.md')
+    p.validate_output()
+    p.to_json('generated/requirements.json')
+    p.to_md('generated/requirements.md')
+
+
+if __name__ == '__main__':
+    main()
 
 
 def print_errors(errors):

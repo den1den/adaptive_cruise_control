@@ -1,11 +1,8 @@
 import datetime
-import os
-import re
 import sys
 
 from ISO_model.scripts.generators.eol_generator import EolGenerator
 from ISO_model.scripts.lib.util import iter_list_or_single
-from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 
 
 class EvlGenerator(EolGenerator):

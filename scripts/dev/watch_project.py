@@ -2,7 +2,6 @@ import json
 import math
 import operator
 import os
-import subprocess
 import time
 from functools import reduce
 from shutil import move
@@ -14,10 +13,9 @@ from PIL import Image
 from watchdog import events
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-from yaml.scanner import ScannerError
 
-from acc_project.requirement_checking import process_srs
-from scripts.dot_template_renderer import dot_to_png
+from scripts_old.requirement_checking import process_srs
+from scripts.dev.dot_template_renderer import dot_to_png
 
 
 class FileExtEventHandler(FileSystemEventHandler):

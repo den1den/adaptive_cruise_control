@@ -118,7 +118,7 @@ class EmfModelParser(Parser):
                 modifiers = m.group(1)
                 att_def = m.group(2).split(' ')
                 if len(att_def) == 1:
-                    att_def = att_def[0].split(']')
+                    att_def = str(att_def[0]).split(']')
                     att_def[0] += ']'
                 if len(att_def) < 2:
                     raise AssertionError("Wrongly formatted class attribute def: `%s` -> `%s`" % (statement, att_def))

@@ -1,17 +1,15 @@
-import os
 import yaml
 
-from acc_project.scripts.asil import Asil
-
-external_systems = yaml.safe_load(open(
-    os.path.join(os.path.dirname(__file__), '../aux_definitions/external_systems.yaml')
-))
+from scripts.models.asil import Asil
 
 
 class Requirement:
     """
-    A requirement (with its dependency tree)
+    A Use Case requirement (with its dependency tree)
     """
+    value_classes = yaml.safe_load(open('acc_project/aux_definitions/classes.yaml'))
+    external_systems = yaml.safe_load(open('acc_project/aux_definitions/external_systems.yaml'))
+    requirement_types = yaml.safe_load(open('acc_project/aux_definitions/requirement_types.yaml'))
 
     def __init__(self, requirement_dict, filename):
         # requirement_parent
@@ -57,7 +55,7 @@ class Requirement:
             return "%s" % (self.requirement['id'],)
 
     def is_of_external(self):
-        for ext_level, ext_assigned_to in external_systems:
+        for ext_level, ext_assigned_to in Requirement.external_systems:
             if self.requirement['level'] == ext_level and \
                     self.requirement['assigned_to'] == ext_assigned_to:
                 return True

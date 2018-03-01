@@ -2,7 +2,7 @@ import json
 
 from jsl import DocumentField
 
-from ISO_model.scripts.schemes.schemes import *
+from scripts.schemes.schemes import *
 
 REQUIREMENT_LEVELS = ['SG', 'FSR', 'TSR', 'HSR', 'SSR']
 
@@ -34,11 +34,13 @@ class RequirementsListFile(DictField):
 
 class NormalRequirementSpec(jsl.Document):
     description = String(required=False)
+    note = String(required=False)
     allocated_to = SingleOrArray(String(), required=False)
     req_class = String(required=False)
     children = ChildrenInDocumentField()
     parent = String(required=False)
     notation = String(required=False)
+    asil = String(required=False)
 
 
 class NormalRequirementStrict(jsl.Document):
@@ -48,6 +50,7 @@ class NormalRequirementStrict(jsl.Document):
     allocated_to = ArrayField(String())
     parent = String(required=False)
     notation = String()
+    asil = String(required=False)
 
     requirement_file = String()
     requirement_type = String()
@@ -91,13 +94,13 @@ class SafetyRequirementStrict(jsl.Document):
 
 if __name__ == '__main__':
     s = RequirementsSpecFile(SafetyRequirementSpec).get_schema()
-    json.dump(s, open('/home/dennis/Dropbox/0cn/ISO_model/generated/safety_requirement_spec_scheme.json', 'w+'))
+    json.dump(s, open('generated/schemes/safety_requirement_spec_scheme.json', 'w+'))
 
     s = RequirementsListFile(SafetyRequirementStrict).get_schema()
-    json.dump(s, open('/home/dennis/Dropbox/0cn/ISO_model/generated/safety_requirement_strict_scheme.json', 'w+'))
+    json.dump(s, open('generated/schemes/safety_requirement_strict_scheme.json', 'w+'))
 
     s = RequirementsSpecFile(NormalRequirementSpec).get_schema()
-    json.dump(s, open('/home/dennis/Dropbox/0cn/ISO_model/generated/normal_requirement_spec_scheme.json', 'w+'))
+    json.dump(s, open('generated/schemes/normal_requirement_spec_scheme.json', 'w+'))
 
     s = RequirementsListFile(NormalRequirementStrict).get_schema()
-    json.dump(s, open('/home/dennis/Dropbox/0cn/ISO_model/generated/normal_requirement_strict_scheme.json', 'w+'))
+    json.dump(s, open('generated/schemes/normal_requirement_strict_scheme.json', 'w+'))

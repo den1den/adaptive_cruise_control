@@ -1,7 +1,11 @@
+from datetime import datetime
+
+
 class MdGenerator:
     def __init__(self, out) -> None:
         self.indent = ''
         self.out = out
+        print('<!-- Generated at %s -->\n' % datetime.now(), file=self.out)
 
     def _print(self, text):
         print(self.indent + (' ' if len(self.indent) > 0 else '') + text, file=self.out)
@@ -27,7 +31,8 @@ class MdGenerator:
         self.indent = self.indent.rstrip('>')
 
     def p(self, text):
-        self._print(text)
+        for l in text.split('\n'):
+            self._print(l)
         self.br()
 
     def br(self):

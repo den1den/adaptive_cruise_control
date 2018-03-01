@@ -1,5 +1,5 @@
 import json
-from .schemes import *
+from scripts.schemes.schemes import *
 
 
 class WorkProduct(jsl.Document):

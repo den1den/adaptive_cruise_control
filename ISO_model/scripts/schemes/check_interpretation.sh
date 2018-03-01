@@ -16,13 +16,13 @@ interpretation_scheme=ISO_model/generated/${filename}_scheme.json
 echo "# building the context scheme"
 python ISO_model/scripts/schemes/context_scheme.py ${context_scheme} || exit 1
 echo "# check against context scheme"
-ISO_model/scripts/schemes/pajv.sh -s ${context_scheme} -d $1 || exit 2
+scripts/dev/pajv.sh -s ${context_scheme} -d $1 || exit 2
 
 echo "# build the interpretation scheme"
 python ISO_model/scripts/schemes/interpretation_scheme.py $1 ${interpretation_scheme} || exit 3
 
 echo "# check against interpretation scheme"
-ISO_model/scripts/schemes/pajv.sh -s ${interpretation_scheme} -d $1 || exit 4
+scripts/dev/pajv.sh -s ${interpretation_scheme} -d $1 || exit 4
 
 echo "# parse the interpretation file to json"
 python ISO_model/scripts/parsers/interpretation_parser.py $1 || exit 4

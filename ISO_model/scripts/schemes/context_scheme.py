@@ -1,7 +1,7 @@
 import json
 import sys
 
-from ISO_model.scripts.schemes.schemes import *
+from scripts.schemes.schemes import *
 
 
 class ContextScheme(DictField):

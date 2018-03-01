@@ -1,6 +1,8 @@
 from functools import total_ordering
 from json import JSONEncoder
 
+import sys
+
 ASILS = (
     ('D', 'D'),
     ('C', 'C'),
@@ -26,7 +28,7 @@ class Asil:
         self.asil = len(ASILS) - 1
 
     def __eq__(self, o: object) -> bool:
-        return self.asil == o.asil
+        return isinstance(o, Asil) and self.asil == o.asil
 
     def __lt__(self, other):
         return self.asil > other.asil

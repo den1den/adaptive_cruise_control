@@ -2,13 +2,9 @@ import json
 import re
 import sys
 
-import os
 import yaml
 from jsonschema.validators import validate as json_scheme_validate
-from nltk.chunk import regexp
 
-from ISO_model.scripts.generators.evl_generator import InterpretationEVLGenerator
-from ISO_model.scripts.generators.md_generator import MdGenerator
 from ISO_model.scripts.lib.util import dict_poll, dict_val_to_array, dict_poll_all_if_present, dict_remove_if_empty_list
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
 from ISO_model.scripts.parsers.iso_text_parser import IsoTextParser

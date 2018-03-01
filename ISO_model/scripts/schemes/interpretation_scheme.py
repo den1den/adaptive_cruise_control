@@ -6,7 +6,7 @@ import yaml
 
 from ISO_model.scripts.lib.util import dict_update
 from ISO_model.scripts.parsers.emf_model_parser import EmfModelParser
-from ISO_model.scripts.schemes.schemes import *
+from scripts.schemes.schemes import *
 
 RequirementClassifications = (
     'from_dennis',  # virtual requirement for the creation of checking and auxiliary instantiations

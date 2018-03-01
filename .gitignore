@@ -33,3 +33,6 @@ Link to *
 !/data_models/model/iso/requirements/*.evl
 !/data_models/model/project/fsc.evl
 /ISO_model/text/
+/generated/
+!/generated/project/project_requirements.md
+**/.~lock*

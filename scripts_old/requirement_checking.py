@@ -7,15 +7,11 @@ import sys
 
 import yaml
 
-from acc_project.safety_goals_checking import get_safety_goals
-from acc_project.scripts.asil import Asil
-from acc_project.scripts.requirement import make_dep_tree, Requirement
-from acc_project.scripts.requirement_parser import ProjectRequirementParser, print_errors
-from scripts.dot_template_renderer import yaml_and_template_to_dot, template_to_dot, template_to_png
-
-value_classes = yaml.safe_load(open(
-    os.path.join(os.path.dirname(__file__), 'aux_definitions/classes.yaml')
-))
+from scripts_old.safety_goals_checking import get_safety_goals
+from scripts.models.asil import Asil
+from scripts.models.requirement import make_dep_tree, Requirement
+from scripts.parsers.requirement_parser import ProjectRequirementParser, print_errors
+from scripts.dev.dot_template_renderer import template_to_png
 
 
 class Checker:
@@ -34,17 +30,18 @@ class Checker:
 
     def load_yaml(self, yaml_filename):
         l0 = len(self.parser.errors)
-        self.parser.parse(yaml_filename)
+        self.parser.load(yaml_filename)
         success = len(self.parser.errors) == l0
         if success:
             print("Loaded in %s" % yaml_filename)
         return success
 
     def run(self):
+        self.parser.parse()
         if len(self.parser.errors) > 0:
             print_errors(self.parser.errors)
             return False
-        self.reqs = self.parser.output
+        self.reqs = self.parser.requirements
         self.usage_check()
         self.simple_check()
         if self.check_parents():
@@ -100,12 +97,12 @@ class Checker:
         if value not in r.requirement['text']:
             self.log_error("Used value `%s` missing in text `%s`", r,
                            value, r.requirement['text'])
-        if v_type not in value_classes:
+        if v_type not in Requirement.value_classes:
             self.log_error("Type `%s` is not defined in `%s`", r,
-                           v_type, value_classes.keys())
+                           v_type, Requirement.value_classes.keys())
             return
 
-        class_spec = value_classes.get(v_type) or {}
+        class_spec = Requirement.value_classes.get(v_type) or {}
         if class_spec.get('super', '').lower() in ('real', 'float', 'cecimal'):
             if not value.isdecimal():
                 return self.log_error("Value should be digit, instead of `%s`", r, value)
