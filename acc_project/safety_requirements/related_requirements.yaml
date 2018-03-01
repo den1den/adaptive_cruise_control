@@ -1,0 +1,12 @@
+#
+# These safety requirements are form other items
+#
+requirements_type: related
+requirements:
+  default:
+    allocated_to: ACC
+    asil: C
+  ACC_RR_always_acc:
+    description: Acceleration of the car should always be possible when driving
+  ACC_RR_always_dcc:
+    description: Deceleration of the car should always be possible when driving

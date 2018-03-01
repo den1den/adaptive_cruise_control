@@ -1,0 +1,25 @@
+#
+# These safety requirements are for elements outside of this item
+#
+requirements_type: external_safety_requirements
+requirements:
+  EXTSR_CAN_random_losses:
+    allocated_to: CAN_network
+    description: A message in the CAN network can randomly fail with a propability of 0.01%
+    asil: D
+  EXTSR_CAN_takeover:
+    allocated_to: CAN_network
+    description: A message in the CAN network will be taken over by a message with a higher priority
+    asil: D
+  EXTSR_CAN_no_takeover:
+    allocated_to: CAN_network
+    description: In a CAN bus network without loops it is not possible to have a message arrive in a different order between two CAN interfaces
+    asil: D
+  EXTSR_velocity_calc_correct:
+    allocated_to: CarSpeed system
+    description: The velocity calculation will always return either a negative magnitude or a correct value (within 2 km/h 99% confidence interval)
+    asil: D
+  EXTSR_Dashboard_no_cluttering:
+    allocated_to: DashboardGPU system
+    description: A priority based mesaging system is used to display messages on the users dashboard to avoid cluttering
+    asil: QM

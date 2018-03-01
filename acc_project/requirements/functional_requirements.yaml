@@ -1,57 +1,92 @@
-functional_requirements:
-  default:
-    level: system
-    assigned_to: ACC
-  ACC_FR_1:
-    text: The ACC can be in three states; Off, Active or Standby
-    values_used:
-    - type: ACC_State
-      value: 'Off'
-    - value: 'Active'
-    - value: 'Standby'
-    children_requirements:
-      ACC_FR_1.1:
-        assigned_to: ACC_Control
-        level: sw_unit
-        text: The ACC_Control unit keeps track of the states in memory
-      ACC_FR_1.2:
-        assigned_to: ACC_Buttons
-        level: hw_unit
-        text: The user presses buttons on the ACC_Control unit to change the state
-  ACC_FR_2:
-    text: Only throttle is used to control the cars speed
-    children_requirements:
-      ACC_FR_2.1:
-        assigned_to: ACC_Control
-        level: sw_unit
-        text: The to apply thottle is is calculated every 10 us
-        values_used:
-        - type: Microseconds
-          value: 10
-  ACC_FR_3:
-    text: The user must be able to set the cars maximal target_speed
-    values_used:
-    - type: InternalVariable
-      value: target_speed
-  ACC_FR_4:
-    text: The user must be able to set the cars maximal _target_distance_ from the vehicle in front of the car
-    values_used:
-    - type: InternalVariable
-      value: target_distance
-  ACC_FR_3-4.1:
-    level: component
-    assigned_to: ACC_Buttons
-    text: The user presses buttons to set the _target_speed_ and _target_distance_
-    requirement_parent: [ACC_FR_3, ACC_FR_4]
-    values_used:
-    - type: InternalVariable
-      value: target_speed
-    - value: target_distance
-  ACC_FR_3-4.2:
-    level: sw_unit
-    assigned_to: ACC_Control
-    text: The ACC system will try to keep the car at the _target_distance_, while not violating the _target_speed_
-  ACC_FR_3-4.3:
-    level: sw_unit
-    assigned_to: ACC_Control
-    text: The ACC system will try to keep the _target_speed_ while not violating the _target_distance_
+requirements_type: functional
+requirements:
+  default: {}
+
+  ACC_FR_states:
+    description: The ACC is in one of three states; Off, Active or Standby
+    allocated_to: ACC
+    children:
+    - default:
+        allocated_to: ACC_Buttons
+        req_class: ui
+      ACC_FR_states_1:
+        description: The __ACC_Buttons component__ can receive a button press which changes the state of the ACC to Active
+      ACC_FR_states_2:
+        description: The __ACC_Buttons component__ can receive a button press which changes the state of the ACC to Standby
+      ACC_FR_states_3:
+        description: The __ACC_Buttons component__ can receive a button press which changes the state of the ACC to Off
+      ACC_FR_states_display_local:
+        description: The __ACC_Buttons component__ should display the state changes of the __ACC item__ on the __ACC_Display actuator__
+      ACC_FR_states_4:
+        description: The __ACC_Buttons component__ sends the user request of a state change to the __ACC_Control component__ and __EngineControl system__ via the `cnfState(s)` message
+        req_class: com
+  ACC_FR_states_display_dashboard:
+    allocated_to: ACC
+    description: The __ACC item__ should send state changes to the __DashboardGPU system__
+
+  ACC_FR_config_var_td:
+    description: The ACC keeps track of the `target_distance`, which denotes the targeted distance in meters from the vehicle in front of the car
+    allocated_to: ACC
+  ACC_FR_config_var_ts:
+    description: The ACC keeps track of the `target_speed`, which denotes the targeted speed which the car should reach
+    allocated_to: ACC
+  ACC_FR_config_ui:
+    description: The __ACC_Buttons component__ contains buttons to enable the user to increment and decrement the `target_distance` and `target_speed`
+    allocated_to: ACC_Buttons
+    req_class: ui
+  ACC_FR_config_comm:
+    description: The __ACC_Buttons component__ sends changes in the `target_speed` and `target_distance` to the __ACC_Control component__
+    allocated_to: ACC_Buttons
+    req_class: comm
+
+  ACC_FR_actuate_acc:
+    description: The __ACC_Control component__ controls the cars throttle by sending `setAccAcceleration(v)` messages to the __EngineControl system__
+    allocated_to: ACC_Control
+    req_class: com
+  ACC_FR_actuate_break:
+    description: The __ACC_Control component__ controls the cars breaking by sending `setAccBreaking(v)` messages to the __BreakingControl system__
+    allocated_to: ACC_Control
+    req_class: com
+  ACC_FR_sensor_motion:
+    description: The __ACC_Control component__ receives information about the motion of the car via the `motionMsg(s)` message from the __CarSpeed system__
+    allocated_to: ACC_Control
+    req_class: com
+
+  ACC_FR_control_1:
+    description: The ACC will try to keep the vehicle at the `target_distance` from the nearest object in front, while not violating the `target_speed`
+    allocated_to: ACC_Control
+  ACC_FR_control_2:
+    description: The ACC will try to keep the `target_speed` of the vehicle while not violating the `target_distance`
+    allocated_to: ACC_Control
+
+  ACC_FR_obstacle_detection:
+    # The obstacle detection system is an external system and outside the scope of this item.
+    # Only the interface to the item is written down as requirements.
+    # It's based on: Hane, C., Sattler, T., & Pollefeys, M. (2015). Obstacle detection for self-driving cars using only monocular cameras and wheel odometry. In 2015 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) (pp. 5101–5108). IEEE. https://doi.org/10.1109/IROS.2015.7354095
+    # The following assumptions are made on the external systems behavior:
+    # - When calculating the speed of an object it is assumed that the yaw of the car does not change.
+    # - When multiple objects are detected at the same time the objects must be send ordered by proximity. (closest first).
+    # - Every object that is detected gets an unique ID
+    # - When the system is sure an object has left from the front of the car.
+    #   That is it either is to far to detect or not on collision course with the car anymore regarding the current movement of the car.
+    #   It will be send that the object has disappeared.
+    # - When an object has disappeared the object its ID can be used again
+    description: The __ACC_Control component__ receives messages from the __ObstacleDetector system__ to determine the distance to the obstacle in front of the car.
+    allocated_to: ACC_Control
+    children:
+      default:
+        req_class: comm
+      ACC_FR_obstacle_detection_1:
+        description: The __ACC_Control component__ receives the `objUpdateMsg(id, d, s)` message when an obstace has appeared in front of the car. The object has distance `d` to the car and speed `s` relative to the car.
+      ACC_FR_obstacle_detection_2:
+        description: The __ACC_Control component__ receives the `objUpdateMsg(id, d, s)` on for each object which is in front of the car
+      ACC_FR_obstacle_detection_3:
+        description: The __ACC_Control component__ receives the `objDisappearedMsg(id)` when an object has disappeared in front of the car
+      ACC_FR_obstacle_detection_4:
+        description: The __ACC_Control component__ receives the `obstacleDetectorState(Unreliable)` when the __ObstacleDetector system__ can no longer detect any objects
+      ACC_FR_obstacle_detection_5:
+        description: The __ACC_Control component__ receives the `obstacleDetectorState(Operational)` when the __ObstacleDetector system__ is able to detect objects
+        note: Note that this can thus happen after the initialization of the system or when the system recovers from an Unreliable state
+      ACC_FR_obstacle_detection_6:
+        description: The __ACC_Control component__ should only consider `objUpdateMsg` and `objDisappearedMsg` messages when the __ObstacleDetector system__ is in an Operational state
+        note: Note that this can cause a problem as the __ACC_Control component__ might not be aware of the state of the __ObstacleDetector system__ at all times

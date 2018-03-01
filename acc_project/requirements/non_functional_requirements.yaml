@@ -1,39 +1,24 @@
-non_functional_requirements:
-# These can be in functional
-#
-# These should be about: performance and quality
-# performace: It should reach the target speed in 2 seconds
-#
-#
+requirements_type: non_functional
+requirements:
   default:
-  ACC_NFR_1_obstacle_detect_delegates:
-    level: system
-    assigned_to: ACC
-    text: The ACC uses the _ObstacleDetector_ system to determine the distance to the obstacle in front of the car.
-    # It does not say much about the use so its vague.
-    references_used:
-    - name: ObstacleDetector
-      level: component
-  ACC_NFR_2_user_interaction:
-    level: item
-    assigned_to: ACC
-    text: The ACC the interacts with the user via the _SteeringWheel_ and _DashboardGPU_ system.
-    # It does not say much about the use so its vague.
-    references_used:
-    - level: system
-      name: SteeringWheel
-    - name: DashboardGPU
-  ACC_NFR_3_system_comm:
-    level: system
-    assigned_to: ACC
-    text: The ACC interacts with the rest of the system only via the _PowertrainBus_ CAN network
-    references_used:
-    - level: CAN_network
-      name: PowertrainBus
-  ACC_NFR_4_buttons_comm:
-    level: component
-    assigned_to: ACC_buttons
-    text: The ACC_buttons interacts with the rest of the system only via the _SteeringWheel_ system
-    references_used:
-    - level: system
-      name: SteeringWheel
+    allocated_to: ACC
+
+  ACC_NFR_communication:
+    description: Messages can be only be send and received in a component via internal memory
+    note: The communications item will then forward these messages twards an appropiate interface, if needed.
+
+  ACC_NFR_ui_configuration:
+    description: Configurational changes from the `target_speed` and `target_distance` are accumulated and only send to the rest system after 500 ms
+  ACC_NFR_ui_state_change:
+    description: State changes from the __ACC_Buttons component__ must be send directly
+
+  ACC_NFR_control_1:
+    description: The simulation model will be updated every 10 ms
+    allocated_to: ACC_Control
+  ACC_NFR_control_2:
+    description: The messages to the actuators will be send every 1 ms
+    allocated_to: ACC_Control
+
+  ACC_NFR_comform:
+    description: The `throttle` of the car should approach a constant speed if the car in front drives at a constant speed
+    note: The overal regulated speed stability is not addressed here but should become a safety requirement
